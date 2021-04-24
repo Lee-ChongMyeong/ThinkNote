@@ -1,0 +1,20 @@
+{
+  "name": "ThinkNote",
+  "version": "1.0.0",
+  "description": "노드최강 이소룡",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lee-ChongMyeong/ThinkNote.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lee-ChongMyeong/ThinkNote/issues"
+  },
+  "homepage": "https://github.com/Lee-ChongMyeong/ThinkNote#readme"
+}
