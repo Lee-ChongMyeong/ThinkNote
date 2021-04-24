@@ -17,7 +17,11 @@ const naverStrategy = new NaverStrategy(
 					email: profile.emails[0].value
 				},
 				async function (err, user) {
-					const nickname = await randomNickname();
+					let nickname = await randomNickname();
+					while (true) { // 닉네임 중복 방지
+						if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
+						else break;
+					}
 					if (!user) {
 						user = new User({
 							nickname: nickname,
