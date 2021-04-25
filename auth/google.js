@@ -11,7 +11,6 @@ const googleStrategy = new GoogleStrategy(
         callbackURL: '/auth/google/oauth'
     },
     function (accessToken, refreshToken, profile, done) {
-        console.log(profile)
         try {
             User.findOne(
                 {

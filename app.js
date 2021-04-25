@@ -22,6 +22,7 @@ app.use(
 		saveUninitialized: true,
 		store: MongoStore.create({
 			mongoUrl: `mongodb://${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
+			// mongoUrl: `mongodb://LKJ:sexycute@${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
 			ttl: 1000 * 60 * 60 * 24 * 30
 		}),
 		cookie: {
@@ -33,7 +34,6 @@ app.use(
 const passport = require('./auth/passport');
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use('/', require('./routers'));
 
 //listen
