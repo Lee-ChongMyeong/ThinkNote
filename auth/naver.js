@@ -14,19 +14,20 @@ const naverStrategy = new NaverStrategy(
 		try {
 			User.findOne(
 				{
-					email: profile.emails[0].value
+					socialId: profile.id
 				},
 				async function (err, user) {
-					let nickname = await randomNickname();
-					while (true) { // 닉네임 중복 방지
-						if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
-						else break;
-					}
 					if (!user) {
+						let nickname = await randomNickname();
+						while (true) {
+							// 닉네임 중복 방지
+							if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
+							else break;
+						}
 						user = new User({
 							nickname: nickname,
-							email: profile.emails[0].value,
-							provider: 'naver'
+							provider: 'naver',
+							socialId: profile.id
 						});
 						user.save(function (err) {
 							if (err) console.log(err);

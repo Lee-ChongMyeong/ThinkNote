@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const answerCard = new Schema({
+	questionId: { type: String },
 	contents: { type: String, required: true },
 	YYMMDD: { type: String },
 	userId: { type: String }
