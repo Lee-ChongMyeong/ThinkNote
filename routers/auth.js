@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('../auth/passport');
 
 router.get('/', (req, res) => {
-	res.send(`<a href='http://localhost:3000/auth/naver'>네이버 로그인</a>`);
+	res.send(`<a href='http://localhost:3000/auth/naver'>네이버 로그인</a> <a href='http://localhost:3000/auth/google'>구글 로그인</a>`);
 });
 
 
@@ -20,4 +20,11 @@ router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/a
 // 카카오 콜백
 router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/auth', successRedirect: 'https://www.kakaocorp.com/' }));
 
+// 구글 로그인
+router.get('/google', passport.authenticate('google', { scope: ["profile"] }));
+
+// 구글 콜백
+router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth', successRedirect: 'http://naver.com' }));
+
 module.exports = router;
+
