@@ -11,6 +11,7 @@ const kakaoStrategy = new KakaoStrategy(
 		callbackURL: '/auth/kakao/oauth'
 	},
 	function (accessToken, refreshToken, profile, done) {
+        console.log(profile)
 		try {
 			User.findOne(
 				{
