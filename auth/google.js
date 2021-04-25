@@ -2,7 +2,7 @@ require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-// 네이버 로그인 전략
+// 구글 로그인 전략
 
 const googleStrategy = new GoogleStrategy(
     {
