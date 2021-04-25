@@ -13,7 +13,7 @@ passport.deserializeUser((id, done) => {
 	})
 })
 
-// passport.use(require('./google'));
+passport.use(require('./google'));
 // passport.use(require('./kakao'));
 passport.use(require('./naver'));
 
