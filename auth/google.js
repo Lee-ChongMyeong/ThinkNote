@@ -8,7 +8,7 @@ const googleStrategy = new GoogleStrategy(
     {
         clientID: process.env.LOVE_GOOGLE_CLIENT_ID,
         clientSecret: process.env.LOVE_GOOGLE_SECRET,
-        callbackURL: '/auth/google/oauth'
+        callbackURL: '/auth/google/oauth',
     },
     function (accessToken, refreshToken, profile, done) {
         try {
