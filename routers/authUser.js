@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
+const authMiddleware = require('../auth/authMiddleware')
 // 인증 ^^
-router.get("/", (req, res) => {
-    const { token } = req.headers
-    payload = jwt.verify(token, process.env.LOVE_JWT_SECRET)
-
-    const userInfo = await User.findOne({ _id: payload.userId })
+router.get("/", authMiddleware, (req, res) => {
+    user = res.locals.user;
 
     res.json({
-        nickname: req.user.nickname,
-        profileImg: req.user.profileImg
+        nickname: user.nickname,
+        profileImg: user.profileImg,
+        introduce: user.introduce
     })
 })
 

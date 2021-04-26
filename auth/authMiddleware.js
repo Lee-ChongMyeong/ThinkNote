@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
 			});
 			return;
 		}
-		const { userId } = jwt.verify(tokenValue, process.env.SECRET_KEY);
+		const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 
 		User.findById(userId)
 			.exec()
