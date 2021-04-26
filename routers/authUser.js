@@ -7,6 +7,7 @@ router.get("/", (req, res) => {
     res.json({
         nickname: req.user.nickname,
         profileImg: req.user.profileImg
+
     })
 })
 

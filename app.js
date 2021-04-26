@@ -5,7 +5,7 @@ const mongoose = require('./models/mongoose');
 require('dotenv').config();
 
 const cors = require('cors');
-app.use(cors());
+app.use(cors({ origin: "*", credentials: true }))
 
 // 미들웨어
 app.use(express.json());
