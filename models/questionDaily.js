@@ -10,14 +10,14 @@ const dailyQuestion = new Schema({
 },
 	{ timestamps: true });
 
-questionCard.virtual('questionId').get(function () {
+dailyQuestion.virtual('questionId').get(function () {
 	return this._id.toHexString();
 });
 
-questionCard.set('toObject', {
+dailyQuestion.set('toObject', {
 	virtuals: true
 });
-questionCard.set('toJSON', {
+dailyQuestion.set('toJSON', {
 	virtuals: true
 });
 
