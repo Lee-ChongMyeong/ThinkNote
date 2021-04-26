@@ -3,7 +3,6 @@ const router = express.Router();
 
 // 책장 확인
 router.post('/books/:YYMM', async (req, res, next) => {
-    const
     const { YYMM } = req.params
     try {
         const result = await QuestionCard.create({
