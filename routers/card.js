@@ -18,7 +18,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			questionId: req.body['questionId'],
 			contents: req.body['contents'],
 			YYMMDD: moment().format("YYMMDD"),
-			userId: user.nickname,
+			userId: user.userId,
 		});
 		res.json({ msg: 'success', result: result });
 	} catch (err) {
