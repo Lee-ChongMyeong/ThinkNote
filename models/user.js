@@ -14,8 +14,8 @@ user.virtual('userId').get(function () {
 	return this._id.toHexString();
 });
 
-user.virtual('userId').set(function () {
-	return this._id.toHexString();
+user.virtual('_id').set(function () {
+	return this.userId.toHexString();
 });
 
 user.set('toObject', {
