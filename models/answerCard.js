@@ -5,7 +5,8 @@ const answerCard = new Schema({
 	questionId: { type: String },
 	contents: { type: String, required: true },
 	YYMMDD: { type: String },
-	userId: { type: String }
+	userId: { type: String },
+	isOpen: { type: Boolean },
 },
 	{ timestamps: true });
 
