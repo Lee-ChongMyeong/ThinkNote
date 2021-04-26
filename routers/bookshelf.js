@@ -1,5 +1,5 @@
 const express = require('express');
-const { AnswerCard } = require('../models');
+const { AnswerCard, User, QuestionCard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
 const router = express.Router();
 
@@ -25,14 +25,14 @@ router.get('/bookDetail/:YYMMDD', async (req, res, next) => {
     })
 });
 
-// 질문 등록
+// 커스텀 질문 등록
 router.post('/question', authMiddleware, async (req, res, next) => {
     user = res.locals.user;
-
-    const books = await AnswerCard.find({ YYMMDD: YYMMDD })
-    return res.send({
-        books: books
+    const CustomQuestion = await QuestionCard.create({
+        ...req.body,
+        createdUser: user.nickname
     })
+    return res.send({ CustomQuestion, profileImg: user.profileImg })
 });
 
 module.exports = router;
