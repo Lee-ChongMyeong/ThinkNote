@@ -16,13 +16,13 @@ router.get('/kakao', passport.authenticate('kakao', null));
 router.get('/google', passport.authenticate('google', { scope: ["profile"] }));
 
 // 네이버 콜백
-router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/auth', successRedirect: 'http://naver.com' }));
+router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/auth', successRedirect: 'http://localhost:3000/' }));
 
 // 카카오 콜백
-router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/auth', successRedirect: 'https://www.kakaocorp.com/' }));
+router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/auth', successRedirect: 'http://localhost:3000/' }));
 
 // 구글 콜백
-router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth', successRedirect: 'http://naver.com' }));
+router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth', successRedirect: 'http://localhost:3000/' }));
 
 module.exports = router;
 
