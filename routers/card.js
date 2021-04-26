@@ -21,19 +21,30 @@ router.post('/', async (req, res, next) => {
 	}
 });
 
-// 질문 받기
-router.get('/', async (req, res) => {
-	let result = { msg: 'success', cardData: [] };
+
+// 질문 랜덤 3개 받기
+router.get('/daily', async (req, res) => {
+	let result = { msg: 'success', dailyData: [] };
 	try {
-		let questionCardDatas = await QuestionCard.find({}).sort({ date: -1 });
+		let questionCardDatas = await QuestionCard.find({}).sort({ date: -1 }).limit(3);
+
+		// 1. 로그인 안한 사람 -> 기본 카드 3개
+		// if(!user) {
+		// 	console.log("유저가 없어")
+		// }
+
+		// 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다. 
+		// 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다. 
+		// 다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
+
 		for (questionCardData of questionCardDatas) {
 			let temp = {
 				cardId: questionCardData._id,
 				topic: questionCardData['topic'],
 				contents: questionCardData['contents'],
-				createdUser: questionCardData['createdUser']
+				createdUser: questionCardData['createdUser'],
 			};
-			result['cardData'].push(temp);
+			result['dailyData'].push(temp);
 		}
 	} catch (err) {
 		console.log(err);
@@ -59,37 +70,6 @@ router.post('/daily', async (req, res, next) => {
 	}
 });
 
-
-// 질문 랜덤 3개 받기
-router.get('/daily', async (req, res) => {
-	let result = { msg: 'success', dailyData: [] };
-	try {
-		let questionCardDatas = await QuestionCard.find({}).sort({ date: -1 }).limit(3);
-
-		// 로그인 안한 사람 -> 기본 카드 3개
-
-
-		// 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다.
-		// 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다.
-		// 다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
-
-
-		for (questionCardData of questionCardDatas) {
-			let temp = {
-				cardId: questionCardData._id,
-				topic: questionCardData['topic'],
-				contents: questionCardData['contents'],
-				createdUser: questionCardData['createdUser'],
-				date: moment().format("YY.MM.DD"),
-			};
-			result['dailyData'].push(temp);
-		}
-	} catch (err) {
-		console.log(err);
-		result['status'] = 'fail';
-	}
-	res.json(result);
-});
 
 module.exports = router;
 
