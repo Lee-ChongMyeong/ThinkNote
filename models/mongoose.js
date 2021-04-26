@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 mongoose
-	.connect(`mongodb://${process.env.LOVE_MONGO_URL}:27017/admin`, {
+	.connect(`mongodb://${process.env.LOVE_MONGO_URL}/${process.env.LOVE_MONGO_DB}`, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		useCreateIndex: true,
 		ignoreUndefined: true,
-		user: "LKJ",
-		pass: "sexycute"
+		user: process.env.LOVE_MONGO_USER,
+		pass: process.env.LOVE_MONGO_PASS
 	})
 	.catch((err) => console.error(err));
 

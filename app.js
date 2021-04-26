@@ -22,7 +22,7 @@ app.use(
 		saveUninitialized: true,
 		store: MongoStore.create({
 			// mongoUrl: `mongodb://${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
-			mongoUrl: `mongodb://LKJ:sexycute@${process.env.LOVE_MONGO_URL}:27017/admin`,
+			mongoUrl: `mongodb://${process.env.LOVE_MONGO_USER}:${process.env.LOVE_MONGO_PASS}@${process.env.LOVE_MONGO_URL}/${process.env.LOVE_MONGO_DB}`,
 			// db.createUser({ user: "LKJ", pwd: "sexycute", roles: ["root"] });
 			ttl: 1000 * 60 * 60 * 24 * 30
 		}),
