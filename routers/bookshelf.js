@@ -1,24 +1,36 @@
 const express = require('express');
 const { AnswerCard } = require('../models');
+const authMiddleware = require('../auth/authMiddleware')
 const router = express.Router();
 
 // 책장 확인
-router.post('/books/:YYMM', async (req, res, next) => {
+router.post('/books/:YYMM', authMiddleware, async (req, res, next) => {
     const { YYMM } = req.params
-    // 유저 누군지 찾기
-    //정규 표현식
-    const books = await AnswerCard.find({ YYMMDD: { $regex: `${YYMM}..` } })
+    user = res.locals.user;
+
+    const books = await AnswerCard.find({ _id: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
     return res.send({
         books: books
     })
 });
 
 // 책장 디테일 확인
-router.post('/bookDetail/:YYMMDD', async (req, res, next) => {
+router.get('/bookDetail/:YYMMDD', async (req, res, next) => {
     const { YYMMDD } = req.params
-    // 유저 누군지 찾기
-    //정규 표현식
-    const books = await AnswerCard.find({ YYMMDD: YYMMDD })
+    user = res.locals.user;
+
+    const booksDetail = await AnswerCard.find({ _id: user.userId, YYMMDD: YYMMDD })
+    return res.send({
+        booksDetail: booksDetail
+    })
+});
+
+// 질문 등록
+router.post('/question', authMiddleware, async (req, res, next) => {
+    user = res.locals.user;
+    const createdUser:
+
+        const books = await AnswerCard.find({ YYMMDD: YYMMDD })
     return res.send({
         books: books
     })
