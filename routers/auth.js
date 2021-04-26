@@ -27,4 +27,3 @@ router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/a
 router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth', successRedirect: 'http://localhost:3000/' }));
 
 module.exports = router;
-
