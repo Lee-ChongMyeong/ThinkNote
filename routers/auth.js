@@ -24,8 +24,8 @@ router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/a
 router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/auth', successRedirect: 'http://localhost:3000/' }));
 
 // 구글 콜백
-router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth' }, (req, res) => {
+router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth' }), (req, res) => {
 	res.send('하이하이')
-}));
+});
 
 module.exports = router;
