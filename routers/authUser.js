@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-// 네이버 로그인
-router.get("/auth/myInfo", (req, res) => {
+// 인증 ^^
+router.get("/", (req, res) => {
     console.log(req.user)
 })
+
+module.exports = router;
