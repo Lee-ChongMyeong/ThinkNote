@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
 const { User } = require('../models');
+const authMiddleware = require('../auth/authMiddleware');
 
-router.patch('/profile', multer.single('profileImg'), async (req, res) => {
+router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req, res) => {
 	result = { msg: 'success' };
 	try {
 		if (!req.user || !req.body.nickname) return res.status(400).json({ msg: 'fail' });
