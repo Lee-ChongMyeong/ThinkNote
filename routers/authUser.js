@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-
+const authMiddleware = require('../auth/authMiddleware')
 // 인증 ^^
-router.get("/", (req, res) => {
-    console.log(req.user)
-    res.json({
-        nickname: req.user.nickname,
-        profileImg: req.user.profileImg
+router.get("/", authMiddleware, (req, res) => {
+    user = res.locals.user;
 
+    res.json({
+        nickname: user.nickname,
+        profileImg: user.profileImg,
+        introduce: user.introduce
     })
 })
 
