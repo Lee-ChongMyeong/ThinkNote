@@ -28,9 +28,8 @@ router.get('/bookDetail/:YYMMDD', async (req, res, next) => {
 // 질문 등록
 router.post('/question', authMiddleware, async (req, res, next) => {
     user = res.locals.user;
-    const createdUser:
 
-        const books = await AnswerCard.find({ YYMMDD: YYMMDD })
+    const books = await AnswerCard.find({ YYMMDD: YYMMDD })
     return res.send({
         books: books
     })

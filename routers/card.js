@@ -4,16 +4,20 @@ const sanitizeHtml = require('sanitize-html');
 const QuestionCard = require('../models/questionCard');
 const AnswerCard = require('../models/answerCard');
 const questionDaily = require('../models/questionDaily');
+const authMiddleware = require('../auth/authMiddleware')
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
 
 //질문에 대해 쓰기
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware, async (req, res, next) => {
+	user = res.locals.user;
+	console.log(user)
     try {
         const result = await AnswerCard.create({
 			questionId : req.body['questionId'],
 			contents: req.body['contents'],
+			createdUser : user._id,
 			YYMMDD : moment().format("YYMMDD"),
 			
        });
@@ -93,7 +97,7 @@ router.get('/daily', async (req, res) => {
 });
 
 // Daily 질문 대답했을 때
-router.post('/daily', async (req, res, next) => {
+router.post('/daily', authMiddleware, async (req, res, next) => {
     try {
 	//	let questionCardDatas = await QuestionCard.find({}).sort({ date: -1 });
         const result = await questionDaily.create({
