@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 		let questionCardDatas = await QuestionCard.find({}).sort({ date: -1 });
 		for (questionCardData of questionCardDatas) {
 			let temp = {
-                cardId : questionCardData._id,   
+                cardId : questionCardData.cardId,   
                 topic : questionCardData['topic'],
                 contents : questionCardData['contents'],
                 createdUser : questionCardData['createdUser']

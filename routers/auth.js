@@ -3,7 +3,9 @@ const router = express.Router();
 const passport = require('../auth/passport');
 
 router.get('/', (req, res) => {
+
 	res.send(`<a href='http://lkj99.shop/auth/naver'>네이버 로그인</a> <a href='http://lkj99.shop/auth/google'>구글 로그인</a> <a href='http://lkj99.shop/auth/kakao'> 카카오 로그인 </a>`);
+
 });
 
 // 네이버 로그인
