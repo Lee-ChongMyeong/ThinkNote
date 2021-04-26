@@ -36,6 +36,7 @@ const passport = require('./auth/passport');
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', require('./routers'));
+app.set('trust proxy', 1)
 
 //listen
 app.listen(process.env.LOVE_PORT, () => {
