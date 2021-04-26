@@ -20,7 +20,7 @@ app.use(
 	session({
 		secret: process.env.LOVE_SECRET_KEY,
 		resave: false,
-		saveUninitialized: true,
+		saveUninitialized: false,
 		store: MongoStore.create({
 			mongoUrl: `mongodb://${process.env.LOVE_MONGO_USER}:${process.env.LOVE_MONGO_PASS}@${process.env.LOVE_MONGO_URL}/${process.env.LOVE_MONGO_DB_SESSION}`,
 			ttl: 1000 * 60 * 60 * 24 * 30
