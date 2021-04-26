@@ -5,7 +5,8 @@ const questionCard = new Schema({
 	topic: { type: String },
 	contents: { type: String, required: true },
 	createdUser: { type: String }
-});
+},
+	{ timestamps: true });
 
 questionCard.virtual('questionId').get(function () {
 	return this._id.toHexString();

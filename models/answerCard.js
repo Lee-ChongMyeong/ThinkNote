@@ -6,7 +6,8 @@ const answerCard = new Schema({
 	contents: { type: String, required: true },
 	YYMMDD: { type: String },
 	userId: { type: String }
-});
+},
+	{ timestamps: true });
 
 answerCard.virtual('answerId').get(function () {
 	return this._id.toHexString();

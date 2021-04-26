@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const friend = new Schema({
 	followingId: { type: String, required: true },
 	followerId: { type: String, required: true }
-});
+},
+	{ timestamps: true });
 
 friend.virtual('friendId').get(function () {
 	return this._id.toHexString();
