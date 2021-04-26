@@ -16,10 +16,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
     try {
         const result = await AnswerCard.create({
 			questionId : req.body['questionId'],
-			contents: req.body['contents'],
-			createdUser : user._id,
+			contents: req.body['contents'],	
 			YYMMDD : moment().format("YYMMDD"),
-			
+			userId : user.nickname, 
        });
        res.json({ msg : 'success', result : result });
     } catch (err) {
