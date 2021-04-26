@@ -30,9 +30,10 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     user = res.locals.user;
     const CustomQuestion = await QuestionCard.create({
         ...req.body,
-        createdUser: user.nickname
+        createdUser: user.userId
     })
-    return res.send({ CustomQuestion, profileImg: user.profileImg })
+    const { nickname } = await User.findOne({ _id: user.userId })
+    return res.send({ CustomQuestion, profileImg: user.profileImg, nickname })
 });
 
 module.exports = router;
