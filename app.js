@@ -21,8 +21,9 @@ app.use(
 		resave: false,
 		saveUninitialized: true,
 		store: MongoStore.create({
-			mongoUrl: `mongodb://${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
-			// mongoUrl: `mongodb://LKJ:sexycute@${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
+			// mongoUrl: `mongodb://${process.env.LOVE_MONGO_URL}:27017/thinkNote`,
+			mongoUrl: `mongodb://LKJ:sexycute@${process.env.LOVE_MONGO_URL}:27017/admin`,
+			// db.createUser({ user: "LKJ", pwd: "sexycute", roles: ["root"] });
 			ttl: 1000 * 60 * 60 * 24 * 30
 		}),
 		cookie: {
