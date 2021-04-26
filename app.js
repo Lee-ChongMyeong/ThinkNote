@@ -26,6 +26,7 @@ app.use(
 			ttl: 1000 * 60 * 60 * 24 * 30
 		}),
 		cookie: {
+			domain: 'localhost:3000', path: '/',
 			maxAge: 1000 * 60 * 60 * 24 * 30
 		}
 	})
