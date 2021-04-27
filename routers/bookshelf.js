@@ -74,12 +74,13 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
     bookCardDetail = []
     other = []
     const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
+    console.log(booksDetail)
     const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
     const questionUserInfo = await User.findOne({ _id: createdUser })
-    const others = await AnswerCard.aggregate([
-        { $match: { userId: { $ne: user.userId }, questionId: _id } }
-    ]).limit(3)
+    console.log(_id)
+    const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id })
     console.log(others)
+
     for (let i = 0; i < others.length; i++) {
         const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
         console.log(otherUserInfo)
