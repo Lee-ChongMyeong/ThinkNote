@@ -2,6 +2,7 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
 const router = express.Router();
+// const QuestionCardSelect = [""]
 
 // 책장 확인
 router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
@@ -18,11 +19,9 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
     const { YYMMDD } = req.params
     user = res.locals.user;
 
-
-    const boksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD })
-    return res.send({
-        booksDetail: booksDetail
-    })
+    const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
+    const { contents } = await QuestionCard.findOne({ _id: booksDetail.questionId })
+    return res.send({ booksDetail, questionContents: contents })
 });
 
 // 커스텀 질문 등록
