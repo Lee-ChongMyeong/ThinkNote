@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Lee-ChongMyeong/ThinkNote#readme",
   "dependencies": {
+    "aws-sdk": "^2.893.0",
     "axios": "^0.21.1",
     "connect-mongo": "^4.4.1",
     "cors": "^2.8.5",
@@ -31,6 +32,7 @@
     "mongoose": "^5.12.5",
     "mongoose-random": "^0.1.1",
     "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-kakao": "^1.0.1",
