@@ -4,22 +4,57 @@ const authMiddleware = require('../auth/authMiddleware')
 const router = express.Router();
 // const QuestionCardSelect = [""]
 
-// 책장 확인
+// 내 책장 확인
 router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     const { YYMM } = req.params
     user = res.locals.user;
     // const { YYMMDD } = await AnswerCard.aggregate({ userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
     const books = await AnswerCard.aggregate([
-        { $match: { YYMMDD: { $regex: `${YYMM}..` } } },
-        { "$group": { _id: "$YYMMDD", count: { $sum: 1 } } }
-    ])
+        { $match: { userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } } },
+        { $group: { _id: "$YYMMDD", count: { $sum: 1 } } }
+    ]).sort({ _id: '-1' })
     return res.send({
         books: books
     })
 });
 
-// 다른 사람 책장 들어갈 떄 유저 정보 확인
+// // 다른 사람 책장 들어갈 떄 유저 정보 확인
+// router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
+//     console.log('인증 시작')
+//     user = res.locals.user;
+//     res.json({
+//         nickname: user.nickname,
+//         profileImg: user.profileImg,
+//         introduce: user.introduce
+//     })
+// });
 
+// 유저 검색
+router.post('/searchUser', async (req, res, next) => {
+    const { word } = req.body;
+    console.log(word)
+    // const nickname = await User.find({ nickname: /word/ })
+    // User.createIndexes({ nickname: 'text' })
+
+    //     const { nickname } = User.find([
+    //         { $text: { $search: `${word}` } },
+    //         { nick: { $meta: 'nickname' } }])
+    //     console.log(nickname)
+    //     res.json({ nickname })
+    // });
+
+    await User.createIndexes(
+        {
+            nickname: "text",
+        }
+    )
+
+    const nickname = await User.find({ $text: { $search: `${word}` } })
+
+    console.log(nickname)
+    res.send({ nickanme })
+
+})
 
 
 // 책장 디테일 확인

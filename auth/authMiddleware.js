@@ -8,6 +8,7 @@ module.exports = (req, res, next) => {
 		const { authorization } = req.headers;
 		const [tokenType, tokenValue] = authorization.split(' ');
 		console.log(authorization)
+		console.log(tokenType)
 		console.log(tokenValue)
 		if (tokenType !== 'Bearer') {
 			res.json({
@@ -15,6 +16,7 @@ module.exports = (req, res, next) => {
 			});
 			return;
 		}
+		console.log(tokenValue)
 		const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 		console.log('유저아디')
 		console.log(userId)
