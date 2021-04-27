@@ -21,5 +21,8 @@ user.set('toJSON', {
 	virtuals: true
 });
 
+user.index({ nickname: 'text' });
+
+
 
 module.exports = mongoose.model('User', user);
