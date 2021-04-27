@@ -17,6 +17,17 @@ router.post('/searchUser', async (req, res, next) => {
     }
 })
 
+// 다른 사람 책장 & 페이지 들어갈 때 정보 확인
+router.get('/auth/user/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const UserInfo = await User.findOne({ _id: id });
+    res.json({
+        nickname: UserInfo.nickname,
+        profileImg: UserInfo.profileImg,
+        introduce: UserInfo.introduce
+    })
+});
+
 // 내 책장 월별 확인
 router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     const { YYMM } = req.params
@@ -31,40 +42,65 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     })
 });
 
-// 다른 사람 책장 & 페이지 들어갈 때 정보 확인
-router.get('/auth/user/:id', async (req, res, next) => {
-
-    const { userId } = req.params;
-    const UserInfo = await User.findOne({ _id: userId });
-    res.json({
-        nickname: UserInfo.nickname,
-        profileImg: UserInfo.profileImg,
-        introduce: UserInfo.introduce
-    })
-});
-
 // 내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
     const { YYMMDD } = req.params
     user = res.locals.user;
 
     const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD })
-    console.log({ booksDetail })
     booksDiary = []
 
     for (let i = 0; i < booksDetail.length; i++) {
-        const { contents, createdUser } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
-        const answerUserInfo = await User.findOne({ _id: createdUser })
+        const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
+        const questionUserInfo = await User.findOne({ _id: createdUser })
         booksDiary.push({
+            questionCreatedUserId: questionUserInfo._id,
+            questionCreatedUser: questionUserInfo.nickname,
+            questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionContents: contents,
-            questionCreatedUser: answerUserInfo.nickname,
-            questionCreatedUserProfileImg: answerUserInfo.profileImg,
             answerContents: booksDetail[i]['contents'],
             answerUser: user.nickname,
-            isOpen: booksDetail[i]['isOpen']
+            isOpen: booksDetail[i]['isOpen'],
         })
     }
     return res.send({ booksDiary })
+});
+
+// 내 책 디테일 확인
+router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
+    console.log('하이')
+    const { YYMMDD } = req.params
+    user = res.locals.user;
+    bookCardDetail = []
+    other = []
+    const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
+    const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
+    const questionUserInfo = await User.findOne({ _id: createdUser })
+    const others = await AnswerCard.aggregate([
+        { $match: { userId: { $ne: user.userId }, questionId: _id } }
+    ]).limit(3)
+    console.log(others)
+    for (let i = 0; i < others.length; i++) {
+        const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+        console.log(otherUserInfo)
+        other.push({
+            otherUserId: others.userId,
+            otherUser: otherUserInfo.nickname,
+            otherUserContents: others.contents,
+            otherUserProfileImg: otherUserInfo.profileImg
+        })
+    }
+
+    bookCardDetail.push({
+        questionCreatedUserId: questionUserInfo._id,
+        questionCreatedUser: questionUserInfo.nickname,
+        questionCreatedUserProfileImg: questionUserInfo.profileImg,
+        questionContents: contents,
+        answerContents: booksDetail.contents,
+        answerUser: user.nickname,
+        isOpen: booksDetail.isOpen,
+    })
+    return res.send({ bookCardDetail, other })
 });
 
 // 커스텀 질문 등록
