@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const questionDaily = new Schema({
 	userId: { type: String, required: true },
 	questions: { type: Array },
-	date: { type: String, required: true },
+	YYMMDD: { type: String, required: true },
 },
 	{ timestamps: true });
 
