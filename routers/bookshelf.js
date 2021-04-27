@@ -19,7 +19,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
     const { YYMMDD } = req.params
     user = res.locals.user;
 
-    const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
+    const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD })
     const { contents, createdUser } = await QuestionCard.findOne({ _id: booksDetail.questionId })
     const { nickname, profileImg } = await User.findOne({ _id: createdUser })
 
