@@ -31,16 +31,17 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     })
 });
 
-// // 다른 사람 책장 들어갈 떄 유저 정보 확인
-// router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
-//     console.log('인증 시작')
-//     user = res.locals.user;
-//     res.json({
-//         nickname: user.nickname,
-//         profileImg: user.profileImg,
-//         introduce: user.introduce
-//     })
-// });
+// 다른 사람 책장 & 페이지 들어갈 때 정보 확인
+router.get('/auth/user/:id', async (req, res, next) => {
+
+    const { userId } = req.params;
+    const UserInfo = await User.findOne({ _id: userId });
+    res.json({
+        nickname: UserInfo.nickname,
+        profileImg: UserInfo.profileImg,
+        introduce: UserInfo.introduce
+    })
+});
 
 // 내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
