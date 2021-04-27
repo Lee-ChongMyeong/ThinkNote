@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const dailyQuestion = new Schema({
+const questionDaily = new Schema({
 	userId: { type: String, required: true },
-	question1: { type: String, required: true },
-	question2: { type: String, required: true },
-	question3: { type: String, required: true },
+	question_one: { type: String },
+	question_two: { type: String },
+	question_thr: { type: String },
 	date: { type: String, required: true, default: Date.now() },
 },
 	{ timestamps: true });
 
-dailyQuestion.virtual('questionId').get(function () {
+questionDaily.virtual('questionDailyId').get(function () {
 	return this._id.toHexString();
 });
 
-dailyQuestion.set('toObject', {
+questionDaily.set('toObject', {
 	virtuals: true
 });
-dailyQuestion.set('toJSON', {
+questionDaily.set('toJSON', {
 	virtuals: true
 });
 
-module.exports = mongoose.model('DailyQuestion', dailyQuestion);
+module.exports = mongoose.model('QuestionDaily', questionDaily);
