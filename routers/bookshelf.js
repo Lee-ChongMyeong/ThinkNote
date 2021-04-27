@@ -8,11 +8,20 @@ const router = express.Router();
 router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     const { YYMM } = req.params
     user = res.locals.user;
-    const books = await AnswerCard.find({ userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
+    // const { YYMMDD } = await AnswerCard.aggregate({ userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
+
+    const books = await AnswerCard.aggregate([
+        { $match: { YYMMDD: { $regex: `${YYMM}..` } } },
+        { "$group": { _id: "$YYMMDD", count: { $sum: 1 } } }
+    ])
+
     return res.send({
         books: books
     })
+
 });
+
+// 다른 사람 책장 들어갈 떄 유저 정보 확인
 
 // 책장 디테일 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
