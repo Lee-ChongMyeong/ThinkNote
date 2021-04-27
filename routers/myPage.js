@@ -19,7 +19,6 @@ router.patch('/profile/defaultImg', authMiddleware, (req, res) => {
 router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'), async (req, res) => {
 	try {
 		const user = res.locals.user;
-		console.log(req)
 		user.profileImg = req.file.location
 		user.save();
 		res.json({ profileImg: user.profileImg });
