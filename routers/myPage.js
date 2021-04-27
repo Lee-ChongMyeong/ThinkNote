@@ -24,7 +24,7 @@ router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'),
 
 		s3.deleteObject(
 			{
-				Bucket: process.env.AWS_S3_BUCKET_NAME,
+				Bucket: process.env.AWS_S3_BUCKET_NAME,	
 				Key: user.profileImg.split('.com/images/')[1]
 			},
 			(err, data) => {

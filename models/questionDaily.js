@@ -3,10 +3,8 @@ const { Schema } = mongoose;
 
 const questionDaily = new Schema({
 	userId: { type: String, required: true },
-	question_one: { type: String },
-	question_two: { type: String },
-	question_thr: { type: String },
-	date: { type: String, required: true, default: Date.now() },
+	questions: { type: Array },
+	date: { type: String, required: true },
 },
 	{ timestamps: true });
 
