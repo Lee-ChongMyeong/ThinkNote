@@ -31,8 +31,8 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
 
 // 유저 검색
 router.post('/searchUser', async (req, res, next) => {
-    const { word } = req.body;
-    const userInfo = await User.find({ nickname: new RegExp(`${word}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+    const { words } = req.body;
+    const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
     if (userInfo) {
         res.send({ userInfo })
     }
