@@ -6,6 +6,7 @@ const router = express.Router();
 // 유저 검색
 router.post('/searchUser', async (req, res, next) => {
     const { words } = req.body;
+    if (!words) { res.send({ userInfo: 'none' }) }
     const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
     if (userInfo) {
         res.send({ userInfo })
