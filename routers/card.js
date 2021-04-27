@@ -14,26 +14,25 @@ moment.tz.setDefault("Asia/Seoul");
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	console.log(user)
-    try {
-        const result = await AnswerCard.create({
-			questionId : req.body['questionId'],
-			contents: req.body['contents'],	
-			YYMMDD : moment().format("YYMMDD"),
-			userId : user.userId, 
-       });
-       res.json({ msg : 'success', result : result });
-    } catch (err) {
-       res.json({ msg : 'fail' });
-    }
- });
+	try {
+		const result = await AnswerCard.create({
+			questionId: req.body['questionId'],
+			contents: req.body['contents'],
+			YYMMDD: moment().format("YYMMDD"),
+			userId: user.userId,
+		});
+		res.json({ msg: 'success', result: result });
+	} catch (err) {
+		res.json({ msg: 'fail' });
+	}
+});
 
 
 
 // 질문 랜덤 3개 받기
 router.get('/daily', async (req, res) => {
-	let result = { msg : 'success', dailyData : [] };
-
-	try {		
+	let result = { msg: 'success', dailyData: [] };
+	try {
 
 		//// 1. 로그인 안한 사람 -> 기본 카드 3개
 
@@ -51,7 +50,7 @@ router.get('/daily', async (req, res) => {
 		// 	contents : "진정한 친구란?",
 		//  	createdUser : "초코상균",
 		//  	},
-			 
+
 		// 	const temp3 = 
 		// 	{
 		//  	topic : "정치",
@@ -65,7 +64,7 @@ router.get('/daily', async (req, res) => {
 		// 	result['dailyData'].push(temp3);
 		// }
 
-		
+
 
 		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다. 
 
@@ -79,10 +78,10 @@ router.get('/daily', async (req, res) => {
 
 		for (questionCardData of questionCardDatas) {
 			let temp = {
-				cardId : questionCardData._id,   
-                topic : questionCardData['topic'],
-                contents : questionCardData['contents'],
-                createdUser : questionCardData['createdUser'],
+				cardId: questionCardData._id,
+				topic: questionCardData['topic'],
+				contents: questionCardData['contents'],
+				createdUser: questionCardData['createdUser'],
 			};
 
 
@@ -94,7 +93,8 @@ router.get('/daily', async (req, res) => {
 		
 	
 
-		
+
+
 	} catch (err) {
 		console.log(err);
 		result['status'] = 'fail';
