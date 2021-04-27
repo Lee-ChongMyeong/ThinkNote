@@ -21,11 +21,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			userId: user.userId,
 		});
 		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
-		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)
+		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
+		await daily.save()
 		res.json({ msg: 'success', result: result });
 	} catch (err) {
 		res.json({ msg: 'fail' });
-	}
+	}	
 });
 
 
