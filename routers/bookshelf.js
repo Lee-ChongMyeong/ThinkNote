@@ -74,20 +74,20 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
     bookCardDetail = []
     other = []
     const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
-    console.log(booksDetail)
     const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
     const questionUserInfo = await User.findOne({ _id: createdUser })
-    console.log(_id)
     const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id })
+    console.log('--others---')
     console.log(others)
-
+    console.log('--others---')
     for (let i = 0; i < others.length; i++) {
         const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+        console.log('--otheruserInfo---')
         console.log(otherUserInfo)
         other.push({
-            otherUserId: others.userId,
+            otherUserId: others[i]['userId'],
             otherUser: otherUserInfo.nickname,
-            otherUserContents: others.contents,
+            otherUserContents: others[i]['contents'],
             otherUserProfileImg: otherUserInfo.profileImg
         })
     }
