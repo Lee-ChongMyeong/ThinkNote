@@ -61,18 +61,23 @@ router.get('/daily', async (req, res) => {
 
 			if (!userDaily) { // 회원 가입 후 처음 로그인   
 				const most = await mostAnswer()
-				QuestionDaily.create({ // DB에 row 생성.
+				cards = []
+				most.forEach((element) => { 
+					cards.push(element.cardId)
+				})
+				await QuestionDaily.create({ // DB에 row 생성.
 					userId: user._id,
-					questions: most,
+					questions: cards,
 					YYMMDD: moment(Date.now()).format("YYMMDD")
 				})
 				return res.json({ cards : most })
 
-			}else{ // 회원 가입 후 처음이 아닌 경우(다시 들어온 사람)
+			}else{ // 회원 가입 후 처음이 아닌 경우(다시 다른날에 들어온 사람), YYMMDD -> 수정
 				cards = []
 				console.log("회원가입 후 로그인 테스트중")
 				const today = moment(Date.now()).format("YYMMDD");
 				const userDaily = await QuestionDaily.findOne({ userId: user.id, YYMMDD: today })
+				
 				if (userDaily) { // 오늘 처음이 아닌 경우
 					const questions = userDaily.questions;
 					for (question of questions)
@@ -137,12 +142,24 @@ router.get('/daily', async (req, res) => {
 							myCards.push(availableCards[index]._id)
 						}
 					}
-					QuestionDaily.create({ // DB에 row 생성.
+					await QuestionDaily.create({ // DB에 row 생성.
 						userId: userId,
 						questions: myCards,
 						YYMMDD: moment(Date.now()).format("YYMMDD")
 					})
-					return res.json({ cards: myCards })
+					resultCards = await QuestionCard.find({}).where('_id').in(myCards);
+					resultCardsInfo = []
+					for (element of resultCards) { 
+						let tempCard = await QuestionCard.findOne({ _id: element._id })
+						let createdUser = await User.findOne({ _id: tempCard.createdUser });
+						resultCardsInfo.push({
+							cardId : tempCard._id,
+							topic : tempCard.topic,
+							contents : tempCard.contents,
+							createdUser : createdUser.nickname
+						})
+					}
+					return res.json({ cards: resultCardsInfo })
 				}
 			}
 		}
