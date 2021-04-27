@@ -4,6 +4,7 @@ const authMiddleware = require('../auth/authMiddleware')
 const router = express.Router();
 
 // 유저 검색
+// 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
     const { words } = req.body;
     if (!words) { res.send({ userInfo: 'none' }) }
@@ -58,7 +59,8 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
             questionCreatedUser: answerUserInfo.nickname,
             questionCreatedUserProfileImg: answerUserInfo.profileImg,
             answerContents: booksDetail[i]['contents'],
-            answerUser: user.nickname
+            answerUser: user.nickname,
+            isOpen: booksDetail[i]['isOpen']
         })
     }
     return res.send({ booksDiary })
