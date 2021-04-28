@@ -18,7 +18,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		if (!daily['questions'].length) {
 			return res.status(400).json({ msg: 'fail' });
 		}
-		if (-1 == daily['questions'].indexOf(req.body['questionId']){
+		if (-1 == daily['questions'].indexOf(req.body['questionId']))
+		{
 			return res.status(400).json({ msg: 'fail' });
 		}
 		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
