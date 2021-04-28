@@ -42,7 +42,6 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     try {
         const { YYMM } = req.params
         user = res.locals.user;
-        // const { YYMMDD } = await AnswerCard.aggregate({ userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
         const books = await AnswerCard.aggregate([
             { $match: { userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } } },
             { $group: { _id: "$YYMMDD", count: { $sum: 1 } } }
@@ -87,11 +86,11 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
-                questionCreatedUser: questionUserInfo.nickname,
+                questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
                 answerContents: booksDetail[i]['contents'],
-                answerUser: user.nickname,
+                answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
             })
         }
@@ -114,11 +113,11 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
-                questionCreatedUser: questionUserInfo.nickname,
+                questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
                 answerContents: booksDetail[i]['contents'],
-                answerUser: user.nickname,
+                answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
             })
         }
@@ -138,13 +137,13 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
         const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
-        const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id })
+        const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id }).limit(3)
 
         for (let i = 0; i < others.length; i++) {
             const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
             other.push({
                 otherUserId: others[i]['userId'],
-                otherUser: otherUserInfo.nickname,
+                otherUserNickname: otherUserInfo.nickname,
                 otherUserContents: others[i]['contents'],
                 otherUserProfileImg: otherUserInfo.profileImg
             })
@@ -152,11 +151,11 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
-            questionCreatedUser: questionUserInfo.nickname,
+            questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionContents: contents,
             answerContents: booksDetail.contents,
-            answerUser: user.nickname,
+            answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
         })
         return res.send({ bookCardDetail, other })
