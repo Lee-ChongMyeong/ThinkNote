@@ -89,13 +89,15 @@ router.get('/daily', async (req, res) => {
 					for (question of questions)
 					{
 						console.log(question)
-						card = await QuestionCard.findOne({ _id: question})
-						created = await User.findOne({_id: card.createdUser})
+						let card = await QuestionCard.findOne({ _id: question})
+						let created = await User.findOne({_id: card.createdUser})
+						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId : card._id,
 							topic : card.topic,
 							contents : card.contents,
-							createdUser : created.nickname
+							createdUser : created.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({cards :cards})
@@ -164,11 +166,13 @@ router.get('/daily', async (req, res) => {
 					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
+						let answer = await AnswerCard.find({ questionId: element._id });
 						resultCardsInfo.push({
 							cardId : tempCard._id,
 							topic : tempCard.topic,
 							contents : tempCard.contents,
-							createdUser : createdUser.nickname
+							createdUser : createdUser.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({ cards: resultCardsInfo })
