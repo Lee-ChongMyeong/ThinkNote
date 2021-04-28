@@ -93,7 +93,7 @@ router.get('/daily', async (req, res) => {
 						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId : card._id,
-							topic : card.topic,	
+							topic : card.topic,
 							contents : card.contents,
 							createdUser : created.nickname,
 							answerCount : answer.length
@@ -101,7 +101,7 @@ router.get('/daily', async (req, res) => {
 					}
 					return res.json({cards :cards})
 
-				} else { // 회원가입 완료. 오늘 처음 접속한 경우 
+				} else { // 회원가입 완료. 오늘 처음 접속한 경우
 						 //오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
 						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
 
