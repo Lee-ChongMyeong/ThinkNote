@@ -139,13 +139,9 @@ router.post('/question', authMiddleware, async (req, res, next) => {
 
 // 친구 추가
 router.post('/addfriend', authMiddleware, async (req, res, next) => {
-    console.log('친구추가!')
-    console.log(req.body.friendId)
     try {
-        console.log('트라이로 오기')
         user = res.locals.user;
         const { friendId } = req.body;
-        console.log(friendId)
         const addfriend = await Friend.create({
             followingId: user.userId,
             followerId: friendId
@@ -159,7 +155,6 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
 // 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
 router.get('/friendList', authMiddleware, async (req, res, next) => {
-    console.log('친창확인')
     try {
         user = res.locals.user;
         const friendList = await Friend.find({ followingId: user.userId })
@@ -173,6 +168,26 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
             })
         }
         return res.send({ friends })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+// 타인의 친구 목록
+router.get('other/friendList/:id', authMiddleware, async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const friendList = await Friend.find({ followingId: id })
+        othersFriend = []
+        for (let i = 0; i < friendList.length; i++) {
+            const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
+            Othersfriend.push({
+                otherFriendId: friendInfo._id,
+                otherFriendNickname: friendInfo.nickname,
+                otherFriendProfileImg: friendInfo.profileImg
+            })
+        }
+        return res.send({ othersFriend })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
