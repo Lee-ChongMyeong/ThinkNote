@@ -79,12 +79,13 @@ router.get('/daily', async (req, res) => {
 
 			}else{ // 회원 가입 후 처음이 아닌 경우(다시 다른날에 들어온 사람), YYMMDD -> 수정
 				cards = []
-				console.log("회원가입 후 로그인 테스트중")
+				console.log("회원가입 후 로그인 테스트중1")
 				const today = moment(Date.now()).format("YYMMDD");
 				const userDaily = await QuestionDaily.findOne({ userId: user.id, YYMMDD: today })
 
 				if (userDaily) { // 오늘 처음이 아닌 경우(다시 접속한 경우)
 					const questions = userDaily.questions;
+					console.log("회원가입 후 로그인 테스트중2")
 					for (question of questions)
 					{
 						console.log(question)
@@ -96,7 +97,7 @@ router.get('/daily', async (req, res) => {
 							topic : card.topic,	
 							contents : card.contents,
 							createdUser : created.nickname,
-							answerCount : answer.length
+							answerCount : answer.length	
 						})
 					}
 					return res.json({cards :cards})
@@ -106,7 +107,7 @@ router.get('/daily', async (req, res) => {
 						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
 
 					let myCards = []
-
+					console.log("회원가입 후 로그인 테스트중3")
 					friend_ids = await Friend.find({ followingId: userId })
 					friends = [] // 친구들 목록
 					for (friend of friend_ids) {
@@ -185,6 +186,7 @@ router.get('/daily', async (req, res) => {
 	}
 });
 
+// 최신 답변 3개 받기
 router.get('/recentAnswer/:cardId', async (req, res, next ) => {
 	const cardId = req.params.cardId;
 	let answerData = [];
@@ -202,9 +204,9 @@ router.get('/recentAnswer/:cardId', async (req, res, next ) => {
 			answerData.push(temp);
 		}
 	 } catch (err) {
-		return res.json({ msg : 'fail' });
+		return res.status(400).json({ msg : 'fail' });
 	 }
-	 return res.json({ msg : "success", answerData});
+	 return res.status(200).json({ msg : "success", answerData});
 
 
 });
