@@ -85,7 +85,6 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
 
 // 내 책 디테일 확인
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
-
     try {
         const { YYMMDD } = req.params
         user = res.locals.user;
@@ -174,7 +173,7 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
 });
 
 // 타인의 친구 목록
-router.get('other/friendList/:id', async (req, res, next) => {
+router.get('/other/friendList/:id', async (req, res, next) => {
     console.log('친구확인')
     const { id } = req.params;
     try {
