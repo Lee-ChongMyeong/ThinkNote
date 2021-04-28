@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const sanitizeHtml = require('sanitize-html');
-const { QuestionCard, AnswerCard, QuestionDaily, Friend} = require('../models');
+const { QuestionCard, AnswerCard, QuestionDaily, Friend, User} = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
-const User = require('../models/user');
 const jwt = require('jsonwebtoken')
 const mostAnswer = require('../lib/mostAnswer')
 const moment = require('moment');
@@ -94,7 +93,7 @@ router.get('/daily', async (req, res) => {
 						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId : card._id,
-							topic : card.topic,
+							topic : card.topic,	
 							contents : card.contents,
 							createdUser : created.nickname,
 							answerCount : answer.length
@@ -184,6 +183,30 @@ router.get('/daily', async (req, res) => {
 		console.log(err);
 		res.status(400).json({ msg : 'fail' });
 	}
+});
+
+router.get('/recentAnswer/:cardId', async (req, res, next ) => {
+	const cardId = req.params.cardId;
+	let answerData = [];
+	try {
+		const recentAnswerDatas = await AnswerCard.find({questionId : cardId }).sort({ createdAt : -1 }).limit(3);
+		for (recentAnswerData of recentAnswerDatas){
+			let answerUser = await User.findOne({ _id : recentAnswerData.userId })
+			let temp = {
+				questionId : recentAnswerData.questionId,
+				answerId : recentAnswerData.answerId,
+				contents : recentAnswerData.contents,
+				profileImg : answerUser.profileImg,
+				nickname : answerUser.nickname
+			};
+			answerData.push(temp);
+		}
+	 } catch (err) {
+		return res.json({ msg : 'fail' });
+	 }
+	 return res.json({ msg : "success", answerData});
+
+
 });
 
 module.exports = router;
