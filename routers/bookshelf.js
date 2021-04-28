@@ -127,20 +127,23 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
     }
 });
 
+// 같은 질문이 내려오는 버그
 // 내 질문 카드 디테일 확인
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD } = req.params
+        const { YYMMDD } = req.params;
+        const { questionId } = req.params;
         user = res.locals.user;
         bookCardDetail = []
         other = []
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
-        const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
+        const { contents, createdUser } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
-        const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id }).limit(3)
+        const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
 
         for (let i = 0; i < others.length; i++) {
             const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+            console.log(others[i]['questionId'])
             other.push({
                 otherUserId: others[i]['userId'],
                 otherUserNickname: otherUserInfo.nickname,
