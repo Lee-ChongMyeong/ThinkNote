@@ -174,14 +174,14 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
 
 // 타인의 친구 목록
 router.get('/other/friendList/:id', async (req, res, next) => {
-    console.log('친구확인')
     const { id } = req.params;
+    console.log(id)
     try {
         const friendList = await Friend.find({ followingId: id })
         othersFriend = []
         for (let i = 0; i < friendList.length; i++) {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
-            Othersfriend.push({
+            othersfriend.push({
                 otherFriendId: friendInfo._id,
                 otherFriendNickname: friendInfo.nickname,
                 otherFriendProfileImg: friendInfo.profileImg
