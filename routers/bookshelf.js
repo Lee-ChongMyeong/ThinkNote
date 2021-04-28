@@ -203,7 +203,17 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
     }
 });
 
-// 친구해제
+// 친구해제ㅠㅠ
+router.delete('/friend', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        const { friendId } = req.body;
+        await Friend.findOneAndDelete({ followingId: user.userId, followerId: friendId })
+        return res.send('친구삭제 성공ㅠㅠ')
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
 
 // 내 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
