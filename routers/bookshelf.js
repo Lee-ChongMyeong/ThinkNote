@@ -22,6 +22,7 @@ router.post('/searchUser', async (req, res, next) => {
 })
 
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
+// 친구인지 아닌지
 router.get('/auth/user/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -156,18 +157,22 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
 });
 
 // 친구 목록 확인
-// 무한 스크롤 하기
+// 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
 router.get('/friendList', authMiddleware, async (req, res, next) => {
+    console.log('친창확인')
     try {
         user = res.locals.user;
         const friendList = await Friend.find({ followingId: user.userId })
         friends = []
         for (let i = 0; i < friendList.length; i++) {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
-
+            friends.push({
+                friendId: friendInfo._id,
+                friendNickname: friendInfo.nickname,
+                friendProfileImg: friendInfo.profileImg
+            })
         }
-
-        return res.send('친구추가 성공')
+        return res.send({ friends })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
