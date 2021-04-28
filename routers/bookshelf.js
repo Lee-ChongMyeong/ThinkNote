@@ -68,7 +68,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
             const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
             const questionUserInfo = await User.findOne({ _id: createdUser })
             booksDiary.push({
-                questionId: _id
+                questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
                 questionCreatedUser: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
