@@ -14,19 +14,24 @@ moment.tz.setDefault("Asia/Seoul");
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
+		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
+		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
+			return res.status(400).json({ msg: 'fail' });
+		}
+		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
+		await daily.save()
+
 		const result = await AnswerCard.create({
 			questionId: req.body['questionId'],
 			contents: req.body['contents'],
 			YYMMDD: moment().format("YYMMDD"),
 			userId: user.userId,
 		});
-		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
-		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
-		await daily.save()
-		res.json({ msg: 'success', result: result });
+
+		return res.json({ msg: 'success', result: result });
 	} catch (err) {
-		res.json({ msg: 'fail' });
-	}	
+		return res.status(400).json({ msg: 'fail' });
+	}
 });
 
 
@@ -36,7 +41,7 @@ router.get('/daily', async (req, res) => {
 	let result = { msg: 'success', dailyData: [] };
 	try {
 
-		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다. 
+		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다.
 		//// 3. 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다. --> 순서대로 꺼내기
 		//// 4.  다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
 
@@ -53,17 +58,17 @@ router.get('/daily', async (req, res) => {
 			return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 			const user = await User.findOne({ _id: userId })
-			
+
 			if (!user) {
 				throw err;
 			}
 			// QuestionDaily DB에 유저 정보 있는지 확인
-			const userDaily = await QuestionDaily.findOne({ userId : user.id })	
+			const userDaily = await QuestionDaily.findOne({ userId : user.id })
 
-			if (!userDaily) { // 회원 가입 후 처음 로그인   
+			if (!userDaily) { // 회원 가입 후 처음 로그인
 				const most = await mostAnswer()
 				cards = []
-				most.forEach((element) => { 
+				most.forEach((element) => {
 					cards.push(element.cardId)
 				})
 				await QuestionDaily.create({ // DB에 row 생성.
@@ -78,12 +83,13 @@ router.get('/daily', async (req, res) => {
 				console.log("회원가입 후 로그인 테스트중")
 				const today = moment(Date.now()).format("YYMMDD");
 				const userDaily = await QuestionDaily.findOne({ userId: user.id, YYMMDD: today })
-				
+
 				if (userDaily) { // 오늘 처음이 아닌 경우
 					const questions = userDaily.questions;
 					for (question of questions)
 					{
-						card = await QuestionCard.findOne({ _id: question.cardId })
+						console.log(question)
+						card = await QuestionCard.findOne({ _id: question})
 						created = await User.findOne({_id: card.createdUser})
 						cards.push({
 							cardId : card._id,
@@ -94,14 +100,15 @@ router.get('/daily', async (req, res) => {
 					}
 					return res.json({cards :cards})
 
-				} else { //오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
-						 // 친구.      / 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림 
-						 
+				} else { // 회원가입 완료. 오늘 처음 접속
+						//오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
+						 // 친구.      / 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
+
 					let myCards = []
 
 					friend_ids = await Friend.find({ followingId: userId })
 					friends = [] // 친구들 목록
-					for (friend of friend_ids) { 
+					for (friend of friend_ids) {
 						friends.push(friend.followerId)
 					}
 					friends_answer = await AnswerCard.find({}).where('userId').in(friends) // 친구들이 쓴 답변 목록
@@ -113,15 +120,15 @@ router.get('/daily', async (req, res) => {
 					// 중복제거
 					friendAnswerId = new Set(friendAnswerId)
 					friendAnswerId = [...friendAnswerId]
-					
+
 					// 기간내 카드 제거
 					standardTime = moment(Date.now() - (1000 *60 * 60 *24 * 7)).format('YYMMDD')
 					notInclude_temp = await AnswerCard.find({ userId: userId }).where('YYMMDD').gt(standardTime)
 					notIncludedCards = []
-					for (card of notInclude_temp) { 
+					for (card of notInclude_temp) {
 						notIncludedCards.push(card.questionId)
 					}
-					
+
 					for (value of notIncludedCards) {
 						findIndex = friendAnswerId.indexOf(value)
 						if (-1 != findIndex) {
@@ -135,12 +142,16 @@ router.get('/daily', async (req, res) => {
 					}
 
 					availableCards = await QuestionCard.find({}).where('_id').nin(notIncludedCards); // 전체에서 사용할 수 있는 카드
+					console.log(availableCards)
 
 					while (myCards.length < 3) {
 						let index = Math.floor(Math.random() * availableCards.length)
 						if (-1 == myCards.indexOf(availableCards[index]._id))
 						{
 							myCards.push(availableCards[index]._id)
+							if (availableCards.length == myCards.length) {
+								break;
+							}
 						}
 					}
 					await QuestionDaily.create({ // DB에 row 생성.
@@ -150,7 +161,7 @@ router.get('/daily', async (req, res) => {
 					})
 					resultCards = await QuestionCard.find({}).where('_id').in(myCards);
 					resultCardsInfo = []
-					for (element of resultCards) { 
+					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
 						resultCardsInfo.push({
@@ -170,24 +181,6 @@ router.get('/daily', async (req, res) => {
 		res.status(400).json({ msg : 'fail' });
 	}
 });
-
-// Daily 질문 대답했을 때
-// router.post('/daily', authMiddleware, async (req, res, next) => {
-// 	user = res.locals.user;	
-//     try {
-//         const result = await QuestionDaily.create({
-// 			userId : user.userId,
-// 			date : moment().format("YYMMDD"),
-// 			question_one : req.body["question_one"],	// cardIdd값 들어가게
-// 			question_two : req.body["question_two"],
-// 			question_thr : req.body["question_thr"]
-//        });
-// 	   console.log(result)
-//        res.json({ msg : 'success', result : result });
-//     } catch (err) {
-//        res.json({ msg : 'fail' });
-//     }
-//  });
 
 module.exports = router;
 
