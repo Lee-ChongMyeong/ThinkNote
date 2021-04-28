@@ -49,7 +49,7 @@ router.get('/daily', async (req, res) => {
 		//// 2) 유저가 접속했을때 YYMMDD 값을 알아야됨
 
 		const { authorization } = req.headers;
-		if (!authorization) { // 로그인 안한 유저
+		if (!authorization) { // 로그인 안한 유저가 접속
 			const most = await mostAnswer()
 			return res.json({ cards : most })
 		} else {
@@ -65,7 +65,7 @@ router.get('/daily', async (req, res) => {
 			// QuestionDaily DB에 유저 정보 있는지 확인
 			const userDaily = await QuestionDaily.findOne({ userId : user.id })
 
-			if (!userDaily) { // 회원 가입 후 처음 로그인
+			if (!userDaily) { // 회원 가입 후 처음 로그인 및 접속
 				const most = await mostAnswer()
 				cards = []
 				most.forEach((element) => {
@@ -84,26 +84,28 @@ router.get('/daily', async (req, res) => {
 				const today = moment(Date.now()).format("YYMMDD");
 				const userDaily = await QuestionDaily.findOne({ userId: user.id, YYMMDD: today })
 
-				if (userDaily) { // 오늘 처음이 아닌 경우
+				if (userDaily) { // 오늘 처음이 아닌 경우(다시 접속한 경우)
 					const questions = userDaily.questions;
 					for (question of questions)
 					{
 						console.log(question)
-						card = await QuestionCard.findOne({ _id: question})
-						created = await User.findOne({_id: card.createdUser})
+						let card = await QuestionCard.findOne({ _id: question})
+						let created = await User.findOne({_id: card.createdUser})
+						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId : card._id,
 							topic : card.topic,
 							contents : card.contents,
-							createdUser : created.nickname
+							createdUser : created.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({cards :cards})
 
-				} else { // 회원가입 완료. 오늘 처음 접속 
+				} else { // 회원가입 완료. 오늘 처음 접속한 경우 
 						 //오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
-						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림 
-						 
+						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
+
 					let myCards = []
 
 					friend_ids = await Friend.find({ followingId: userId })
@@ -164,11 +166,13 @@ router.get('/daily', async (req, res) => {
 					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
+						let answer = await AnswerCard.find({ questionId: element._id });
 						resultCardsInfo.push({
 							cardId : tempCard._id,
 							topic : tempCard.topic,
 							contents : tempCard.contents,
-							createdUser : createdUser.nickname
+							createdUser : createdUser.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({ cards: resultCardsInfo })
