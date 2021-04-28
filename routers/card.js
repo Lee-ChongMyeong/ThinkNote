@@ -15,7 +15,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
-		if (!daily['questions'].length) {
+		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
 			return res.status(400).json({ msg: 'fail' });
 		}
 		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
@@ -31,7 +31,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		return res.json({ msg: 'success', result: result });
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
-	}	
+	}
 });
 
 
@@ -41,7 +41,7 @@ router.get('/daily', async (req, res) => {
 	let result = { msg: 'success', dailyData: [] };
 	try {
 
-		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다. 
+		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다.
 		//// 3. 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다. --> 순서대로 꺼내기
 		//// 4.  다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
 
@@ -58,17 +58,17 @@ router.get('/daily', async (req, res) => {
 			return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 			const user = await User.findOne({ _id: userId })
-			
+
 			if (!user) {
 				throw err;
 			}
 			// QuestionDaily DB에 유저 정보 있는지 확인
-			const userDaily = await QuestionDaily.findOne({ userId : user.id })	
+			const userDaily = await QuestionDaily.findOne({ userId : user.id })
 
-			if (!userDaily) { // 회원 가입 후 처음 로그인   
+			if (!userDaily) { // 회원 가입 후 처음 로그인
 				const most = await mostAnswer()
 				cards = []
-				most.forEach((element) => { 
+				most.forEach((element) => {
 					cards.push(element.cardId)
 				})
 				await QuestionDaily.create({ // DB에 row 생성.
@@ -83,7 +83,7 @@ router.get('/daily', async (req, res) => {
 				console.log("회원가입 후 로그인 테스트중")
 				const today = moment(Date.now()).format("YYMMDD");
 				const userDaily = await QuestionDaily.findOne({ userId: user.id, YYMMDD: today })
-				
+
 				if (userDaily) { // 오늘 처음이 아닌 경우
 					const questions = userDaily.questions;
 					for (question of questions)
@@ -108,7 +108,7 @@ router.get('/daily', async (req, res) => {
 
 					friend_ids = await Friend.find({ followingId: userId })
 					friends = [] // 친구들 목록
-					for (friend of friend_ids) { 
+					for (friend of friend_ids) {
 						friends.push(friend.followerId)
 					}
 					friends_answer = await AnswerCard.find({}).where('userId').in(friends) // 친구들이 쓴 답변 목록
@@ -120,15 +120,15 @@ router.get('/daily', async (req, res) => {
 					// 중복제거
 					friendAnswerId = new Set(friendAnswerId)
 					friendAnswerId = [...friendAnswerId]
-					
+
 					// 기간내 카드 제거
 					standardTime = moment(Date.now() - (1000 *60 * 60 *24 * 7)).format('YYMMDD')
 					notInclude_temp = await AnswerCard.find({ userId: userId }).where('YYMMDD').gt(standardTime)
 					notIncludedCards = []
-					for (card of notInclude_temp) { 
+					for (card of notInclude_temp) {
 						notIncludedCards.push(card.questionId)
 					}
-					
+
 					for (value of notIncludedCards) {
 						findIndex = friendAnswerId.indexOf(value)
 						if (-1 != findIndex) {
@@ -161,7 +161,7 @@ router.get('/daily', async (req, res) => {
 					})
 					resultCards = await QuestionCard.find({}).where('_id').in(myCards);
 					resultCardsInfo = []
-					for (element of resultCards) { 
+					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
 						resultCardsInfo.push({
