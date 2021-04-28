@@ -68,6 +68,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
             const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
             const questionUserInfo = await User.findOne({ _id: createdUser })
             booksDiary.push({
+                questionId: _id
                 questionCreatedUserId: questionUserInfo._id,
                 questionCreatedUser: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
@@ -83,7 +84,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
     }
 });
 
-// 내 책 디테일 확인
+// 내 질문 카드 디테일 확인
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
     try {
         const { YYMMDD } = req.params
@@ -94,6 +95,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: _id })
+
         for (let i = 0; i < others.length; i++) {
             const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
             other.push({
@@ -151,7 +153,7 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
     }
 });
 
-// 친구 목록 확인
+// 내 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
 router.get('/friendList', authMiddleware, async (req, res, next) => {
     try {
@@ -175,7 +177,6 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
 // 타인의 친구 목록
 router.get('/other/friendList/:id', async (req, res, next) => {
     const { id } = req.params;
-    console.log(id)
     try {
         const friendList = await Friend.find({ followingId: id })
         othersFriend = []
