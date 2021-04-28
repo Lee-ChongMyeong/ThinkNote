@@ -181,7 +181,7 @@ router.get('/other/friendList/:id', async (req, res, next) => {
         othersFriend = []
         for (let i = 0; i < friendList.length; i++) {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
-            othersfriend.push({
+            othersFriend.push({
                 otherFriendId: friendInfo._id,
                 otherFriendNickname: friendInfo.nickname,
                 otherFriendProfileImg: friendInfo.profileImg
