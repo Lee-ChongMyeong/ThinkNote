@@ -22,7 +22,8 @@ router.get('/cards', async (req, res) => {
 			temp['answers'] = [];
 
 			for (answer of answers) {
-				let answerUser = await AnswerCard.findOne({ _id: answer.createdUser });
+				let answerUser = await User.findOne({ _id: answer.createdUser });
+				console.log(answerUser)
 				temp['answers'].push({
 					userId: answerUser._id,
 					profileImg: answerUser.profileImg,
