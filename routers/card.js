@@ -89,21 +89,23 @@ router.get('/daily', async (req, res) => {
 					for (question of questions)
 					{
 						console.log(question)
-						card = await QuestionCard.findOne({ _id: question})
-						created = await User.findOne({_id: card.createdUser})
+						let card = await QuestionCard.findOne({ _id: question})
+						let created = await User.findOne({_id: card.createdUser})
+						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId : card._id,
 							topic : card.topic,
 							contents : card.contents,
-							createdUser : created.nickname
+							createdUser : created.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({cards :cards})
 
 				} else { // 회원가입 완료. 오늘 처음 접속한 경우 
 						 //오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
-						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림 
-						 
+						 // 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
+
 					let myCards = []
 
 					friend_ids = await Friend.find({ followingId: userId })
@@ -164,11 +166,13 @@ router.get('/daily', async (req, res) => {
 					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
+						let answer = await AnswerCard.find({ questionId: element._id });
 						resultCardsInfo.push({
 							cardId : tempCard._id,
 							topic : tempCard.topic,
 							contents : tempCard.contents,
-							createdUser : createdUser.nickname
+							createdUser : createdUser.nickname,
+							answerCount : answer.length
 						})
 					}
 					return res.json({ cards: resultCardsInfo })
