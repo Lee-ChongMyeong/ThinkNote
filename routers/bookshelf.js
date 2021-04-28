@@ -42,7 +42,6 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
     try {
         const { YYMM } = req.params
         user = res.locals.user;
-        // const { YYMMDD } = await AnswerCard.aggregate({ userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } })
         const books = await AnswerCard.aggregate([
             { $match: { userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } } },
             { $group: { _id: "$YYMMDD", count: { $sum: 1 } } }
@@ -87,11 +86,11 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
-                questionCreatedUser: questionUserInfo.nickname,
+                questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
                 answerContents: booksDetail[i]['contents'],
-                answerUser: user.nickname,
+                answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
             })
         }
