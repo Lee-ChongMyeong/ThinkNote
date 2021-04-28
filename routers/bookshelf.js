@@ -139,9 +139,12 @@ router.post('/question', authMiddleware, async (req, res, next) => {
 // 친구 추가
 router.post('/addfriend', authMiddleware, async (req, res, next) => {
     console.log('친구추가!')
+    console.log(req.body.friendId)
     try {
+        console.log('트라이로 오기')
         user = res.locals.user;
         const { friendId } = req.body;
+        console.log(friendId)
         const addfriend = await Friend.create({
             followingId: user.userId,
             followerId: friendId
