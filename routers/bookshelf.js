@@ -168,7 +168,6 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
 // 중복 제거하기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
-
         const { contents } = req.body;
         const originContents = await QuestionCard.findOne({ contents: contents })
 
@@ -200,6 +199,8 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
+// 친구해제
 
 // 내 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
