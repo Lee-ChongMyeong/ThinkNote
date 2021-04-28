@@ -4,7 +4,7 @@ const sanitizeHtml = require('sanitize-html');
 const { QuestionCard, AnswerCard, QuestionDaily, Friend, User} = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
 const jwt = require('jsonwebtoken')
-const mostAnswer = require('../lib/mostAnswer')
+const dailyAnswer = require('../lib/dailyAnswer')
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault("Asia/Seoul");
@@ -49,8 +49,8 @@ router.get('/daily', async (req, res) => {
 
 		const { authorization } = req.headers;
 		if (!authorization) { // 로그인 안한 유저가 접속
-			const most = await mostAnswer()
-			return res.json({ cards : most })
+			const dailyAnswerCard = await dailyAnswer()
+			return res.json({ cards : dailyAnswerCard })
 		} else {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer')
@@ -65,9 +65,9 @@ router.get('/daily', async (req, res) => {
 			const userDaily = await QuestionDaily.findOne({ userId : user.id })
 
 			if (!userDaily) { // 회원 가입 후 처음 로그인 및 접속
-				const most = await mostAnswer()
+				const dailyAnswerCard = await dailyAnswer()
 				cards = []
-				most.forEach((element) => {
+				dailyAnswerCard.forEach((element) => {
 					cards.push(element.cardId)
 				})
 				await QuestionDaily.create({ // DB에 row 생성.
@@ -75,7 +75,7 @@ router.get('/daily', async (req, res) => {
 					questions: cards,
 					YYMMDD: moment(Date.now()).format("YYMMDD")
 				})
-				return res.json({ cards : most })
+				return res.json({ cards : dailyAnswerCard })
 
 			}else{ // 회원 가입 후 처음이 아닌 경우(다시 다른날에 들어온 사람), YYMMDD -> 수정
 				cards = []
@@ -91,13 +91,13 @@ router.get('/daily', async (req, res) => {
 						console.log(question)
 						let card = await QuestionCard.findOne({ _id: question})
 						let created = await User.findOne({_id: card.createdUser})
-						let answer = await AnswerCard.find({ questionId: question._id });
+						let answer = await AnswerCard.find({ questionId: question._id,  });
 						cards.push({
 							cardId : card._id,
 							topic : card.topic,
 							contents : card.contents,
 							createdUser : created.nickname,
-							answerCount : answer.length	
+							answerCount : answer.length
 						})
 					}
 					return res.json({cards :cards})
@@ -142,11 +142,11 @@ router.get('/daily', async (req, res) => {
 						let index = Math.floor(Math.random()*friendsAvailableCards.length)
 						myCards.push(friendsAvailableCards[index]._id)
 					}
-
+					console.log(notIncludedCards)
 					availableCards = await QuestionCard.find({}).where('_id').nin(notIncludedCards); // 전체에서 사용할 수 있는 카드
 					console.log(availableCards)
 
-					while (myCards.length < 3) {
+					while (availableCards.length && myCards.length < 3) {
 						let index = Math.floor(Math.random() * availableCards.length)
 						if (-1 == myCards.indexOf(availableCards[index]._id))
 						{
@@ -155,6 +155,9 @@ router.get('/daily', async (req, res) => {
 								break;
 							}
 						}
+					}
+					if (!cards.length) {
+						return res.json({ cards: [] })
 					}
 					await QuestionDaily.create({ // DB에 row 생성.
 						userId: userId,

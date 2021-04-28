@@ -4,7 +4,7 @@ const passport = require('../auth/passport');
 const jwt = require('jsonwebtoken')
 router.get('/', (req, res) => {
 	res.send(
-		`<a href='http://lkj99:3000/auth/naver'>네이버 로그인</a> <a href='http://lkj99:3000/auth/google'>구글 로그인</a> <a href='http://lkj99:3000/auth/kakao'> 카카오 로그인 </a>`
+		`<a href='http://lkj99/auth/naver'>네이버 로그인</a> <a href='http://lkj99/auth/google'>구글 로그인</a> <a href='http://lkj99/auth/kakao'> 카카오 로그인 </a>`
 	);
 });
 
