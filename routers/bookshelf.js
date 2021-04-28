@@ -1,6 +1,6 @@
 const express = require('express');
-const { AnswerCard, User, QuestionCard } = require('../models');
-const authMiddleware = require('../auth/authMiddleware')
+const { AnswerCard, User, QuestionCard, Friend } = require('../models');
+const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
 // 유저 검색
@@ -105,6 +105,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
 });
 
 // 커스텀 질문 등록
+// 중복 제거하기
 router.post('/question', authMiddleware, async (req, res, next) => {
     user = res.locals.user;
     const CustomQuestion = await QuestionCard.create({
@@ -113,6 +114,28 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     })
     const { nickname } = await User.findOne({ _id: user.userId })
     return res.send({ CustomQuestion, profileImg: user.profileImg, nickname })
+});
+
+// 친구 추가
+router.post('/addfriend', authMiddleware, async (req, res, next) => {
+    user = res.locals.user;
+    const { friendId } = req.body;
+    const addfriend = await Friend.create({
+        followingId: user.userId,
+        followerId: friendId
+    })
+    return res.send('친구추가 성공')
+});
+
+// 친구 목록 확인
+router.get('/friendList', authMiddleware, async (req, res, next) => {
+    user = res.locals.user;
+    const { friendId } = req.body;
+    const addfriend = await Friend.create({
+        followingId: user.userId,
+        followerId: friendId
+    })
+    return res.send('친구추가 성공')
 });
 
 module.exports = router;
