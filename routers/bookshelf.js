@@ -208,7 +208,7 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { friendId } = req.body;
-        await Friend.findOneAndDelete({ followingId: user.userId, followerId: friendId })
+        await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
         return res.send('친구삭제 성공ㅠㅠ')
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
