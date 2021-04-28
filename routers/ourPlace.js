@@ -6,12 +6,14 @@ router.get('/cards', async (req, res) => {
 	try {
 
 		result = [];
-		const mostAnswers = await AnswerCard.aggregate([{ $group: { _id: '$questionId', count: { $sum: 1 } } }, { $sample: { size: 2 } }]);
-		for (mostAnswer of mostAnswers) {
+		const randomAnswers = await AnswerCard.aggregate([{ $group: { _id: '$questionId', count: { $sum: 1 } } }, { $sample: { size: 2 } }]);
+        console.log(randomAnswers)
+		for (mostAnswer of randomAnswers) {
 
 			temp = {};
 			let question = await QuestionCard.findOne({ _id: mostAnswer._id });
 			let user = await User.findOne({ _id: question.createdUser });
+            console.log(user)
 			temp['questions'] = {
 				questionId: question._id,
 				contents: question.contents,
@@ -22,7 +24,7 @@ router.get('/cards', async (req, res) => {
 			temp['answers'] = [];
 
 			for (answer of answers) {
-				let answerUser = await AnswerCard.findOne({ _id: answer.createdUser });
+				let answerUser = await User.findOne({ _id: answer.createdUser });
 				temp['answers'].push({
 					userId: answerUser._id,
 					profileImg: answerUser.profileImg,
