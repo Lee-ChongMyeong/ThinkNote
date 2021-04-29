@@ -5,13 +5,17 @@ const questionInfo = require('../lib/questionInfo');
 router.get('/cards', async (req, res) => {
 	try {
 		result = [];
-		const randomAnswers = await AnswerCard.aggregate([{ $group: { _id: '$questionId', count: { $sum: 1 } } }, { $sample: { size: 2 } }]);
-        console.log(randomAnswers)
+		const randomAnswers = await AnswerCard.aggregate([
+			{ $group: { _id: '$questionId', count: { $sum: 1 } } },
+			{ $match: { $and: [{ count: { $gte: 4 } }]} },
+			{ $sample: { size: 2 } }
+		]);
+		console.log(randomAnswers);
 		for (randomAnswer of randomAnswers) {
 			temp = {};
 			let question = await QuestionCard.findOne({ _id: randomAnswer._id });
 			let user = await User.findOne({ _id: question.createdUser });
-            console.log(user)
+			console.log(user);
 			temp['questions'] = {
 				questionId: question._id,
 				contents: question.contents,
@@ -19,7 +23,6 @@ router.get('/cards', async (req, res) => {
 				nicname: user.nickname
 			};
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
-			console.log('답변들', answers)
 			temp['answers'] = [];
 
 			for (answer of answers) {
@@ -36,7 +39,7 @@ router.get('/cards', async (req, res) => {
 		}
 		res.json({ result: result });
 	} catch (err) {
-		console.log(err)
+		console.log(err);
 		res.status(400).json({ msg: 'fail' });
 	}
 });
@@ -44,7 +47,7 @@ router.get('/cards', async (req, res) => {
 router.get('/cards/:questionId', async (req, res) => {
 	const { questionId } = req.params;
 	result = await questionInfo(questionId);
-	res.json({result})
+	res.json({ result });
 });
 
 router.get('/cards/:questionId/test', async (req, res) => {
@@ -63,8 +66,7 @@ router.get('/cards/:questionId/test', async (req, res) => {
 	mostLike.sort((a, b) => {
 		return a.count - b.count;
 	});
-	res.json({mostLike})
+	res.json({ mostLike });
 });
 
 module.exports = router;
-
