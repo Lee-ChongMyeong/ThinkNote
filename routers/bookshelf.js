@@ -354,28 +354,20 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
     }
 })
 
-
-//질문카드 공통 부분
+//더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
     try {
-        let { page } = req.query
-        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
-
         const { questionId } = req.params;
-        const allAnswer = await AnswerCard.find({ questionId }).skip(page * 2).limit(2);
+        const questionInfo = await QuestionCard.findOne({ _id: questionId })
+        const userInfo = await User.findOne({ _id: questionInfo.userId })
 
-        answer = []
-        for (let i = 0; i < allAnswer.length; i++) {
-            const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
-            answer.push({
-                userId: UserInfo._id,
-                userNickname: UserInfo.nickname,
-                userProfileImg: UserInfo.profileImg,
-                answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents']
-            })
-        }
-        return res.send({ answer })
+        return res.send({
+            questionId: questionInfo._id,
+            questionContents: questionInfo.contents,
+            questionCreatedUserId: userInfo._id,
+            questionCreatedUserNickname: userInfo.nickname,
+            questionCreatedUserProfileImg: userInfo.profileImg
+        })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
