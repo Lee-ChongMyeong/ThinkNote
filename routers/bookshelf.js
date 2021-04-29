@@ -1,5 +1,5 @@
 const express = require('express');
-const { AnswerCard, User, QuestionCard, Friend } = require('../models');
+const { AnswerCard, User, QuestionCard, Friend, Like } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
@@ -10,8 +10,6 @@ router.post('/searchUser', async (req, res, next) => {
     try {
         const { words } = req.body;
         if (!words) { res.send({ userInfo: 'none' }) }
-
-
         // ({ userId: { $ne: user.userId }, questionId: questionId })
         const userInfo = await User.find({ nickname: { $ne: '대호리' }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
 
@@ -301,11 +299,42 @@ router.get('/other/friendList/:id', async (req, res, next) => {
     }
 });
 
-// 답변카드 좋아요
-router.post('/like/AnswerCard', authMiddleware, async (req, res, next) => {
+// 답변카드 좋아요 클릭
+router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
+        const { answerCardId } = req.body;
         user = res.locals.user;
 
+        const checkLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
+        if (checkLike) { return res.send('이미 좋아요 누른 상태') }
+
+        await Like.create({
+            answerId: answerCardId,
+            userId: user.userId
+        })
+
+        const likeCount = await Like.find({ answerId: answerCardId })
+        const likeCountNum = likeCount.length
+        return res.send({ answerCardId, likeCountNum, currentLike: true })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
+
+// 답변카드 좋아요 취소 클릭
+router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
+    try {
+        const { answerCardId } = req.body;
+        user = res.locals.user;
+
+        const checkLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
+        if (!checkLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
+
+        await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
+
+        const likeCount = await Like.find({ answerId: answerCardId })
+        const likeCountNum = likeCount.length
+        return res.send({ answerCardId, likeCountNum, currentLike: false })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
