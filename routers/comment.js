@@ -34,34 +34,34 @@ router.get('/:cardId', async (req, res, next) => {
 
 // 댓글 입력
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
-    try {
-       const user = res.locals.user;
-       userprofile = user["profileImg"];
-       const result = await CommentBoard.create({
-          cardId: req.params.cardId,
-          commentContents: req.body.commentContents,
-          nickname: user.nickname,
-          userId: user.id,
-          user: user["_id"]
-       });
-       res.json({ msg : 'success', result: result, currentprofile: userprofile });
-    } catch (err) {
-       res.json({ msg: 'fail' });
-    }
- });
+   try {
+      const user = res.locals.user;
+      userprofile = user["profileImg"];
+      const result = await CommentBoard.create({
+         cardId: req.params.cardId,
+         commentContents: req.body.commentContents,
+         nickname: user.nickname,
+         userId: user.id,
+         user: user["_id"]
+      });
+      res.json({ msg: 'success', result: result, currentprofile: userprofile });
+   } catch (err) {
+      res.json({ msg: 'fail' });
+   }
+});
 
 // 댓글 삭제
 router.delete('/:commentId', authMiddleware, async (req, res, next) => {
-    let result = { msg : 'success' };
-    try {
-       const user = res.locals.user;
-       const commentId = req.params.commentId;
-       const { deletedCount } = await CommentBoard.deleteOne({ _id: commentId, userId: user.id });
-       if (!deletedCount) result['msg'] = 'fail';
-    } catch (err) {
-       result['msg'] = 'fail';
-    }
-    res.json(result);
- });
+   let result = { msg: 'success' };
+   try {
+      const user = res.locals.user;
+      const commentId = req.params.commentId;
+      const { deletedCount } = await CommentBoard.deleteOne({ _id: commentId, userId: user.id });
+      if (!deletedCount) result['msg'] = 'fail';
+   } catch (err) {
+      result['msg'] = 'fail';
+   }
+   res.json(result);
+});
 
 module.exports = router;
