@@ -328,7 +328,8 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
     }
 })
 
-// 더보기
+// 더보기 답변들
+// 좋아요 순위
 router.get('/moreInfoCard/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query
