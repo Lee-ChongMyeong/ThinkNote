@@ -208,10 +208,14 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 // 중복 글자 수 찾기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
-        const { contents } = req.body;
+        const { contents, topic } = req.body;
         const originContents = await QuestionCard.findOne({ contents: contents })
 
-        if (!originContents) {  
+        if (!topic) {
+            return res.send({ msg: '토픽을 넣어주세요' })
+        }
+
+        if (!originContents) {
             user = res.locals.user;
             const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId })
             const { nickname } = await User.findOne({ _id: user.userId })
