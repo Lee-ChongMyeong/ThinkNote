@@ -55,7 +55,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
 });
 
 // 다른 사람 책장 월별 확인
-router.get('/other/books/:YYMMDD/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
     try {
         const { YYMM } = req.params;
         const { id } = req.params;
