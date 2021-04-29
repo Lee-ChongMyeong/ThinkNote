@@ -225,11 +225,15 @@ router.post('/question', authMiddleware, async (req, res, next) => {
 router.post('/addfriend', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
+        const checkFriend = await Friend.findOne({ followingId: user.userId, followerId: friendId })
+        if (checkFriend) { return res.status(400).send('이미 친구입니다.') }
+
         const { friendId } = req.body;
         const addfriend = await Friend.create({
             followingId: user.userId,
             followerId: friendId
         })
+
         return res.status(200).json({ msg: '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
