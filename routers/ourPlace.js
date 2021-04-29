@@ -1,7 +1,7 @@
 const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
 const express = require('express');
 const router = express.Router();
-
+const questionInfo = require('../lib/questionInfo');
 router.get('/cards', async (req, res) => {
 	try {
 
@@ -43,9 +43,10 @@ router.get('/cards', async (req, res) => {
 });
 
 
-router.get('/cards/detail/:questionId', async (req, res) => {
-
-
+router.get('/cards/:questionId', async (req, res) => {
+	const { questionId } = req.params;
+	result = await questionInfo(questionId);
+	res.json({result})
 });
 
 module.exports = router;
