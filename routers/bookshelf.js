@@ -86,6 +86,8 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
         for (let i = 0; i < booksDetail.length; i++) {
             const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
             const questionUserInfo = await User.findOne({ _id: createdUser })
+            const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] })
+            const likeCountNum = likeCount.length
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
@@ -95,6 +97,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
+                likeCount: likeCountNum
             })
         }
         return res.send({ booksDiary })
@@ -292,15 +295,19 @@ router.get('/other/friendList/:id', async (req, res, next) => {
 // 답변카드 좋아요 클릭
 router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
-        const { answerCardId, currentLike } = req.body;
+        const { answerCardId } = req.body;
         user = res.locals.user;
-
-        if (currentLike === true) { return res.send('이미 좋아요 누른 상태') }
+        const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
+        if (currentLike) { return res.send('이미 좋아요 누른 상태') }
 
         await Like.create({
             answerId: answerCardId,
             userId: user.userId
         })
+
+        const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
+        LikeCount = LikeCount += 1
+        await AnswerCard.updateOne({ LikeCount })
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
@@ -313,12 +320,19 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 // 답변카드 좋아요 취소 클릭
 router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
-        const { answerCardId, currentLike } = req.body;
+        const { answerCardId } = req.body;
         user = res.locals.user;
 
-        if (currentLike === false) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
+        const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
+        if (!currentLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
+        console.log('하이11')
+        const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
+        LikeCount = LikeCount -= 1
+        await AnswerCard.updateOne({ LikeCount })
+        console.log('하이')
 
         await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
+        await AnswerCard.findOne({ answerId: answerCardId, userId: user.userId })
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
@@ -328,8 +342,27 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
     }
 })
 
+//더보기 질문 타이틀
+router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
+    try {
+        const { questionId } = req.params;
+        const questionInfo = await QuestionCard.findOne({ _id: questionId })
+        const userInfo = await User.findOne({ _id: questionInfo.userId })
+
+        return res.send({
+            questionId: questionInfo._id,
+            questionContents: questionInfo.contents,
+            questionCreatedUserId: userInfo._id,
+            questionCreatedUserNickname: userInfo.nickname,
+            questionCreatedUserProfileImg: userInfo.profileImg
+        })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
+
 // 더보기 답변들
-// 좋아요 순위
+// 기본 내려주기
 router.get('/moreInfoCard/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query
@@ -355,24 +388,34 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
     }
 })
 
-//더보기 질문 타이틀
-router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
+// 더보기 답변들
+// 좋아요 순위
+router.get('/moreInfoCard/:questionId', async (req, res, next) => {
     try {
-        const { questionId } = req.params;
-        const questionInfo = await QuestionCard.findOne({ _id: questionId })
-        const userInfo = await User.findOne({ _id: questionInfo.userId })
+        let { page } = req.query
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
 
-        return res.send({
-            questionId: questionInfo._id,
-            questionContents: questionInfo.contents,
-            questionCreatedUserId: userInfo._id,
-            questionCreatedUserNickname: userInfo.nickname,
-            questionCreatedUserProfileImg: userInfo.profileImg
-        })
+        const { questionId } = req.params;
+        const { } = await AnswerCard.find({ questionId }).sort().skip(page * 2).limit(2)
+
+        answer = []
+        for (let i = 0; i < allAnswer.length; i++) {
+            const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+            answer.push({
+                userId: UserInfo._id,
+                userNickname: UserInfo.nickname,
+                userProfileImg: UserInfo.profileImg,
+                answerId: allAnswer[i]['_id'],
+                answerContents: allAnswer[i]['contents']
+            })
+        }
+        return res.send({ answer })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
 })
+
+// 커스텀 질문 조회
 
 // for (let i = 0; i < others.length; i++) {
 //     const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
