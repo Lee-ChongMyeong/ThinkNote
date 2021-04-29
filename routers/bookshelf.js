@@ -302,11 +302,10 @@ router.get('/other/friendList/:id', async (req, res, next) => {
 // 답변카드 좋아요 클릭
 router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
-        const { answerCardId } = req.body;
+        const { answerCardId, currentLike } = req.body;
         user = res.locals.user;
 
-        const checkLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
-        if (checkLike) { return res.send('이미 좋아요 누른 상태') }
+        if (currentLike === true) { return res.send('이미 좋아요 누른 상태') }
 
         await Like.create({
             answerId: answerCardId,
@@ -324,11 +323,10 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 // 답변카드 좋아요 취소 클릭
 router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
-        const { answerCardId } = req.body;
+        const { answerCardId, currentLike } = req.body;
         user = res.locals.user;
 
-        const checkLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
-        if (!checkLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
+        if (currentLike === false) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
 
         await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
 
