@@ -27,7 +27,7 @@ router.get('/:cardId', async (req, res, next) => {
           result['comments'].push(temp);
        }
     } catch (err) {
-       result['status'] = 'fail';
+       result['msg'] = 'fail';
     }
     res.json(result);
  });
@@ -44,22 +44,22 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
           userId: user.id,
           user: user["_id"]
        });
-       res.json({ status: 'success', result: result, currentprofile: userprofile });
+       res.json({ msg : 'success', result: result, currentprofile: userprofile });
     } catch (err) {
-       res.json({ status: 'fail' });
+       res.json({ msg: 'fail' });
     }
  });
 
 // 댓글 삭제
 router.delete('/:commentId', authMiddleware, async (req, res, next) => {
-    let result = { status: 'success' };
+    let result = { msg : 'success' };
     try {
        const user = res.locals.user;
        const commentId = req.params.commentId;
        const { deletedCount } = await CommentBoard.deleteOne({ _id: commentId, userId: user.id });
-       if (!deletedCount) result['status'] = 'fail';
+       if (!deletedCount) result['msg'] = 'fail';
     } catch (err) {
-       result['status'] = 'fail';
+       result['msg'] = 'fail';
     }
     res.json(result);
  });
