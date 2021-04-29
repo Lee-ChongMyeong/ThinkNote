@@ -10,6 +10,7 @@ router.post('/searchUser', async (req, res, next) => {
         const { words } = req.body;
         if (!words) { res.send({ userInfo: 'none' }) }
         const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+        console.log(userInfo)
         if (userInfo) {
             res.send({ userInfo })
         }
@@ -237,7 +238,7 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
             followingId: user.userId,
             followerId: friendId
         })
-        return res.send('친구추가 성공')
+        return res.status(200).json({ msg : '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -249,7 +250,7 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         const { friendId } = req.body;
         await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
-        return res.send('친구삭제 성공ㅠㅠ')
+        return res.json({ msg : '친구삭제 성공'})
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
