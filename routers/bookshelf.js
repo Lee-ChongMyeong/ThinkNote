@@ -128,12 +128,10 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
     }
 });
 
-// 같은 질문이 내려오는 버그
 // 내 질문 카드 디테일 확인
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD } = req.params;
-        const { questionId } = req.params;
+        const { YYMMDD, questionId } = req.params;
         user = res.locals.user;
         bookCardDetail = []
         other = []
@@ -168,8 +166,45 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
     }
 });
 
+// 다른 사람 질문 카드 디테일 확인
+router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, async (req, res, next) => {
+    try {
+        const { YYMMDD, questionId, id } = req.params;
+        bookCardDetail = []
+        other = []
+        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD })
+        const { contents, createdUser } = await QuestionCard.findOne({ _id: questionId })
+        const questionUserInfo = await User.findOne({ _id: createdUser })
+        const others = await AnswerCard.find({ userId: { $ne: id }, questionId: questionId }).limit(3)
+
+        for (let i = 0; i < others.length; i++) {
+            const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+            console.log(others[i]['questionId'])
+            other.push({
+                otherUserId: others[i]['userId'],
+                otherUserNickname: otherUserInfo.nickname,
+                otherUserContents: others[i]['contents'],
+                otherUserProfileImg: otherUserInfo.profileImg
+            })
+        }
+
+        bookCardDetail.push({
+            questionCreatedUserId: questionUserInfo._id,
+            questionCreatedUserNickname: questionUserInfo.nickname,
+            questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            questionContents: contents,
+            answerContents: booksDetail.contents,
+            answerUserNickname: user.nickname,
+            isOpen: booksDetail.isOpen,
+        })
+        return res.send({ bookCardDetail, other })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
 // 커스텀 질문 등록
-// 중복 제거하기
+// 중복 글자 수 찾기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         const { contents } = req.body;
@@ -204,7 +239,17 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
     }
 });
 
-// 친구해제
+// 친구해제ㅠㅠ
+router.delete('/friend', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        const { friendId } = req.body;
+        await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
+        return res.send('친구삭제 성공ㅠㅠ')
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
 
 // 내 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
