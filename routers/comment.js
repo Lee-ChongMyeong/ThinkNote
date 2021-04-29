@@ -10,7 +10,7 @@ moment.tz.setDefault("Asia/Seoul");
 
 // 댓글 리스트
 router.get('/:cardId', async (req, res, next) => {
-    const cardId = req.params.boardId;
+    const cardId = req.params.cardId;
     let result = { msg : 'success', comments: [] };
     try {
        //const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
