@@ -11,4 +11,6 @@ router.use('/bookshelf', require('./bookshelf'));
 
 router.use('/ourPlace', require('./ourPlace'));
 
+router.use('/comment', require('./comment'));
+
 module.exports = router
