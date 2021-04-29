@@ -6,11 +6,15 @@ const router = express.Router();
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
+    console.log('힝')
     try {
         const { words } = req.body;
         if (!words) { res.send({ userInfo: 'none' }) }
-        const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
-        console.log(userInfo)
+
+
+        // ({ userId: { $ne: user.userId }, questionId: questionId })
+        const userInfo = await User.find({ nickname: { $ne: '대호리' }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+
         if (userInfo) {
             res.send({ userInfo })
         }
@@ -238,7 +242,7 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
             followingId: user.userId,
             followerId: friendId
         })
-        return res.status(200).json({ msg : '친구추가 성공' })
+        return res.status(200).json({ msg: '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -250,7 +254,7 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         const { friendId } = req.body;
         await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
-        return res.json({ msg : '친구삭제 성공'})
+        return res.json({ msg: '친구삭제 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -296,5 +300,15 @@ router.get('/other/friendList/:id', async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
+// 답변카드 좋아요
+router.post('/like/AnswerCard', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
 
 module.exports = router;
