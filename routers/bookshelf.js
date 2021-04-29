@@ -6,10 +6,15 @@ const router = express.Router();
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
+    console.log('힝')
     try {
         const { words } = req.body;
         if (!words) { res.send({ userInfo: 'none' }) }
-        const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+
+
+        // ({ userId: { $ne: user.userId }, questionId: questionId })
+        const userInfo = await User.find({ nickname: { $ne: '대호리' }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+
         if (userInfo) {
             res.send({ userInfo })
         }
@@ -55,7 +60,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
 });
 
 // 다른 사람 책장 월별 확인
-router.get('/other/books/:YYMMDD/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
     try {
         const { YYMM } = req.params;
         const { id } = req.params;
@@ -127,19 +132,54 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
     }
 });
 
-// 같은 질문이 내려오는 버그
 // 내 질문 카드 디테일 확인
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD } = req.params;
-        const { questionId } = req.params;
+        const { YYMMDD, questionId } = req.params;
         user = res.locals.user;
         bookCardDetail = []
         other = []
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
-        const { contents, createdUser } = await QuestionCard.findOne({ _id: questionId })
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
+
+        for (let i = 0; i < others.length; i++) {
+            const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+            console.log(others[i]['questionId'])
+            other.push({
+                otherUserId: others[i]['userId'],
+                otherUserNickname: otherUserInfo.nickname,
+                otherUserContents: others[i]['contents'],
+                otherUserProfileImg: otherUserInfo.profileImg
+            })
+        }
+        bookCardDetail.push({
+            questionCreatedUserId: questionUserInfo._id,
+            questionCreatedUserNickname: questionUserInfo.nickname,
+            questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            questionTopic: topic,
+            questionContents: contents,
+            answerContents: booksDetail.contents,
+            answerUserNickname: user.nickname,
+            isOpen: booksDetail.isOpen,
+        })
+        return res.send({ bookCardDetail, other })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+// 다른 사람 질문 카드 디테일 확인
+router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, async (req, res, next) => {
+    try {
+        const { YYMMDD, questionId, id } = req.params;
+        bookCardDetail = []
+        other = []
+        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD })
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
+        const questionUserInfo = await User.findOne({ _id: createdUser })
+        const others = await AnswerCard.find({ userId: { $ne: id }, questionId: questionId }).limit(3)
 
         for (let i = 0; i < others.length; i++) {
             const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
@@ -156,6 +196,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            questionTopic: topic,
             questionContents: contents,
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
@@ -168,11 +209,15 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
 });
 
 // 커스텀 질문 등록
-// 중복 제거하기
+// 중복 글자 수 찾기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
-        const { contents } = req.body;
+        const { contents, topic } = req.body;
         const originContents = await QuestionCard.findOne({ contents: contents })
+
+        if (!topic) {
+            return res.send({ msg: '토픽을 넣어주세요' })
+        }
 
         if (!originContents) {
             user = res.locals.user;
@@ -197,13 +242,23 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
             followingId: user.userId,
             followerId: friendId
         })
-        return res.send('친구추가 성공')
+        return res.status(200).json({ msg: '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
 });
 
-// 친구해제
+// 친구해제ㅠㅠ
+router.delete('/friend', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        const { friendId } = req.body;
+        await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
+        return res.json({ msg: '친구삭제 성공' })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
 
 // 내 친구 목록 확인
 // 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
@@ -245,5 +300,15 @@ router.get('/other/friendList/:id', async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
+// 답변카드 좋아요
+router.post('/like/AnswerCard', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
 
 module.exports = router;

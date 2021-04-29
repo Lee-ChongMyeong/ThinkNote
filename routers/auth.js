@@ -31,6 +31,7 @@ makeToken = (userId) => {
 };
 
 // 네이버 콜백
+// http://thinknote.shop.s3-website.ap-northeast-2.amazonaws.com/
 router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/auth' }), (req, res) => {
 	res.redirect(`http://localhost:3000/auth/${makeToken(req.user._id)}`);
 });
@@ -42,7 +43,7 @@ router.get('/kakao/oauth', passport.authenticate('kakao', { failureRedirect: '/a
 
 // 구글 콜백
 router.get('/google/oauth', passport.authenticate('google', { failureRedirect: '/auth' }), (req, res) => {
-	res.redirect(`http://localhost:3000/auth/${makeToken(req.user._id)}`);
+	res.redirect(`http://thinknote.shop.s3-website.ap-northeast-2.amazonaws.com/auth/${makeToken(req.user._id)}`);
 });
 
 module.exports = router;
