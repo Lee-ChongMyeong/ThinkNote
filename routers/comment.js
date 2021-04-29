@@ -16,13 +16,12 @@ router.get('/:cardId', async (req, res, next) => {
        //const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
        const comments = await CommentBoard.find({cardId : cardId})
        for (comment of comments) {
-          const userInfo = await User.findOne({ _id : comment.userId}).limit(1)
-          console.log(userInfo)
+          const userInfo = await User.findOne({ _id : comment.userId})
           let temp = {
              commentId: comment.commentId,
              commentContents: comment.commentContents,
              userId: comment.userId,
-             nickname: comment.nickname,
+             nickname: userInfo.nickname,
              profileImg: userInfo["profileImg"],
           };
           result['comments'].push(temp);
