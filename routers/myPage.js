@@ -5,6 +5,7 @@ const { User } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 const s3 = require('../lib/s3.js');
+const randomNickname = require('../lib/nickname');
 require('dotenv').config();
 
 router.patch('/profile/defaultImg', authMiddleware, (req, res) => {
@@ -24,7 +25,7 @@ router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'),
 
 		s3.deleteObject(
 			{
-				Bucket: process.env.AWS_S3_BUCKET_NAME,	
+				Bucket: process.env.AWS_S3_BUCKET_NAME,
 				Key: user.profileImg.split('.com/images/')[1]
 			},
 			(err, data) => {
@@ -35,6 +36,24 @@ router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'),
 		user.save();
 		res.json({ profileImg: user.profileImg });
 	} catch {
+		res.status(400).json({ msg: 'fail' });
+	}
+});
+
+router.patch('/profile/random-nickname', authMiddleware, async (req, res) => {
+	try {
+		const user = res.locals.user;
+		let nickname = await randomNickname();
+		while (true) {
+			// 닉네임 중복 방지
+			if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
+			else break;
+		}
+		user.nickname = nickname;
+		user.save();
+		res.json({ nickname: user.nickname });
+	} catch {
+		console.log('에러');
 		res.status(400).json({ msg: 'fail' });
 	}
 });
