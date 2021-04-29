@@ -4,7 +4,6 @@ const { Schema, model, Types } = mongoose;
 
 const commentBoard = new Schema({
    commentContents: { type: String, required: true },
-   nickname: { type: String, required: true },
    cardId: {type: String, required: true },
    userId: { type: String, required: true },
    user: {
