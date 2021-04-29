@@ -37,7 +37,7 @@ router.get('/:cardId', async (req, res, next) => {
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
     try {
        const user = res.locals.user;
-       userprofile = user["profile"];
+       userprofile = user["profileImg"];
        const result = await CommentBoard.create({
           cardId: req.params.cardId,
           commentContents: req.body.commentContents,
