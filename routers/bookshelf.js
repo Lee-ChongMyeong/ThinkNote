@@ -116,6 +116,8 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
         for (let i = 0; i < booksDetail.length; i++) {
             const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
             const questionUserInfo = await User.findOne({ _id: createdUser })
+            const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] })
+            const likeCountNum = likeCount.length
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
@@ -125,6 +127,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
+                likeCount: likeCountNum
             })
         }
         return res.send({ booksDiary })
@@ -146,16 +149,9 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
 
-        for (let i = 0; i < others.length; i++) {
-            const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
-            console.log(others[i]['questionId'])
-            other.push({
-                otherUserId: others[i]['userId'],
-                otherUserNickname: otherUserInfo.nickname,
-                otherUserContents: others[i]['contents'],
-                otherUserProfileImg: otherUserInfo.profileImg
-            })
-        }
+        const likeCount = await Like.find({ answerId: booksDetail['_id'] })
+        const likeCountNum = likeCount.length
+
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
@@ -165,6 +161,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
+            likeCount: likeCountNum
         })
         return res.send({ bookCardDetail, other })
     } catch (err) {
@@ -305,10 +302,6 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
             userId: user.userId
         })
 
-        const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
-        LikeCount = LikeCount += 1
-        await AnswerCard.updateOne({ LikeCount })
-
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
         return res.send({ answerCardId, likeCountNum, currentLike: true })
@@ -325,11 +318,12 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
         if (!currentLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
-        console.log('하이11')
-        const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
-        LikeCount = LikeCount -= 1
-        await AnswerCard.updateOne({ LikeCount })
-        console.log('하이')
+
+        // console.log('하이11')
+        // const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
+        // LikeCount = LikeCount -= 1
+        // await AnswerCard.updateOne({ LikeCount })
+        // console.log('하이')
 
         await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
         await AnswerCard.findOne({ answerId: answerCardId, userId: user.userId })

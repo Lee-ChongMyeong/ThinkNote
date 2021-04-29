@@ -7,7 +7,6 @@ const answerCard = new Schema({
 	YYMMDD: { type: String },
 	userId: { type: String },
 	isOpen: { type: Boolean, default: true },
-	likeCount: { type: Number, default: 0 }
 },
 	{ timestamps: true });
 
