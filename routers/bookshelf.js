@@ -131,6 +131,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 });
 
 // 내 질문 카드 디테일 확인
+// 날짜 작성 보여주기
 router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
     try {
         const { YYMMDD, questionId } = req.params;
@@ -178,17 +179,6 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: id }, questionId: questionId }).limit(3)
-
-        for (let i = 0; i < others.length; i++) {
-            const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
-            console.log(others[i]['questionId'])
-            other.push({
-                otherUserId: others[i]['userId'],
-                otherUserNickname: otherUserInfo.nickname,
-                otherUserContents: others[i]['contents'],
-                otherUserProfileImg: otherUserInfo.profileImg
-            })
-        }
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
@@ -337,5 +327,41 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 })
+
+// 더보기
+router.get('/moreInfoCard/:questionId', async (req, res, next) => {
+    try {
+        let { page } = req.query
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
+
+        const { questionId } = req.params;
+        const allAnswer = await AnswerCard.find({ questionId }).skip(page * 2).limit(2);
+        // const allUserInfo = await User.findOne({});
+        answer = []
+        for (let i = 0; i < allAnswer.length; i++) {
+            const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+            answer.push({
+                userId: UserInfo._id,
+                userNickname: UserInfo.nickname,
+                userProfileImg: UserInfo.profileImg,
+                answerId: allAnswer[i]['_id'],
+                answerContents: allAnswer[i]['contents']
+            })
+        }
+        return res.send({ answer })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
+// for (let i = 0; i < others.length; i++) {
+//     const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
+//     console.log(others[i]['questionId'])
+//     other.push({
+//         otherUserId: others[i]['userId'],
+//         otherUserNickname: otherUserInfo.nickname,
+//         otherUserContents: others[i]['contents'],
+//         otherUserProfileImg: otherUserInfo.profileImg
+//     })
+// }
 
 module.exports = router;
