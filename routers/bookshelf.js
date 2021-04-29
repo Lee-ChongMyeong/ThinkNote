@@ -336,7 +336,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
         const { questionId } = req.params;
         const allAnswer = await AnswerCard.find({ questionId }).skip(page * 2).limit(2);
-        // const allUserInfo = await User.findOne({});
+
         answer = []
         for (let i = 0; i < allAnswer.length; i++) {
             const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
@@ -353,6 +353,34 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 })
+
+
+//질문카드 공통 부분
+router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
+    try {
+        let { page } = req.query
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
+
+        const { questionId } = req.params;
+        const allAnswer = await AnswerCard.find({ questionId }).skip(page * 2).limit(2);
+
+        answer = []
+        for (let i = 0; i < allAnswer.length; i++) {
+            const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+            answer.push({
+                userId: UserInfo._id,
+                userNickname: UserInfo.nickname,
+                userProfileImg: UserInfo.profileImg,
+                answerId: allAnswer[i]['_id'],
+                answerContents: allAnswer[i]['contents']
+            })
+        }
+        return res.send({ answer })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
+
 // for (let i = 0; i < others.length; i++) {
 //     const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
 //     console.log(others[i]['questionId'])
