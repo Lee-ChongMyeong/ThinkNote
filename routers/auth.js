@@ -33,7 +33,7 @@ makeToken = (userId) => {
 // 네이버 콜백
 // http://thinknote.shop.s3-website.ap-northeast-2.amazonaws.com/
 router.get('/naver/oauth', passport.authenticate('naver', { failureRedirect: '/auth' }), (req, res) => {
-	res.redirect(`http://localhost:3000/auth/${makeToken(req.user._id)}`);
+	res.redirect(`http://thinknote.shop.s3-website.ap-northeast-2.amazonaws.com/auth/${makeToken(req.user._id)}`);
 });
 
 // 카카오 콜백
