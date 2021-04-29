@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const sanitizeHtml = require('sanitize-html');
+const sanitize = require('sanitize-html');
 const { CommentBoard, User } = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
 const jwt = require('jsonwebtoken')
@@ -19,7 +19,7 @@ router.get('/:cardId', async (req, res, next) => {
           const userInfo = await User.findOne({ _id : comment.userId})
           let temp = {
              commentId: comment.commentId,
-             commentContents: comment.commentContents,
+             commentContents: sanitize(comment.commentContents),
              userId: comment.userId,
              nickname: userInfo.nickname,
              profileImg: userInfo["profileImg"],
@@ -34,18 +34,20 @@ router.get('/:cardId', async (req, res, next) => {
 
 // 댓글 입력
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
+   const user = res.locals.user;
    try {
-      const user = res.locals.user;
-      userprofile = user["profileImg"];
-      const result = await CommentBoard.create({
-         cardId: req.params.cardId,
-         commentContents: req.body.commentContents,
-         nickname: user.nickname,
-         userId: user.id,
-         user: user["_id"]
-      });
-      res.json({ msg: 'success', result: result, currentprofile: userprofile });
+      let result = {
+        cardId: req.params.cardId,
+        commentContents: sanitize(req.body.commentContents),
+        userId: sanitize(user.id),
+        user: sanitize(user["_id"])
+        }
+      await CommentBoard.create(result);
+      result["nickname"] = user.nickname,
+      result["profileImg"] = user.profileImg
+      res.json({ msg: 'success', result: result });
    } catch (err) {
+       console.log(err)
       res.json({ msg: 'fail' });
    }
 });
