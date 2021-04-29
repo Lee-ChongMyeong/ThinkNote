@@ -42,6 +42,12 @@ router.get('/cards', async (req, res) => {
 	}
 });
 
+
+router.get('/cards/detail/:questionId', async (req, res) => {
+
+
+});
+
 module.exports = router;
 
 // 질문 ( 내용, 토픽)
