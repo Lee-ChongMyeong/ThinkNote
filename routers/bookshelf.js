@@ -135,7 +135,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         bookCardDetail = []
         other = []
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
-        const { contents, createdUser } = await QuestionCard.findOne({ _id: questionId })
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
 
@@ -149,11 +149,11 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
                 otherUserProfileImg: otherUserInfo.profileImg
             })
         }
-
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            questionTopic: topic,
             questionContents: contents,
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
@@ -172,7 +172,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
         bookCardDetail = []
         other = []
         const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD })
-        const { contents, createdUser } = await QuestionCard.findOne({ _id: questionId })
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
         const others = await AnswerCard.find({ userId: { $ne: id }, questionId: questionId }).limit(3)
 
@@ -191,6 +191,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            questionTopic: topic,
             questionContents: contents,
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
