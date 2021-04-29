@@ -14,7 +14,7 @@ router.get('/:cardId', async (req, res, next) => {
     let result = { msg : 'success', comments: [] };
     try {
        //const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
-       const comments = await CommentBoard.find({cardId : cardId})
+       const comments = await CommentBoard.find({cardId : cardId}).sort({ date: -1 });
        for (comment of comments) {
           const userInfo = await User.findOne({ _id : comment.userId})
           let temp = {
