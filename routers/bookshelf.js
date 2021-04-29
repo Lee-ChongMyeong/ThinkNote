@@ -147,7 +147,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
-        const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
+        // const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
 
         const likeCount = await Like.find({ answerId: booksDetail['_id'] })
         const likeCountNum = likeCount.length
@@ -175,10 +175,12 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
         const { YYMMDD, questionId, id } = req.params;
         bookCardDetail = []
         other = []
-        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD })
-        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
-        const questionUserInfo = await User.findOne({ _id: createdUser })
-        const others = await AnswerCard.find({ userId: { $ne: id }, questionId: questionId }).limit(3)
+        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD });
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
+        const questionUserInfo = await User.findOne({ _id: createdUser });
+
+        const likeCount = await Like.find({ answerId: booksDetail['_id'] });
+        const likeCountNum = likeCount.length;
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
@@ -189,6 +191,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
+            likeCount: likeCountNum
         })
         return res.send({ bookCardDetail, other })
     } catch (err) {
@@ -197,7 +200,6 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 });
 
 // 커스텀 질문 등록
-// 중복 글자 수 찾기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         const { contents, topic } = req.body;
@@ -225,10 +227,10 @@ router.post('/question', authMiddleware, async (req, res, next) => {
 router.post('/addfriend', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
-        const checkFriend = await Friend.findOne({ followingId: user.userId, followerId: friendId })
-        if (checkFriend) { return res.status(400).send('이미 친구입니다.') }
-
         const { friendId } = req.body;
+        const checkFriend = await Friend.findOne({ followingId: user.userId, followerId: friendId })
+        if (checkFriend) { return res.send('이미 친구입니다.') }
+
         const addfriend = await Friend.create({
             followingId: user.userId,
             followerId: friendId
@@ -245,6 +247,8 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { friendId } = req.body;
+        const checkFriend = await Friend.findOne({ followingId: user.userId, followerId: friendId })
+        if (!checkFriend) { return res.send('친구가 아닙니다.') }
         await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
         return res.json({ msg: '친구삭제 성공' })
     } catch (err) {
@@ -253,7 +257,7 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
 });
 
 // 내 친구 목록 확인
-// 무한 스크롤 하기 // 친구 삭제 추가 관련 부분
+// 무한 스크롤 추가 하기
 router.get('/friendList', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
@@ -388,7 +392,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
 // 더보기 답변들
 // 좋아요 순위
-router.get('/moreInfoCard/:questionId', async (req, res, next) => {
+router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
@@ -414,7 +418,6 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 })
 
 // 커스텀 질문 조회
-
 // for (let i = 0; i < others.length; i++) {
 //     const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
 //     console.log(others[i]['questionId'])
