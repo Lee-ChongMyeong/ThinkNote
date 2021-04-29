@@ -56,7 +56,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
 });
 
 // 다른 사람 책장 월별 확인
-router.get('/other/books/:YYMMDD/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
     try {
         const { YYMM } = req.params;
         const { id } = req.params;
@@ -211,7 +211,7 @@ router.post('/question', authMiddleware, async (req, res, next) => {
         const { contents } = req.body;
         const originContents = await QuestionCard.findOne({ contents: contents })
 
-        if (!originContents) {
+        if (!originContents) {  
             user = res.locals.user;
             const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId })
             const { nickname } = await User.findOne({ _id: user.userId })
@@ -234,7 +234,7 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
             followingId: user.userId,
             followerId: friendId
         })
-        return res.send('친구추가 성공')
+        return res.status(200).json({ msg : '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -246,7 +246,7 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         const { friendId } = req.body;
         await Friend.deleteOne({ followingId: user.userId, followerId: friendId })
-        return res.send('친구삭제 성공ㅠㅠ')
+        return res.json({ msg : '친구삭제 성공'})
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
