@@ -1,10 +1,9 @@
-const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
+const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like } = require('../models');
 const express = require('express');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 router.get('/cards', async (req, res) => {
 	try {
-
 		result = [];
 		const randomAnswers = await AnswerCard.aggregate([{ $group: { _id: '$questionId', count: { $sum: 1 } } }, { $sample: { size: 2 } }]);
         console.log(randomAnswers)
@@ -42,11 +41,29 @@ router.get('/cards', async (req, res) => {
 	}
 });
 
-
 router.get('/cards/:questionId', async (req, res) => {
 	const { questionId } = req.params;
 	result = await questionInfo(questionId);
 	res.json({result})
+});
+
+router.get('/cards/:questionId/test', async (req, res) => {
+	const { questionId } = req.params;
+	const answers = await AnswerCard.find({ questionId });
+	let answerList = [];
+	for (answer of answers) answerList.push(answer._id);
+	let likes = await Like.find().where('answerId').in(answerList);
+	countLike = {};
+	for (element of likes) {
+		if (!countLike[element.answerId]) countLike[element.answerId] = 1;
+		else countLike[element.answerId] += 1;
+	}
+	mostLike = [];
+	for (key in countLike) mostLike.push({ answerId: key, count: countLike[key] });
+	mostLike.sort((a, b) => {
+		return a.count - b.count;
+	});
+	res.json({mostLike})
 });
 
 module.exports = router;
