@@ -66,18 +66,18 @@ alarm.on("connection", function (socket) {
 		let checked = false
 		console.log('2')
 		console.log(alarms)
-		for (alarm of alarms) {
-			console.log(alarm)
-			if (alarm.checked == true)
+		for (alarmData of alarms) {
+			console.log(alarmData)
+			if (alarmData.checked == true)
 				checked = true
 			let temp = {
-				alarmId: alarm._id,
-				userId: alarm.userId,
-				recentNickname: alarm.userList[alarm.userList.length - 1],
-				countOthers: alarm.userList.length - 1,
-				cardId: alarm.cardId,
-				eventType: alarm.eventType,
-				time: calTime(Date(alarm.updatedAt))
+				alarmId: alarmData._id,
+				userId: alarmData.userId,
+				recentNickname: alarmData.userList[alarmData.userList.length - 1],
+				countOthers: alarmData.userList.length - 1,
+				cardId: alarmData.cardId,
+				eventType: alarmData.eventType,
+				time: calTime(Date(alarmData.updatedAt))
 			}
 			msg.push(temp)
 		}
