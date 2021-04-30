@@ -38,6 +38,7 @@ const io = socketIo(http, {
 
 const alarm = io.of("/alarm")
 
+
 alarm.on("connection", function (socket) {
 	console.log('New connection')
 	socket.on("joinAlarm", async function (data) {
@@ -87,9 +88,7 @@ alarm.on("connection", function (socket) {
 		console.log("disconnect")
 	})
 })
-
-module.exports = { alarm }
-
+module.exports = alarm;
 //listen
 http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);

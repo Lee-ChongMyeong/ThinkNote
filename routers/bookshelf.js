@@ -2,7 +2,24 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-// const { alarm } = require('../app')
+
+
+const { Server } = require("http")
+const socketIo = require("socket.io")
+
+const app = express()
+const cors = require('cors');
+const http = Server(app)
+
+const io = socketIo(http, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+    },
+})
+
+const alarm = io.of("/alarm")
+
 
 // 유저 검색
 // 알파벳 대문자 소문자
@@ -304,21 +321,22 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         const { answerCardId } = req.body;
         user = res.locals.user;
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
-        const answer = await AnswerCard.findOne({ answerId: answerCardId })
+        const answer = await AnswerCard.findOne({ _id: answerCardId })
         if (currentLike) { return res.send('이미 좋아요 누른 상태') }
 
         await Like.create({
             answerId: answerCardId,
             userId: user.userId
         })
-
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
-        console.log(likeCountNum)
 
         let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
+        console.log(AlarmInfo)
+        console.log('3')
 
         if (!AlarmInfo) {
+            console.log('if')
             const AlarmInfo = await Alarm.create({
                 userId: answer.userId,
                 userList: [user.userId],
@@ -326,9 +344,12 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
                 eventType: 'like',
             })
         } else {
+            console.log('else')
             AlarmInfo['userList'].push(user.userId)
-            await AlaramInfo.save()
+            await AlarmInfo.save()
         }
+
+        console.log('4')
         // 앤써카드의 주인 찾아서
         alarm.to(answer.userId).emit("AlarmEvent", {
             alarmId: AlarmInfo._id,
@@ -342,6 +363,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 })
