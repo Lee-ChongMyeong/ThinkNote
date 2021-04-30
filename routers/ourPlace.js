@@ -10,6 +10,7 @@ router.get('/cards', async (req, res) => {
 			{ $match: { $and: [{ count: { $gte: 4 } }]} },
 			{ $sample: { size: 2 } }
 		]);
+		
 		console.log(randomAnswers);
 		for (randomAnswer of randomAnswers) {
 			temp = {};
