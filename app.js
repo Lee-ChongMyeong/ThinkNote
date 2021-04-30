@@ -99,6 +99,11 @@ alarm.on("connection", function (socket) {
 	})
 })
 
+app.get('/testtest', (req, res) => {
+	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
+	res.send('')
+})
+
 //listen
 http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);
