@@ -40,7 +40,6 @@ router.get('/cards', async (req, res) => {
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
 				let commentCount = await CommentBoard.find({ cardId : answer._id });
-				console.log(commentCount.length)
 				let like = false
 				const likeCount = await Like.find({ answerId: answer._id })
 				if (userId) {
