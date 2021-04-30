@@ -7,16 +7,14 @@ router.get('/cards', async (req, res) => {
 		result = [];
 		const randomAnswers = await AnswerCard.aggregate([
 			{ $group: { _id: '$questionId', count: { $sum: 1 } } },
-			{ $match: { $and: [{ count: { $gte: 4 } }]} },
-			{ $sample: { size: 2 } }
+			{ $match: { $and: [{ count: { $gte: 3 } }]} },
+			{ $sample: { size: 2 } },
+			{ $project: { questionId: '$_id', count: 1, _id: 0 }}
 		]);
-		
-		console.log(randomAnswers);
 		for (randomAnswer of randomAnswers) {
 			temp = {};
-			let question = await QuestionCard.findOne({ _id: randomAnswer._id });
+			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
 			let user = await User.findOne({ _id: question.createdUser });
-			console.log(user);
 			temp['questions'] = {
 				questionId: question._id,
 				contents: question.contents,

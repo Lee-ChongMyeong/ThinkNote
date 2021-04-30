@@ -10,44 +10,44 @@ moment.tz.setDefault("Asia/Seoul");
 
 // 댓글 리스트
 router.get('/:cardId', async (req, res, next) => {
-    const cardId = req.params.cardId;
-    let result = { msg : 'success', comments: [] };
-    try {
-       //const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
-       const comments = await CommentBoard.find({cardId : cardId}).sort({ date: -1 });
-       for (comment of comments) {
-          const userInfo = await User.findOne({ _id : comment.userId})
-          let temp = {
-             commentId: comment.commentId,
-             commentContents: sanitize(comment.commentContents),
-             userId: comment.userId,
-             nickname: userInfo.nickname,
-             profileImg: userInfo["profileImg"],
-          };
-          result['comments'].push(temp);
-       }
-    } catch (err) {
-       result['msg'] = 'fail';
-    }
-    res.json(result);
- });
+   const cardId = req.params.cardId;
+   let result = { msg: 'success', comments: [] };
+   try {
+      //const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
+      const comments = await CommentBoard.find({ cardId: cardId }).sort({ date: -1 });
+      for (comment of comments) {
+         const userInfo = await User.findOne({ _id: comment.userId })
+         let temp = {
+            commentId: comment.commentId,
+            commentContents: sanitize(comment.commentContents),
+            userId: comment.userId,
+            nickname: userInfo.nickname,
+            profileImg: userInfo["profileImg"],
+         };
+         result['comments'].push(temp);
+      }
+   } catch (err) {
+      result['msg'] = 'fail';
+   }
+   res.json(result);
+});
 
 // 댓글 입력
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
    const user = res.locals.user;
    try {
       let result = {
-        cardId: req.params.cardId,
-        commentContents: sanitize(req.body.commentContents),
-        userId: sanitize(user.id),
-        user: sanitize(user["_id"])
-        }
+         cardId: req.params.cardId,
+         commentContents: sanitize(req.body.commentContents),
+         userId: sanitize(user.id),
+         user: sanitize(user["_id"])
+      }
       await CommentBoard.create(result);
       result["nickname"] = user.nickname,
-      result["profileImg"] = user.profileImg
+         result["profileImg"] = user.profileImg
       res.json({ msg: 'success', result: result });
    } catch (err) {
-       console.log(err)
+      console.log(err)
       res.json({ msg: 'fail' });
    }
 });
