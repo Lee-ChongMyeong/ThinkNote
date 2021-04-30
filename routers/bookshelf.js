@@ -4,21 +4,21 @@ const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
 
-const { Server } = require("http")
-const socketIo = require("socket.io")
+// const { Server } = require("http")
+// const socketIo = require("socket.io")
 
-const app = express()
-const cors = require('cors');
-const http = Server(app)
+// const app = express()
+// const cors = require('cors');
+// const http = Server(app)
 
-const io = socketIo(http, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-    },
-})
+// const io = socketIo(http, {
+//     cors: {
+//         origin: "*",
+//         methods: ["GET", "POST"],
+//     },
+// })
 
-const alarm = io.of("/alarm")
+// const alarm = io.of("/alarm")
 
 
 // 유저 검색
@@ -353,15 +353,15 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         console.log('4')
         // 앤써카드의 주인 찾아서
-        alarm.to(answer.userId).emit("AlarmEvent", {
-            alarmId: AlarmInfo._id,
-            userId: AlarmInfo.userId,
-            recentNickname: user.nickname,
-            cardId: answerCardId,
-            eventType: 'like',
-            checked: true,
-            time: AlarmInfo.updatedAt
-        })
+        // alarm.to(answer.userId).emit("AlarmEvent", {
+        //     alarmId: AlarmInfo._id,
+        //     userId: AlarmInfo.userId,
+        //     recentNickname: user.nickname,
+        //     cardId: answerCardId,
+        //     eventType: 'like',
+        //     checked: true,
+        //     time: AlarmInfo.updatedAt
+        // })
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {

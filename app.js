@@ -88,6 +88,12 @@ alarm.on("connection", function (socket) {
 		console.log("disconnect")
 	})
 })
+
+app.get('/testtest', (req, res) => {
+	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
+	res.send('')
+})
+
 module.exports = alarm;
 //listen
 http.listen(process.env.LOVE_PORT, () => {
