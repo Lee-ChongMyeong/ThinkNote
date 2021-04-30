@@ -4,12 +4,30 @@ const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 router.get('/cards', async (req, res) => {
 	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		if (tokenType !== 'Bearer') {
+			res.json({
+				msg: 'TypeIncorrect'
+			});
+			return;
+		}
+		const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+		User.findById(userId)
+			.exec()
+			.then((user) => {
+				res.locals.user = user;
+				next();
+			});
+	} catch (error) {
+	}
+	try {
 		result = [];
 		const randomAnswers = await AnswerCard.aggregate([
 			{ $group: { _id: '$questionId', count: { $sum: 1 } } },
-			{ $match: { count: { $gte: 4 } }  },
+			{ $match: { count: { $gte: 4 } } },
 			{ $sample: { size: 2 } },
-			{ $project: { questionId: '$_id', count: 1, _id: 0 }}
+			{ $project: { questionId: '$_id', count: 1, _id: 0 } }
 		]);
 		for (randomAnswer of randomAnswers) {
 			temp = {};
@@ -26,12 +44,22 @@ router.get('/cards', async (req, res) => {
 
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
+				let like = false
+				const likeCount = await Like.find({ answerId: answer._id })
+				if (user) {
+					let likeCheck = await Like.findOne({ userId: user.userId, answerId: answer._id })
+					if (likeCheck) {
+						like = true
+					}
+				}
 				temp['answers'].push({
 					userId: answerUser._id,
 					profileImg: answerUser.profileImg,
 					nickname: answerUser.nickname,
 					answerId: answer._id,
-					contents: answer.contents
+					contents: answer.contents,
+					like: like,
+					likeCount: likeCount.length
 				});
 			}
 			result.push(temp);
