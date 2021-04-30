@@ -38,6 +38,7 @@ const io = socketIo(http, {
 
 const alarm = io.of("/alarm")
 
+app.set('alarm', alarm)
 
 alarm.on("connection", function (socket) {
 	console.log('New connection')
@@ -89,12 +90,6 @@ alarm.on("connection", function (socket) {
 	})
 })
 
-app.get('/testtest', (req, res) => {
-	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
-	res.send('')
-})
-
-module.exports = alarm;
 //listen
 http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);

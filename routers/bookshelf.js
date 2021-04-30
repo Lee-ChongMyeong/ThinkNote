@@ -3,6 +3,7 @@ const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = re
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
+const Server = require('../app')
 
 // const { Server } = require("http")
 // const socketIo = require("socket.io")
@@ -18,19 +19,17 @@ const router = express.Router();
 //     },
 // })
 
-// const alarm = io.of("/alarm")
 
 
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
-    console.log('힝')
     try {
         const { words } = req.body;
         if (!words) { res.send({ userInfo: 'none' }) }
         // ({ userId: { $ne: user.userId }, questionId: questionId })
-        const userInfo = await User.find({ nickname: { $ne: '대호리' }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
-
+        const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 })
+        // nickname: { $ne: words }, find 안에다가 이걸 왜 넣었었찌?
         if (userInfo) {
             res.send({ userInfo })
         }
@@ -353,15 +352,16 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         console.log('4')
         // 앤써카드의 주인 찾아서
-        // alarm.to(answer.userId).emit("AlarmEvent", {
-        //     alarmId: AlarmInfo._id,
-        //     userId: AlarmInfo.userId,
-        //     recentNickname: user.nickname,
-        //     cardId: answerCardId,
-        //     eventType: 'like',
-        //     checked: true,
-        //     time: AlarmInfo.updatedAt
-        // })
+        const alarm = req.app.get('alarm')
+        alarm.to(answer.userId).emit("AlarmEvent", {
+            alarmId: AlarmInfo._id,
+            userId: AlarmInfo.userId,
+            recentNickname: user.nickname,
+            cardId: answerCardId,
+            eventType: 'like',
+            checked: true,
+            time: AlarmInfo.updatedAt
+        })
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
@@ -486,20 +486,14 @@ router.get('/cards/:questionId/test', async (req, res) => {
     res.json({ mostLike });
 });
 
-//커스텀 질문조회
+//내 커스텀 카드 질문조회
+// 무한 스크롤 어떤식으로 할 지
 router.get('/question', authMiddleware, async (req, res, next) => {
+    // 퀘스쳔 카드에서 내 유저아이디로 크리에잇이 같을 떄
     try {
         user = res.locals.user;
-        const friendList = await Friend.find({ followingId: user.userId })
-        friends = []
-        for (let i = 0; i < friendList.length; i++) {
-            const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
-            friends.push({
-                friendId: friendInfo._id,
-                friendNickname: friendInfo.nickname,
-                friendProfileImg: friendInfo.profileImg
-            })
-        }
+        const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
+
         return res.send({ friends })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
