@@ -46,6 +46,7 @@ router.get('/cards', async (req, res) => {
 				let answerUser = await User.findOne({ _id: answer.userId });
 				let like = false
 				const likeCount = await Like.find({ answerId: answer._id })
+				user = res.locals.user
 				if (user) {
 					let likeCheck = await Like.findOne({ userId: user.userId, answerId: answer._id })
 					if (likeCheck) {
