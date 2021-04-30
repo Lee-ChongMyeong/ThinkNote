@@ -2,7 +2,6 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-
 const Server = require('../app')
 
 // const { Server } = require("http")
@@ -352,7 +351,11 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         console.log('4')
         // 앤써카드의 주인 찾아서
-        const alarm = req.alarm
+        const io = req.aaa
+
+        const alarm = io.of("/alarm")
+
+        console.log(io)
         console.log(alarm)
         console.log('============================================')
         console.log(req)

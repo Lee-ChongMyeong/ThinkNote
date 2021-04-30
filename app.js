@@ -39,8 +39,8 @@ const io = socketIo(http, {
 
 const alarm = io.of("/alarm")
 
-app.use((req, rex, next) => {
-	req.alarm = alarm;
+app.use((req, res, next) => {
+	req.aaa = io
 	return next();
 })
 // app.set('alarm', alarm)
