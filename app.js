@@ -101,7 +101,7 @@ alarm.on("connection", function (socket) {
 
 app.get('/testtest', (req, res) => {
 	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
-	res.send('')
+	res.send('테스트')
 })
 
 //listen

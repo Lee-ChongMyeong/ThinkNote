@@ -353,6 +353,9 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         console.log('4')
         // 앤써카드의 주인 찾아서
         const alarm = req.alarm
+        console.log(alarm)
+        console.log('============================================')
+        console.log(req)
         alarm.to(answer.userId).emit("AlarmEvent", {
             alarmId: AlarmInfo._id,
             userId: AlarmInfo.userId,
