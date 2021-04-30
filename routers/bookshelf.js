@@ -1,5 +1,5 @@
 const express = require('express');
-const { AnswerCard, User, QuestionCard, Friend, Like, Alarm } = require('../models');
+const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
@@ -104,6 +104,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
         for (let i = 0; i < booksDetail.length; i++) {
             const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
             const questionUserInfo = await User.findOne({ _id: createdUser })
+            let commentCount = await CommentBoard.find({ cardId: booksDetail[i].answerId });
             const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] })
             const likeCountNum = likeCount.length
             booksDiary.push({
@@ -115,7 +116,8 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
-                likeCount: likeCountNum
+                likeCount: likeCountNum,
+                commentCount: commentCount.length
             })
         }
         return res.send({ booksDiary })

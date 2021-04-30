@@ -27,7 +27,7 @@ moment.tz.setDefault("Asia/Seoul")
 
 
 const http = Server(app)
-// socketIo(http, app)
+//socketIo(http, app)
 
 const io = socketIo(http, {
 	cors: {
