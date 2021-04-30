@@ -339,7 +339,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         if (!AlarmInfo) {
             console.log('if')
-            const AlarmInfo = await Alarm.create({
+            AlarmInfo = await Alarm.create({
                 userId: answer.userId,
                 userList: [user.userId],
                 cardId: answerCardId,
