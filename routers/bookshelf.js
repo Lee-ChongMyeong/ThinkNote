@@ -316,29 +316,29 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCountNum = likeCount.length
         console.log(likeCountNum)
 
-        // let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
+        let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
 
-        // if (!AlarmInfo) {
-        //     const AlarmInfo = await Alarm.create({
-        //         userId: answer.userId,
-        //         userList: [user.userId],
-        //         cardId: answerCardId,
-        //         eventType: 'like',
-        //     })
-        // } else {
-        //     AlarmInfo['userList'].push(user.userId)
-        //     await AlaramInfo.save()
-        // }
-        // // 앤써카드의 주인 찾아서
-        // alarm.to(answer.userId).emit("AlarmEvent", {
-        //     alarmId: AlarmInfo._id,
-        //     userId: AlarmInfo.userId,
-        //     recentNickname: user.nickname,
-        //     cardId: answerCardId,
-        //     eventType: 'like',
-        //     checked: true,
-        //     time: AlarmInfo.updatedAt
-        // })
+        if (!AlarmInfo) {
+            const AlarmInfo = await Alarm.create({
+                userId: answer.userId,
+                userList: [user.userId],
+                cardId: answerCardId,
+                eventType: 'like',
+            })
+        } else {
+            AlarmInfo['userList'].push(user.userId)
+            await AlaramInfo.save()
+        }
+        // 앤써카드의 주인 찾아서
+        alarm.to(answer.userId).emit("AlarmEvent", {
+            alarmId: AlarmInfo._id,
+            userId: AlarmInfo.userId,
+            recentNickname: user.nickname,
+            cardId: answerCardId,
+            eventType: 'like',
+            checked: true,
+            time: AlarmInfo.updatedAt
+        })
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
@@ -443,16 +443,43 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     }
 })
 
-// 커스텀 질문 조회
-// for (let i = 0; i < others.length; i++) {
-//     const otherUserInfo = await User.findOne({ _id: others[i]['userId'] })
-//     console.log(others[i]['questionId'])
-//     other.push({
-//         otherUserId: others[i]['userId'],
-//         otherUserNickname: otherUserInfo.nickname,
-//         otherUserContents: others[i]['contents'],
-//         otherUserProfileImg: otherUserInfo.profileImg
-//     })
-// }
+router.get('/cards/:questionId/test', async (req, res) => {
+    const { questionId } = req.params;
+    const answers = await AnswerCard.find({ questionId });
+    let answerList = [];
+    for (answer of answers) answerList.push(answer._id);
+    let likes = await Like.find().where('answerId').in(answerList);
+    countLike = {};
+    for (element of likes) {
+        if (!countLike[element.answerId]) countLike[element.answerId] = 1;
+        else countLike[element.answerId] += 1;
+    }
+    mostLike = [];
+    for (key in countLike) mostLike.push({ answerId: key, count: countLike[key] });
+    mostLike.sort((a, b) => {
+        return a.count - b.count;
+    });
+    res.json({ mostLike });
+});
+
+//커스텀 질문조회
+router.get('/question', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        const friendList = await Friend.find({ followingId: user.userId })
+        friends = []
+        for (let i = 0; i < friendList.length; i++) {
+            const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] })
+            friends.push({
+                friendId: friendInfo._id,
+                friendNickname: friendInfo.nickname,
+                friendProfileImg: friendInfo.profileImg
+            })
+        }
+        return res.send({ friends })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
 
 module.exports = router;
