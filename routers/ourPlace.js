@@ -35,7 +35,7 @@ router.get('/cards', async (req, res) => {
 			};
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
-
+			console.log('유저정보: ', userId)
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
 				let like = false
