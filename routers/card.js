@@ -12,10 +12,8 @@ moment.tz.setDefault("Asia/Seoul");
 //질문에 대한 답변 쓰기
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
-	console.log(user)
 	try {
 		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
-		console.log('daily 출력 테스트중', daily)
 		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
 			return res.status(400).json({ msg: 'fail' });
 		}
@@ -142,7 +140,7 @@ router.get('/daily', async (req, res) => {
 						findIndex = friendAnswerId.indexOf(value) // 친구가 쓴 질문들 목록 vs 내가 일주일 안에 쓴 답변
 						console.log('findIndex', findIndex)
 						if (-1 != findIndex) {
-							console.log('같은가 비교',value, friendAnswerId[findIndex])
+							console.log('같은가 비교', value, friendAnswerId[findIndex])
 							friendAnswerId.splice(findIndex, 1);
 						}
 					}
@@ -215,7 +213,7 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 				contents: recentAnswerData.contents,
 				profileImg: answerUser.profileImg,
 				nickname: answerUser.nickname,
-				userId : answerUser.userId
+				userId: answerUser.userId
 			};
 			answerData.push(temp);
 		}
