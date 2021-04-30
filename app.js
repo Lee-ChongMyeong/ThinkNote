@@ -61,7 +61,7 @@ alarm.on("connection", function (socket) {
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
 		console.log('1')
 		socket.join(userId) // room - 내_id
-		const alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
+		let alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
 		msg = []
 		let checked = false
 		console.log('2')
@@ -70,7 +70,7 @@ alarm.on("connection", function (socket) {
 			console.log(alarm)
 			if (alarm.checked == true)
 				checked = true
-			const temp = {
+			let temp = {
 				alarmId: alarm._id,
 				userId: alarm.userId,
 				recentNickname: alarm.userList[alarm.userList.length - 1],
