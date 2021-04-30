@@ -315,10 +315,10 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
 
-        const AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
+        let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
 
         if (!AlarmInfo) {
-            const currentAlarm = await Alarm.create({
+            const AlarmInfo = await Alarm.create({
                 userId: answer.userId,
                 userList: [user.userId],
                 cardId: answerCardId,
@@ -326,7 +326,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
             })
         } else {
             AlarmInfo['userList'].push(user.userId)
-            AlaramInfo.save()
+            await AlaramInfo.save()
         }
         // 앤써카드의 주인 찾아서
         alarm.to(answer.userId).emit("AlarmEvent", {

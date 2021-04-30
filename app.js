@@ -1,6 +1,6 @@
 const express = require('express');
 const { Server } = require("http")
-const socket = require("./socket")
+const socket = require("socket.io")
 
 const mongoose = require('./models/mongoose');
 require('dotenv').config();
