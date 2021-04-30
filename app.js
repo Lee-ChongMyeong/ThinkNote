@@ -48,22 +48,23 @@ app.use((req, rex, next) => {
 alarm.on("connection", function (socket) {
 	console.log('New connection')
 	socket.on("joinAlarm", async function (data) {
-		const req = socket.request
-		const { headers: { referer } } = req
+		// const req = socket.request
+		// const { headers: { referer } } = req
 		const { token } = data
 		if (!token) {
 			socket.disconnect()
 			return
 		}
-		console.log(referer)
+		// console.log(referer)
 		console.log('==================')
 		console.log('로그인 성공')
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
-
+		console.log('1')
 		socket.join(userId) // room - 내_id
 		const alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
 		msg = []
 		let checked = false
+		console.log('2')
 		for (alarm of alarms) {
 			if (alarm.checked == true)
 				checked = true
@@ -78,6 +79,7 @@ alarm.on("connection", function (socket) {
 			}
 			msg.push(temp)
 		}
+		console.log('3')
 		alarm.to(userId).emit("joinAlarm", { msg, checked })
 	})
 
