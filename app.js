@@ -43,11 +43,14 @@ alarm.on("connection", function (socket) {
 	socket.on("joinAlarm", async function (data) {
 		const req = socket.request
 		const { headers: { referer } } = req
+		const { token } = data
+		if (!token) {
+			socket.disconnect()
+			return
+		}
 		console.log(referer)
 		console.log('==================')
 		console.log('로그인 성공')
-
-		const { token } = data
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
 
 		socket.join(userId) // room - 내_id
