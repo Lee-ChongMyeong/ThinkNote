@@ -361,7 +361,7 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
-        console.log('3)
+        console.log('3')
         return res.send({ answerCardId, likeCountNum, currentLike: false })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
