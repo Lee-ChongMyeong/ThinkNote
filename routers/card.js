@@ -200,7 +200,7 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	let answerData = [];
 	try {
 		const recentAnswerDatas = await AnswerCard.find({ questionId: cardId }).sort({ createdAt: -1 }).limit(3);
-		console.log(recentAnswerDatas)
+		// console.log(recentAnswerDatas)
 		for (recentAnswerData of recentAnswerDatas) {
 			let answerUser = await User.findOne({ _id: recentAnswerData.userId })
 			let temp = {
