@@ -352,7 +352,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         console.log('4')
         // 앤써카드의 주인 찾아서
-        const alarm = req.app.get('alarm')
+        const alarm = req.alarm
         alarm.to(answer.userId).emit("AlarmEvent", {
             alarmId: AlarmInfo._id,
             userId: AlarmInfo.userId,
@@ -487,14 +487,26 @@ router.get('/cards/:questionId/test', async (req, res) => {
 });
 
 //내 커스텀 카드 질문조회
-// 무한 스크롤 어떤식으로 할 지
 router.get('/question', authMiddleware, async (req, res, next) => {
-    // 퀘스쳔 카드에서 내 유저아이디로 크리에잇이 같을 떄
     try {
         user = res.locals.user;
-        const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
+        let { page } = req.query
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
+        const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId }).skip(page * 2).limit(2);
 
-        return res.send({ friends })
+        myQuestion = []
+
+        for (let i = 0; i < myCustomQuestionCard.length; i++) {
+            myQuestion.push({
+                createdUserId: user.userId,
+                createdUserNickname: user.nickname,
+                questionId: myCustomQuestionCard._id,
+                questionContents: myCustomQuestionCard.contents,
+                questionTopic: myCustomQuestionCard.topic,
+                questionCreatedAt: myCustomQuestionCard.createdAt
+            })
+        }
+        return res.send({ myQuestion })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }

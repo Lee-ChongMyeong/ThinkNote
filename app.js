@@ -19,6 +19,8 @@ const passport = require('./auth/passport');
 app.use(passport.initialize());
 app.use('/', require('./routers'));
 
+
+
 const { User, Alarm } = require("./models")
 const moment = require("moment")
 const calTime = require('./lib/calTime')
@@ -27,7 +29,6 @@ moment.tz.setDefault("Asia/Seoul")
 
 
 const http = Server(app)
-//socketIo(http, app)
 
 const io = socketIo(http, {
 	cors: {
@@ -38,7 +39,11 @@ const io = socketIo(http, {
 
 const alarm = io.of("/alarm")
 
-app.set('alarm', alarm)
+app.use((req, rex, next) => {
+	req.alarm = alarm;
+	return next();
+})
+// app.set('alarm', alarm)
 
 alarm.on("connection", function (socket) {
 	console.log('New connection')
