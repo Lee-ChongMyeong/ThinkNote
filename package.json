@@ -26,6 +26,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "fs": "*",
+    "http": "^0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
@@ -37,6 +38,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-kakao": "^1.0.1",
     "passport-naver": "^1.0.6",
-    "sanitize-html": "^2.3.3"
+    "sanitize-html": "^2.3.3",
+    "socket.io": "^4.0.1"
   }
 }
