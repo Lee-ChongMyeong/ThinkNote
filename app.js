@@ -1,6 +1,7 @@
 const express = require('express');
 const { Server } = require("http")
 const socketIo = require("socket.io")
+const jwt = require('jsonwebtoken')
 
 const mongoose = require('./models/mongoose');
 require('dotenv').config();
@@ -27,7 +28,6 @@ moment.tz.setDefault("Asia/Seoul")
 
 const http = Server(app)
 //socketIo(http, app)
-
 
 const io = socketIo(http, {
 	cors: {
