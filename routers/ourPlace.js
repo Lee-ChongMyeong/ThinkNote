@@ -1,8 +1,10 @@
 const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like } = require('../models');
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 require('dotenv').config()
+
 router.get('/cards', async (req, res) => {
 	let userId = ''
 	try {
@@ -13,6 +15,7 @@ router.get('/cards', async (req, res) => {
 			userId = payload.userId
 		}
 	} catch (error) {
+		console.log('토큰 해독 에러')
 	}
 	try {
 		result = [];
@@ -34,7 +37,6 @@ router.get('/cards', async (req, res) => {
 			};
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
-			console.log('유저정보: ', userId)
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
 				let like = false
