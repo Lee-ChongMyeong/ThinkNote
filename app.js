@@ -25,63 +25,63 @@ require("moment-timezone")
 moment.tz.setDefault("Asia/Seoul")
 
 
-// const http = Server(app)
-// socketIo(http, app)
+const http = Server(app)
+socketIo(http, app)
 
-// const io = socketIo(http, {
-// 	cors: {
-// 		origin: "*",
-// 		methods: ["GET", "POST"],
-// 	},
-// })
+const io = socketIo(http, {
+	cors: {
+		origin: "*",
+		methods: ["GET", "POST"],
+	},
+})
 
 
-// const alarm = io.of("/alarm")
-// module.exports = { alarm }
-// alarm.on("connection", function (socket) {
-// 	console.log('New connection')
-// 	socket.on("joinAlarm", async function (data) {
-// 		const req = socket.request
-// 		const { headers: { referer } } = req
-// 		console.log(referer)
+const alarm = io.of("/alarm")
+module.exports = { alarm }
+alarm.on("connection", function (socket) {
+	console.log('New connection')
+	socket.on("joinAlarm", async function (data) {
+		const req = socket.request
+		const { headers: { referer } } = req
+		console.log(referer)
 
-// 		const { token } = data
-// 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
+		const { token } = data
+		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
 
-// 		socket.join(userId) // room - 내_id
-// 		const alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
-// 		msg = []
-// 		let checked = false
-// 		for (alarm of alarms) {
-// 			if (alarm.checked == true)
-// 				checked = true
-// 			const temp = {
-// 				alarmId: alarm._id,
-// 				userId: alarm.userId,
-// 				recentNickname: alarm.userList[alarm.userList.length - 1],
-// 				countOthers: alarm.userList.length - 1,
-// 				cardId: alarm.cardId,
-// 				eventType: alarm.eventType,
-// 				time: calTime(Date(alarm.updatedAt))
-// 			}
-// 			msg.push(temp)
-// 		}
-// 		alarm.to(userId).emit("joinAlarm", { msg, checked })
-// 	})
+		socket.join(userId) // room - 내_id
+		const alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
+		msg = []
+		let checked = false
+		for (alarm of alarms) {
+			if (alarm.checked == true)
+				checked = true
+			const temp = {
+				alarmId: alarm._id,
+				userId: alarm.userId,
+				recentNickname: alarm.userList[alarm.userList.length - 1],
+				countOthers: alarm.userList.length - 1,
+				cardId: alarm.cardId,
+				eventType: alarm.eventType,
+				time: calTime(Date(alarm.updatedAt))
+			}
+			msg.push(temp)
+		}
+		alarm.to(userId).emit("joinAlarm", { msg, checked })
+	})
 
-// 	socket.on("openAlarm", async function (data) {
-// 		const alarms = await Alarm.updateMany({ _id: socket.room }, { $set: { checked: false } })
-// 	})
+	socket.on("openAlarm", async function (data) {
+		const alarms = await Alarm.updateMany({ _id: socket.room }, { $set: { checked: false } })
+	})
 
-// 	socket.on("leave", (data) => {
-// 		console.log("leave")
-// 		socket.leave(data.room)
-// 	})
+	socket.on("leave", (data) => {
+		console.log("leave")
+		socket.leave(data.room)
+	})
 
-// 	socket.on("disconnect", () => {
-// 		console.log("disconnect")
-// 	})
-// })
+	socket.on("disconnect", () => {
+		console.log("disconnect")
+	})
+})
 
 
 //listen

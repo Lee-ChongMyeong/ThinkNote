@@ -2,6 +2,7 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
+
 // const { alarm } = require('../app')
 
 // 유저 검색
@@ -315,29 +316,29 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
 
-        // let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
+        let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
 
-        // if (!AlarmInfo) {
-        //     const AlarmInfo = await Alarm.create({
-        //         userId: answer.userId,
-        //         userList: [user.userId],
-        //         cardId: answerCardId,
-        //         eventType: 'like',
-        //     })
-        // } else {
-        //     AlarmInfo['userList'].push(user.userId)
-        //     await AlaramInfo.save()
-        // }
-        // // 앤써카드의 주인 찾아서
-        // alarm.to(answer.userId).emit("AlarmEvent", {
-        //     alarmId: AlarmInfo._id,
-        //     userId: AlarmInfo.userId,
-        //     recentNickname: user.nickname,
-        //     cardId: answerCardId,
-        //     eventType: 'like',
-        //     checked: true,
-        //     time: AlarmInfo.updatedAt
-        // })
+        if (!AlarmInfo) {
+            const AlarmInfo = await Alarm.create({
+                userId: answer.userId,
+                userList: [user.userId],
+                cardId: answerCardId,
+                eventType: 'like',
+            })
+        } else {
+            AlarmInfo['userList'].push(user.userId)
+            await AlaramInfo.save()
+        }
+        // 앤써카드의 주인 찾아서
+        alarm.to(answer.userId).emit("AlarmEvent", {
+            alarmId: AlarmInfo._id,
+            userId: AlarmInfo.userId,
+            recentNickname: user.nickname,
+            cardId: answerCardId,
+            eventType: 'like',
+            checked: true,
+            time: AlarmInfo.updatedAt
+        })
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
