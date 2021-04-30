@@ -314,6 +314,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
+        console.log(likeCountNum)
 
         // let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
 
@@ -346,7 +347,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 })
 
 // 답변카드 좋아요 취소 클릭
-router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
+router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
@@ -360,8 +361,9 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
         console.log('2')
 
         const likeCount = await Like.find({ answerId: answerCardId })
+        console.log(likeCount)
         const likeCountNum = likeCount.length
-        console.log('3')
+        console.log(likeCountNum)
         return res.send({ answerCardId, likeCountNum, currentLike: false })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
