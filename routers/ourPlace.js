@@ -2,17 +2,16 @@ const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like } = require(
 const express = require('express');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
+require('dotenv').config()
 router.get('/cards', async (req, res) => {
 	let userId = ''
 	try {
 		const { authorization } = req.headers;
 		const [tokenType, tokenValue] = authorization.split(' ');
-		if (tokenType !== 'Bearer') {
-
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId
 		}
-		const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-		userId = payload.userId
-
 	} catch (error) {
 	}
 	try {
