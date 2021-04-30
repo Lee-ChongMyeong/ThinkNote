@@ -350,21 +350,18 @@ router.delete('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
+        console.log('1')
 
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
         if (!currentLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
 
-        // console.log('하이11')
-        // const LikeCount = await AnswerCard.findOne({ _id: answerCardId })
-        // LikeCount = LikeCount -= 1
-        // await AnswerCard.updateOne({ LikeCount })
-        // console.log('하이')
-
         await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
         await AnswerCard.findOne({ answerId: answerCardId, userId: user.userId })
+        console.log('2')
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
+        console.log('3)
         return res.send({ answerCardId, likeCountNum, currentLike: false })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });

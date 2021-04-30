@@ -3,22 +3,16 @@ const express = require('express');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 router.get('/cards', async (req, res) => {
+	let userId = ''
 	try {
 		const { authorization } = req.headers;
 		const [tokenType, tokenValue] = authorization.split(' ');
 		if (tokenType !== 'Bearer') {
-			res.json({
-				msg: 'TypeIncorrect'
-			});
-			return;
+
 		}
-		const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-		User.findById(userId)
-			.exec()
-			.then((user) => {
-				res.locals.user = user;
-				next();
-			});
+		const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+		userId = payload.userId
+
 	} catch (error) {
 	}
 	try {
@@ -46,9 +40,8 @@ router.get('/cards', async (req, res) => {
 				let answerUser = await User.findOne({ _id: answer.userId });
 				let like = false
 				const likeCount = await Like.find({ answerId: answer._id })
-				user = res.locals.user
-				if (user) {
-					let likeCheck = await Like.findOne({ userId: user.userId, answerId: answer._id })
+				if (userId) {
+					let likeCheck = await Like.findOne({ userId: userId, answerId: answer._id })
 					if (likeCheck) {
 						like = true
 					}
