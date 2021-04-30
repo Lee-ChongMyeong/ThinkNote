@@ -1,4 +1,4 @@
-const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like } = require('../models');
+const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like, CommentBoard } = require('../models');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
@@ -39,6 +39,8 @@ router.get('/cards', async (req, res) => {
 			temp['answers'] = [];
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
+				let commentCount = await CommentBoard.find({ cardId : answer._id });
+				console.log(commentCount.length)
 				let like = false
 				const likeCount = await Like.find({ answerId: answer._id })
 				if (userId) {
@@ -54,7 +56,8 @@ router.get('/cards', async (req, res) => {
 					answerId: answer._id,
 					contents: answer.contents,
 					like: like,
-					likeCount: likeCount.length
+					likeCount: likeCount.length,
+					commentCount : commentCount.length
 				});
 			}
 			result.push(temp);
