@@ -5,7 +5,7 @@ const router = express.Router();
 const Server = require('../app')
 
 // const { Server } = require("http")
-// const socketIo = require("socket.io")
+const socketIo = require("socket.io")
 
 // const app = express()
 // const cors = require('cors');
@@ -352,11 +352,9 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         console.log('4')
         // 앤써카드의 주인 찾아서
         const io = req.aaa
-
-        const alarm = io.of("/alarm")
-
         console.log(io)
         console.log(alarm)
+        const alarm = io.of("/alarm")
         console.log('============================================')
         console.log(req)
         alarm.to(answer.userId).emit("AlarmEvent", {
