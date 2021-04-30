@@ -1,7 +1,8 @@
 const express = require('express');
-const { AnswerCard, User, QuestionCard, Friend, Like } = require('../models');
+const { AnswerCard, User, QuestionCard, Friend, Like, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
+const { alarm } = require('../app')
 
 // 유저 검색
 // 알파벳 대문자 소문자
@@ -303,6 +304,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         const { answerCardId } = req.body;
         user = res.locals.user;
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
+        const answer = await AnswerCard.findOne({ answerId: answerCardId })
         if (currentLike) { return res.send('이미 좋아요 누른 상태') }
 
         await Like.create({
@@ -312,6 +314,31 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
+
+        const AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
+
+        if (!AlarmInfo) {
+            const currentAlarm = await Alarm.create({
+                userId: answer.userId,
+                userList: [user.userId],
+                cardId: answerCardId,
+                eventType: 'like',
+            })
+        } else {
+            AlarmInfo['userList'].push(user.userId)
+            AlaramInfo.save()
+        }
+        // 앤써카드의 주인 찾아서
+        alarm.to(answer.userId).emit("AlarmEvent", {
+            alarmId: AlarmInfo._id,
+            userId: AlarmInfo.userId,
+            recentNickname: user.nickname,
+            cardId: answerCardId,
+            eventType: 'like',
+            checked: true,
+            time: AlarmInfo.updatedAt
+        })
+
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });

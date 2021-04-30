@@ -5,6 +5,7 @@ const Friend = require('./friend');
 const Like = require('./like');
 const QuestionDaily = require('./questionDaily');
 const CommentBoard = require('./commentBoard');
+const Alarm = require('./alarm');
 
 const DB = {
 	User,
@@ -13,7 +14,8 @@ const DB = {
 	Friend,
 	Like,
 	QuestionDaily,
-	CommentBoard
+	CommentBoard,
+	Alarm
 };
 
 module.exports = DB;
