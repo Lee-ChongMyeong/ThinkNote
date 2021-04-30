@@ -83,9 +83,7 @@ router.get('/daily', async (req, res) => {
 
 				if (userDaily) { // 오늘 처음이 아닌 경우(다시 접속한 경우)
 					const questions = userDaily.questions;
-					console.log("회원가입 후 로그인 테스트중2")
 					for (question of questions) {
-						console.log(question)
 						let card = await QuestionCard.findOne({ _id: question })
 						let created = await User.findOne({ _id: card.createdUser })
 						let answer = await AnswerCard.find({ questionId: question._id, });
@@ -106,19 +104,17 @@ router.get('/daily', async (req, res) => {
 					let myCards = []
 					console.log("회원가입 후 로그인 테스트중3")
 					friend_ids = await Friend.find({ followingId: userId })
-					console.log('친구Id', friend_ids)
 					friends = [] // 친구들 목록
 					for (friend of friend_ids) {
 						friends.push(friend.followerId)
 					}
-					console.log("친구목록", friends)
 					friends_answer = await AnswerCard.find({}).where('userId').in(friends) // 친구들이 쓴 답변 목록
-					console.log("친구들이 쓴 답변 목록 : ", friends_answer)
+					// console.log("친구들이 쓴 답변 목록 : ", friends_answer)
 					friendAnswerId = []
 					for (answer of friends_answer) {
 						friendAnswerId.push(answer.questionId)
 					}
-					console.log('친구가 쓴 질문들 목록', friendAnswerId)
+					// console.log('친구가 쓴 질문들 목록', friendAnswerId)
 
 					// 친구1	-> 질문2
 					// 친구2	=> 질문2
@@ -126,7 +122,7 @@ router.get('/daily', async (req, res) => {
 					// 중복제거
 					friendAnswerId = new Set(friendAnswerId)
 					friendAnswerId = [...friendAnswerId]
-					console.log('친구가 쓴 질문들 목록 중복제거', friendAnswerId)
+					// console.log('친구가 쓴 질문들 목록 중복제거', friendAnswerId)
 
 					// 기간내 카드 제거
 					standardTime = moment(Date.now() - (1000 * 60 * 60 * 24 * 7)).format('YYMMDD')
@@ -135,7 +131,7 @@ router.get('/daily', async (req, res) => {
 					for (card of notInclude_temp) {
 						notIncludedCards.push(card.questionId)
 					}
-					console.log('일주일내 답변한카드', notIncludedCards)
+					// console.log('일주일내 답변한카드', notIncludedCards)
 					for (value of notIncludedCards) {
 						findIndex = friendAnswerId.indexOf(value) // 친구가 쓴 질문들 목록 vs 내가 일주일 안에 쓴 답변
 						console.log('findIndex', findIndex)
@@ -145,14 +141,14 @@ router.get('/daily', async (req, res) => {
 						}
 					}
 
-					console.log('친구카드들 중 가능한 카드', friendAnswerId)
+					// console.log('친구카드들 중 가능한 카드', friendAnswerId)
 					friendsAvailableCards = await QuestionCard.find({}).where('_id').in(friendAnswerId); // 친구가 작성한 카드 중 사용가능한 카드(친구답변카드-내최근카드)
 					if (friendsAvailableCards.length) {
 						let index = Math.floor(Math.random() * friendsAvailableCards.length)
-						console.log('친구카드가 담기는 부분')
+						// console.log('친구카드가 담기는 부분')
 						myCards.push(friendsAvailableCards[index]._id)
 					}
-					console.log("여기까지 오는지 테스트중")
+					// console.log("여기까지 오는지 테스트중")
 					availableCards = await QuestionCard.find({}).where('_id').nin(notIncludedCards); // 전체에서 사용할 수 있는 카드
 					while (availableCards.length && myCards.length < 3) {
 						let index = Math.floor(Math.random() * availableCards.length)
@@ -174,7 +170,7 @@ router.get('/daily', async (req, res) => {
 					})
 					resultCards = await QuestionCard.find({}).where('_id').in(myCards);
 					resultCardsInfo = []
-					console.log(resultCardsInfo)
+					// console.log(resultCardsInfo)
 					for (element of resultCards) {
 						let tempCard = await QuestionCard.findOne({ _id: element._id })
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
