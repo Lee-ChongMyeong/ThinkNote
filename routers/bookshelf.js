@@ -351,12 +351,9 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         console.log('4')
         // 앤써카드의 주인 찾아서
-        const io = req.aaa
-        console.log(io)
+        const alarm = req.alarm
         console.log(alarm)
-        const alarm = io.of("/alarm")
         console.log('============================================')
-        console.log(req)
         alarm.to(answer.userId).emit("AlarmEvent", {
             alarmId: AlarmInfo._id,
             userId: AlarmInfo.userId,
@@ -504,6 +501,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
             myQuestion.push({
                 createdUserId: user.userId,
                 createdUserNickname: user.nickname,
+                createdUserProfileImg: user.profileImg,
                 questionId: myCustomQuestionCard._id,
                 questionContents: myCustomQuestionCard.contents,
                 questionTopic: myCustomQuestionCard.topic,

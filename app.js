@@ -17,7 +17,7 @@ app.use(express.static('public'));
 
 const passport = require('./auth/passport');
 app.use(passport.initialize());
-app.use('/', require('./routers'));
+
 
 
 
@@ -40,7 +40,7 @@ const io = socketIo(http, {
 const alarm = io.of("/alarm")
 
 app.use((req, res, next) => {
-	req.aaa = io
+	req.alarm = alarm
 	return next();
 })
 // app.set('alarm', alarm)
@@ -56,18 +56,13 @@ alarm.on("connection", function (socket) {
 			return
 		}
 		// console.log(referer)
-		console.log('==================')
 		console.log('로그인 성공')
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
-		console.log('1')
 		socket.join(userId) // room - 내_id
 		let alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
 		msg = []
 		let checked = false
-		console.log('2')
-		console.log(alarms)
 		for (alarmData of alarms) {
-			console.log(alarmData)
 			if (alarmData.checked == true)
 				checked = true
 			let temp = {
@@ -81,7 +76,6 @@ alarm.on("connection", function (socket) {
 			}
 			msg.push(temp)
 		}
-		console.log('3')
 		alarm.to(userId).emit("joinAlarm", { msg, checked })
 	})
 
@@ -103,7 +97,7 @@ app.get('/testtest', (req, res) => {
 	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
 	res.send('테스트')
 })
-
+app.use('/', require('./routers'));
 //listen
 http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);
