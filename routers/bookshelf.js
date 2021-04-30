@@ -200,6 +200,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 });
 
 // 커스텀 질문 등록
+// 질문 하루에 1개만 하기 바꾸기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         const { contents, topic } = req.body;
@@ -235,7 +236,6 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
             followingId: user.userId,
             followerId: friendId
         })
-
         return res.status(200).json({ msg: '친구추가 성공' })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -279,8 +279,8 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
 
 // 타인의 친구 목록
 router.get('/other/friendList/:id', async (req, res, next) => {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
         const friendList = await Friend.find({ followingId: id })
         othersFriend = []
         for (let i = 0; i < friendList.length; i++) {
