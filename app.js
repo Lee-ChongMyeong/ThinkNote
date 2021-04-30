@@ -1,13 +1,13 @@
 const express = require('express');
 const { Server } = require("http")
-const socket = require("socket.io")
+const socketIo = require("socket.io")
 
 const mongoose = require('./models/mongoose');
 require('dotenv').config();
 
 const app = express()
 const http = Server(app)
-socket(http, app)
+socketIo(http, app)
 
 const cors = require('cors');
 app.use(cors({ origin: "*", credentials: true }))
@@ -21,8 +21,6 @@ const passport = require('./auth/passport');
 app.use(passport.initialize());
 app.use('/', require('./routers'));
 
-
-const socketIo = require("socket.io")
 const { User, Alarm } = require("./models")
 const moment = require("moment")
 const calTime = require('./lib/calTime')
