@@ -40,7 +40,7 @@ router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'),
 	}
 });
 
-router.patch('/profile/random-nickname', authMiddleware, async (req, res) => {
+router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		let nickname = await randomNickname();
@@ -50,7 +50,6 @@ router.patch('/profile/random-nickname', authMiddleware, async (req, res) => {
 			else break;
 		}
 		user.nickname = nickname;
-		user.save();
 		res.json({ nickname: user.nickname });
 	} catch {
 		console.log('에러');
