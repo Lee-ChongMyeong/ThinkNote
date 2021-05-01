@@ -512,9 +512,9 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 });
 
 //다른 사람 커스텀 카드 질문조회
-router.get('other/:_id/question', authMiddleware, async (req, res, next) => {
+router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
+    console.log('하이')
     try {
-        user = res.locals.user;
         let { page } = req.query;
         const { id } = req.params;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
