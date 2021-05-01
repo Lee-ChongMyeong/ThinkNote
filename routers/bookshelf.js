@@ -205,7 +205,6 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 });
 
 // 커스텀 질문 등록
-// 질문 하루에 1개만 하기 바꾸기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
@@ -429,6 +428,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
 // 더보기 답변들
 // 좋아요 순위
+// 친구가 쓴 것만
 router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query;
@@ -512,7 +512,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 });
 
 //다른 사람 커스텀 카드 질문조회
-router.get('/other/:id/question?page=number', authMiddleware, async (req, res, next) => {
+router.get('other/:_id/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         let { page } = req.query;
