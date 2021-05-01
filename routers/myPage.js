@@ -98,7 +98,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		// 닉네임이 유니크값이라서 혹시나 겹치면 몽고오류뜨면서 ㅈㅈ임, if같은거 필요해 보임
 		const nickname = "알 수 없는 유저" + ` ${number}`
 		const provider = "탈퇴"
-		const socialId = "탈퇴"
+		const socialId = "탈퇴" + ` ${number}`
 		const introduce = " "
 		// 누군가 팔로잉 그 부분도 다 삭제
 		await AnswerCard.deleteMany({ userId: user.userId });
