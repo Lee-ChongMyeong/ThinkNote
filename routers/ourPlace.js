@@ -1,4 +1,4 @@
-const { QuestionCard, AnswerCard, QuestionDaily, Friend, User, Like, CommentBoard } = require('../models');
+const { QuestionCard, AnswerCard, User, Like, CommentBoard } = require('../models');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();

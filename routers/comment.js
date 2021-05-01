@@ -44,8 +44,19 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
       }
       await CommentBoard.create(result);
       result["nickname"] = user.nickname,
-         result["profileImg"] = user.profileImg
+      result["profileImg"] = user.profileImg
       res.json({ msg: 'success', result: result });
+      const alarm = req.alarm;
+      alarm.to(answer.userId).emit('AlarmEvent', {
+				alarmId: AlarmInfo._id,
+				userId: AlarmInfo.userId,
+				recentNickname: user.nickname,
+				cardId: answerCardId,
+				eventType: 'comment',
+				checked: true,
+				time: AlarmInfo.updatedAt
+			});
+
    } catch (err) {
       console.log(err)
       res.json({ msg: 'fail' });
