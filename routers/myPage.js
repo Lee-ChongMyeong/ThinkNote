@@ -97,18 +97,15 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		const nickname = "알 수 없는 유저"
 		const provider = "탈퇴"
 		const socialId = "탈퇴"
-
+		const introduce = " "
+		// 누군가 팔로잉 그 부분도 다 삭제
 		await AnswerCard.deleteMany({ userId: user.userId });
-		console.log('1')
 		await CommentBoard.deleteMany({ userId: user.userId });
-		console.log('2')
 		await Like.deleteMany({ userId: user.userId });
-		console.log('3')
 		await QuestionDaily.deleteMany({ userId: user.userId });
-		console.log('4')
 		await Friend.deleteMany({ followingId: user.userId });
-		console.log('5')
-		await User.updateOne({ _id: user.userId }, { $set: { profileImg, nickname, provider, socialId } });
+		await Friend.deleteMany({ followerId: user.userId });
+		await User.updateOne({ _id: user.userId }, { $set: { profileImg, nickname, provider, socialId, introduce } });
 
 	} catch (err) {
 		console.log(err)
