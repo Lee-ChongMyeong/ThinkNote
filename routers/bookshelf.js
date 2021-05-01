@@ -321,7 +321,6 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
-        console.log('0');
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
         const answer = await AnswerCard.findOne({ _id: answerCardId });
         if (currentLike) {
@@ -329,12 +328,10 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
         }
         // 새로고침하고 커뮤니티왔을 때 그때 좋아요가 되있는걸 취소했을 떄,
         // 
-        console.log('1');
         await Like.create({
             answerId: answerCardId,
             userId: user.userId
         });
-        console.log('2');
         const likeCount = await Like.find({ answerId: answerCardId });
         const likeCountNum = likeCount.length;
 
@@ -343,7 +340,6 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         return res.send({ answerCardId, likeCountNum, currentLike: true });
     } catch (err) {
-        console.log(err);
         return res.status(400).json({ msg: 'fail' });
     }
 });
@@ -366,7 +362,9 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCountNum = likeCount.length;
 
         let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
-        if (alarmInfo['userList'] && (-1 != alarmInfo['userList'].indexOf(user._id))) {
+        console.log(alarmInfo)
+        console.log(alarmInfo['userList'])
+        if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
             await Alarm.deleteOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
         } else {
             alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
