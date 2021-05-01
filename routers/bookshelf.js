@@ -376,7 +376,6 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
-
 //더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
     try {
