@@ -59,10 +59,16 @@ alarm.on("connection", function (socket) {
 		for (alarmData of alarms) {
 			if (alarmData.checked == true)
 				checked = true
+
+			const recentUser = await User.findOne({ _id: alarmData.userList[alarmData.userList.length - 1] });
+			const user = await User.findOne({ _id: userId });
+			console.log('user', user)
+
 			let temp = {
 				alarmId: alarmData._id,
 				userId: alarmData.userId,
-				recentNickname: alarmData.userList[alarmData.userList.length - 1],
+				recentNickname: recentUser.nickname,
+				userNickname: user.nickname,
 				countOthers: alarmData.userList.length - 1,
 				cardId: alarmData.cardId,
 				eventType: alarmData.eventType,
@@ -79,12 +85,12 @@ alarm.on("connection", function (socket) {
 
 	socket.on("leave", (data) => {
 		console.log("leave")
-		socket.leave(data.room)
+		socket.leave()
 	})
 
-	socket.on("disconnect", () => {
-		console.log("disconnect")
-	})
+	// socket.on("disconnect", () => {
+	// 	console.log("disconnect")
+	// })
 })
 
 app.use('/', require('./routers'));
