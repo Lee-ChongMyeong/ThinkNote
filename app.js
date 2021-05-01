@@ -68,6 +68,7 @@ alarm.on("connection", function (socket) {
 				alarmId: alarmData._id,
 				userId: alarmData.userId,
 				recentNickname: recentUser.nickname,
+				recentProfileImg: recentUser.profileImg,
 				userNickname: user.nickname,
 				countOthers: alarmData.userList.length - 1,
 				cardId: alarmData.cardId,
