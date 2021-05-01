@@ -3,10 +3,10 @@ const { Schema } = mongoose;
 
 const questionDaily = new Schema({
 	userId: { type: String, required: true },
-	questions: { type: Array },
+	questionId: { type: mongoose.Types.ObjectId },
 	YYMMDD: { type: String, required: true },
-},
-	{ timestamps: true });
+	available: { type: Boolean, default: true }
+});
 
 questionDaily.virtual('questionDailyId').get(function () {
 	return this._id.toHexString();
