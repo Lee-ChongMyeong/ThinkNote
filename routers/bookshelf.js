@@ -76,6 +76,7 @@ router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
 
 // 내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
+<<<<<<< HEAD
 	try {
 		const { YYMMDD } = req.params;
 		user = res.locals.user;
@@ -106,6 +107,39 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
 	}
+=======
+    try {
+        const { YYMMDD } = req.params
+        user = res.locals.user;
+
+        const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD })
+        booksDiary = []
+
+        for (let i = 0; i < booksDetail.length; i++) {
+            const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
+            const questionUserInfo = await User.findOne({ _id: createdUser })
+            let commentCount = await CommentBoard.find({ cardId: booksDetail[i].answerId });
+            const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] })
+            const likeCountNum = likeCount.length
+            booksDiary.push({
+                questionId: _id,
+                questionCreatedUserId: questionUserInfo._id,
+                questionCreatedUserNickname: questionUserInfo.nickname,
+                questionCreatedUserProfileImg: questionUserInfo.profileImg,
+                questionContents: contents,
+                answerCardId: booksDetail[i]['_id'],
+                answerContents: booksDetail[i]['contents'],
+                answerUserNickname: user.nickname,
+                isOpen: booksDetail[i]['isOpen'],
+                likeCount: likeCountNum,
+                commentCount: commentCount.length
+            })
+        }
+        return res.send({ booksDiary })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+>>>>>>> 81d1c508a7004794f8d98db32c7a69a45e4aef00
 });
 
 // 다른 사람 책장 일별 확인
@@ -441,6 +475,7 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
 	}
 });
 
+// 좋아요순위 나중에이용할것
 router.get('/cards/:questionId/test', async (req, res) => {
 	const { questionId } = req.params;
 	const answers = await AnswerCard.find({ questionId });
@@ -528,5 +563,21 @@ router.get('/other/:id/question?page=number', authMiddleware, async (req, res, n
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
+
+// 공개 비공개 전환
+router.patch('/private', authMiddleware, async (req, res, next) => {
+    try {
+        console.log('하이')
+        user = res.locals.user;
+        const { answerCardId, isOpen } = req.body
+        const answerInfo = await AnswerCard.findOne({ _id: answerCardId })
+        if (answerInfo.userId != user.userId) { return res.status(400).send('본인의 글만 공개,비공개 전환이 가능합니다.') }
+
+        await AnswerCard.updateOne({ _id: answerCardId }, { $set: { isOpen } })
+        return res.send('공개, 비공개 전환 성공')
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
 
 module.exports = router;

@@ -47,9 +47,6 @@ router.get('/daily', async (req, res) => {
 		//// 3. 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다. --> 순서대로 꺼내기
 		//// 4.  다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
 
-		//// 문제점
-		//// 2) 유저가 접속했을때 YYMMDD 값을 알아야됨
-
 		const { authorization } = req.headers;
 		if (!authorization) {
 			// 로그인 안한 유저가 접속
@@ -106,7 +103,7 @@ router.get('/daily', async (req, res) => {
 					return res.json({ cards: cards });
 				} else {
 					// 회원가입 완료. 오늘 처음 접속한 경우
-					//오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
+					//오늘 처음이므로 랜덤으로 3장 추리기 , 7일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
 					// 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
 
 					let myCards = [];
