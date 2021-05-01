@@ -362,13 +362,9 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCountNum = likeCount.length;
 
         let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
-<<<<<<< HEAD
-        if (alarmInfo && alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
-=======
         console.log(alarmInfo)
         console.log(alarmInfo['userList'])
         if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
->>>>>>> 542ffdb3dd38e739489a3517a9c87f1e4917d9d5
             await Alarm.deleteOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
         }
         // elif (!alarmInfo) { return }
