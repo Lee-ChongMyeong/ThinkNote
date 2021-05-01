@@ -2,10 +2,6 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-const Server = require('../app')
-
-// const { Server } = require("http")
-const socketIo = require("socket.io")
 
 // 유저 검색
 // 알파벳 대문자 소문자
