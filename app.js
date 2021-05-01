@@ -88,9 +88,9 @@ alarm.on("connection", function (socket) {
 		socket.leave()
 	})
 
-	socket.on("disconnect", () => {
-		console.log("disconnect")
-	})
+	// socket.on("disconnect", () => {
+	// 	console.log("disconnect")
+	// })
 })
 
 app.use('/', require('./routers'));

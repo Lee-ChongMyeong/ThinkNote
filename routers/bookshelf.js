@@ -210,16 +210,20 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
-        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId });
-        const createdAtTypeChangeString = JSON.stringify(createdAt)
+
+        // 하루에 1번 질문할 수 있는것 체크
+        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
+        const createdAtTypeChangeString = JSON.stringify(createdAt);
         let checkTodayCustomQuestion = createdAtTypeChangeString.split("T");
-        let Today = moment().format('"YYYY-MM-DD')
-        console.log(Today)
-        console.log(checkTodayCustomQuestion[0])
+        let Today = moment().format('"YYYY-MM-DD');
+
+        if (Today === checkTodayCustomQuestion[0]) {
+            return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' })
+        }
 
         // 토픽 없을때 빠꾸
         if (!topic) {
-            return res.send({ msg: '토픽을 넣어주세요' });
+            return res.status(400).send({ msg: '토픽을 넣어주세요' });
         }
 
         // 이미 있는 질문인지 검사
