@@ -7,19 +7,6 @@ const Server = require('../app')
 // const { Server } = require("http")
 const socketIo = require("socket.io")
 
-// const app = express()
-// const cors = require('cors');
-// const http = Server(app)
-
-// const io = socketIo(http, {
-//     cors: {
-//         origin: "*",
-//         methods: ["GET", "POST"],
-//     },
-// })
-
-
-
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
@@ -494,7 +481,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         let { page } = req.query
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId }).skip(page * 2).limit(2);
-
+        console.log(myCustomQuestionCard)
         myQuestion = []
 
         for (let i = 0; i < myCustomQuestionCard.length; i++) {
@@ -502,11 +489,12 @@ router.get('/question', authMiddleware, async (req, res, next) => {
                 createdUserId: user.userId,
                 createdUserNickname: user.nickname,
                 createdUserProfileImg: user.profileImg,
-                questionId: myCustomQuestionCard._id,
-                questionContents: myCustomQuestionCard.contents,
-                questionTopic: myCustomQuestionCard.topic,
-                questionCreatedAt: myCustomQuestionCard.createdAt
+                questionId: myCustomQuestionCard[i]['_id'],
+                questionContents: myCustomQuestionCard[i]['contents'],
+                questionTopic: myCustomQuestionCard[i]['topic'],
+                questionCreatedAt: myCustomQuestionCard[i]['createdAt']
             })
+            //질문에 몇명답했는지
         }
         return res.send({ myQuestion })
     } catch (err) {
