@@ -65,7 +65,7 @@ router.patch('/profile/nickname', authMiddleware, async (req, res) => {
 		if (2 > nickname.length || 12 < nickname.length) return res.status(400).json({ msg: `Please check nickname length` });
 		User.findOne({ nickname }).then((result) => {
 			if (result || !nickname) {
-				res.status(400).json({ msg: 'fail' });
+				res.status(400).json({ msg: 'same nickname' });
 			} else {
 				user.nickname = nickname;
 				user.save();
