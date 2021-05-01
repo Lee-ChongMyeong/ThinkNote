@@ -58,6 +58,7 @@ router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
 });
 
 router.patch('/profile/nickname', authMiddleware, async (req, res) => {
+	// if 조건 확인 이미 있는 존재하는 닉네임입니다.
 	try {
 		const user = res.locals.user;
 		const nickname = sanitize(req.body.nickname);
@@ -91,10 +92,11 @@ router.patch('/profile/introduce', authMiddleware, (req, res) => {
 // 회원 탈퇴
 router.delete('/profile/quit', authMiddleware, async (req, res) => {
 	try {
-
+		const number = String(Math.floor(Math.random() * 100000))
 		const user = res.locals.user;
 		const profileImg = "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg"
-		const nickname = "알 수 없는 유저"
+		// 닉네임이 유니크값이라서 혹시나 겹치면 몽고오류뜨면서 ㅈㅈ임, if같은거 필요해 보임
+		const nickname = "알 수 없는 유저" + ` ${number}`
 		const provider = "탈퇴"
 		const socialId = "탈퇴"
 		const introduce = " "
