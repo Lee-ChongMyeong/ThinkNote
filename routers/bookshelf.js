@@ -76,7 +76,6 @@ router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
 
 // 내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
-<<<<<<< HEAD
 	try {
 		const { YYMMDD } = req.params;
 		user = res.locals.user;
@@ -107,39 +106,6 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
 	}
-=======
-    try {
-        const { YYMMDD } = req.params
-        user = res.locals.user;
-
-        const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD })
-        booksDiary = []
-
-        for (let i = 0; i < booksDetail.length; i++) {
-            const { contents, createdUser, _id } = await QuestionCard.findOne({ _id: booksDetail[i]['questionId'] })
-            const questionUserInfo = await User.findOne({ _id: createdUser })
-            let commentCount = await CommentBoard.find({ cardId: booksDetail[i].answerId });
-            const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] })
-            const likeCountNum = likeCount.length
-            booksDiary.push({
-                questionId: _id,
-                questionCreatedUserId: questionUserInfo._id,
-                questionCreatedUserNickname: questionUserInfo.nickname,
-                questionCreatedUserProfileImg: questionUserInfo.profileImg,
-                questionContents: contents,
-                answerCardId: booksDetail[i]['_id'],
-                answerContents: booksDetail[i]['contents'],
-                answerUserNickname: user.nickname,
-                isOpen: booksDetail[i]['isOpen'],
-                likeCount: likeCountNum,
-                commentCount: commentCount.length
-            })
-        }
-        return res.send({ booksDiary })
-    } catch (err) {
-        return res.status(400).json({ msg: 'fail' });
-    }
->>>>>>> 81d1c508a7004794f8d98db32c7a69a45e4aef00
 });
 
 // 다른 사람 책장 일별 확인
