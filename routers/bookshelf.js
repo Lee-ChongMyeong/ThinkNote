@@ -15,8 +15,7 @@ router.post('/searchUser', async (req, res, next) => {
             res.send({ userInfo: 'none' });
         }
         // ({ userId: { $ne: user.userId }, questionId: questionId })
-        const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-        // nickname: { $ne: words }, find 안에다가 이걸 왜 넣었었찌?
+        const userInfo = await User.find({ nickname: { $ne: "알 수 없는 유저" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
         if (userInfo) {
             res.send({ userInfo });
         } else {
@@ -377,7 +376,6 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
-
 //더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
     try {
