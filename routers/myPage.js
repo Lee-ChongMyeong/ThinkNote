@@ -108,7 +108,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		console.log('4')
 		await Friend.deleteMany({ followingId: user.userId });
 		console.log('5')
-		await User.updateOne({ _id: user.userId }, { $set: { profile, nickname, provider, socialId } });
+		await User.updateOne({ _id: user.userId }, { $set: { profileImg, nickname, provider, socialId } });
 
 	} catch (err) {
 		console.log(err)
