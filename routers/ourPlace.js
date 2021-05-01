@@ -36,7 +36,6 @@ router.get('/cards', async (req, res) => {
 				topic: question.topic,
 				nicname: user.nickname,
 				answerCount : answerData.length
-				
 			};
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
@@ -60,7 +59,7 @@ router.get('/cards', async (req, res) => {
 					like: like,
 					likeCount: likeCount.length,
 					commentCount : commentCount.length,
-					
+
 				});
 			}
 			result.push(temp);

@@ -59,7 +59,7 @@ alarm.on("connection", function (socket) {
 		console.log('로그인 성공')
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
 		socket.join(userId) // room - 내_id
-		let alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 })
+		let alarms = await Alarm.find({ userId: userId }).sort({ updatedAt: -1 }).limit(40)
 		msg = []
 		let checked = false
 		for (alarmData of alarms) {
@@ -72,7 +72,7 @@ alarm.on("connection", function (socket) {
 				countOthers: alarmData.userList.length - 1,
 				cardId: alarmData.cardId,
 				eventType: alarmData.eventType,
-				time: alarmData.date
+				time: moment(alarmData.date).format('YY-MM-DD HH:mm:ss')
 			};
 			msg.push(temp)
 		}

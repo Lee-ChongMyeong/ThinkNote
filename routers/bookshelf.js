@@ -2,22 +2,6 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-const Server = require('../app')
-
-// const { Server } = require("http")
-const socketIo = require("socket.io")
-
-// const app = express()
-// const cors = require('cors');
-// const http = Server(app)
-
-// const io = socketIo(http, {
-//     cors: {
-//         origin: "*",
-//         methods: ["GET", "POST"],
-//     },
-// })
-
 
 
 // 유저 검색
