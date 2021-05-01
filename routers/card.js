@@ -16,10 +16,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		const questionId = req.body['questionId'];
 		const contents = req.body['contents'];
 		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
+		console.log(daily)
 		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
 			return res.status(400).json({ msg: 'fail' });
 		}
-		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1); //  splice ( 인덱스부터, 몇개를 삭제)
+
+		daily[''].splice(daily['questions'].indexOf(req.body['questionId']), 1); 
 		await daily.save();
 
 		const result = await AnswerCard.create({
@@ -28,9 +30,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			YYMMDD: moment().format('YYMMDD'),
 			userId: user.userId
 		});
+
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
 		res.json({ msg: 'success', result: result });
+
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
 	} catch (err) {
@@ -61,7 +65,8 @@ router.get('/daily', async (req, res) => {
 					contents: questionInfo.contents,
 					createdUser: createdUser.nickname,
 					answerCount: answer.length,
-					available: question.available
+					available: question.available,
+					profileImg : createdUser.profileImg
 				});
 			}
 			return res.json({ cards });
@@ -113,7 +118,8 @@ router.get('/daily', async (req, res) => {
 						contents: questionInfo.contents,
 						createdUser: createdUser.nickname,
 						answerCount: answer.length,
-						available: question.available
+						available: question.available,
+						profileImg : createdUser.profileImg
 					});
 				}
 				return res.json({ cards });
@@ -131,7 +137,8 @@ router.get('/daily', async (req, res) => {
 						contents: questionInfo.contents,
 						createdUser: createdUser.nickname,
 						answerCount: answer.length,
-						available: question.available
+						available: question.available,
+						profileImg : createdUser.profileImg
 					});
 				}
 				return res.json({ cards });
