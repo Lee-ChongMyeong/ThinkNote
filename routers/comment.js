@@ -44,14 +44,14 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 				userId: sanitize(user.id),
 			};
       console.log(result)
-      await CommentBoard.create(result);
+      console.log(await CommentBoard.create(result));
       result["nickname"] = user.nickname,
       result["profileImg"] = user.profileImg
+      res.json({ msg: 'success', result: result });
       
       const alarmSend = require('../lib/sendAlarm')
       await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
       
-      res.json({ msg: 'success', result: result });
 
    } catch (err) {
       console.log(err)

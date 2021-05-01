@@ -7,7 +7,7 @@ const alarm = new Schema({
     eventType: { type: String, required: true },
     cardId: { type: mongoose.Types.ObjectId, required: true },
     checked: { type: Boolean, required: true, default: true },
-    date: { type: Date }
+    date: { type: Date, required: true },
 },
     { timestamps: true });
 

@@ -2,32 +2,38 @@ const express = require('express');
 const router = express.Router();
 const sanitizeHtml = require('sanitize-html');
 const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
-const authMiddleware = require('../auth/authMiddleware')
-const jwt = require('jsonwebtoken')
-const dailyAnswer = require('../lib/dailyAnswer')
+const authMiddleware = require('../auth/authMiddleware');
+const jwt = require('jsonwebtoken');
+const dailyAnswer = require('../lib/dailyAnswer');
 const moment = require('moment');
 require('moment-timezone');
-moment.tz.setDefault("Asia/Seoul");
+moment.tz.setDefault('Asia/Seoul');
 
 //질문에 대한 답변 쓰기
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
-		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') })
+		const questionId = req.body['questionId'];
+		const contents = req.body['contents'];
+		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
 		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
 			return res.status(400).json({ msg: 'fail' });
 		}
-		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1)	//  splice ( 인덱스부터, 몇개를 삭제)
-		await daily.save()
+		daily['questions'].splice(daily['questions'].indexOf(req.body['questionId']), 1); //  splice ( 인덱스부터, 몇개를 삭제)
+		await daily.save();
 
 		const result = await AnswerCard.create({
-			questionId: req.body['questionId'],
-			contents: req.body['contents'],
-			YYMMDD: moment().format("YYMMDD"),
-			userId: user.userId,
+			questionId: questionId,
+			contents: contents,
+			YYMMDD: moment().format('YYMMDD'),
+			userId: user.userId
 		});
+		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
-		return res.json({ msg: 'success', result: result });
+		res.json({ msg: 'success', result: result });
+		const alarmSend = require('../lib/sendAlarm');
+		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
+
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
 	}
@@ -37,82 +43,81 @@ router.post('/', authMiddleware, async (req, res, next) => {
 router.get('/daily', async (req, res) => {
 	let result = { msg: 'success', dailyData: [] };
 	try {
-
 		//// 2. 처음 가입하고 처음 로그인한 사람 -> 기본카드 3개 .. dailyquestionId 검색했는데 안나온다 / dailyquestion(하루에 사용자가 받는 질문 3개) 을 만들어야 된다.
 		//// 3. 로그인 했는데 오늘 처음 요청 -> 랜덤 카드 3개 -> daily question에 넣어야 된다. --> 순서대로 꺼내기
 		//// 4.  다시 들어온 사람 -> 남아있는 카드를 보여줘야 된다.
 
-		//// 문제점
-		//// 2) 유저가 접속했을때 YYMMDD 값을 알아야됨
-
 		const { authorization } = req.headers;
-		if (!authorization) { // 로그인 안한 유저가 접속
-			const dailyAnswerCard = await dailyAnswer()
-			return res.json({ cards: dailyAnswerCard })
+		if (!authorization) {
+			// 로그인 안한 유저가 접속
+			const dailyAnswerCard = await dailyAnswer();
+			return res.json({ cards: dailyAnswerCard });
 		} else {
 			const [tokenType, tokenValue] = authorization.split(' ');
-			if (tokenType !== 'Bearer')
-				return res.json({ msg: 'fail' });
+			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			const user = await User.findOne({ _id: userId })
+			const user = await User.findOne({ _id: userId });
 
 			if (!user) {
 				throw err;
 			}
 			// QuestionDaily DB에 유저 정보 있는지 확인
-			const userDaily = await QuestionDaily.findOne({ userId: userId })
+			const userDaily = await QuestionDaily.findOne({ userId: userId });
 
-			if (!userDaily) { // 회원 가입 후 처음 로그인 및 접속
-				const dailyAnswerCard = await dailyAnswer()
-				cards = []
+			if (!userDaily) {
+				// 회원 가입 후 처음 로그인 및 접속
+				const dailyAnswerCard = await dailyAnswer();
+				cards = [];
 				dailyAnswerCard.forEach((element) => {
-					cards.push(element.cardId)
-				})
-				await QuestionDaily.create({ // DB에 row 생성.
+					cards.push(element.cardId);
+				});
+				await QuestionDaily.create({
+					// DB에 row 생성.
 					userId: user._id,
 					questions: cards,
-					YYMMDD: moment(Date.now()).format("YYMMDD")
-				})
-				return res.json({ cards: dailyAnswerCard })
+					YYMMDD: moment(Date.now()).format('YYMMDD')
+				});
+				return res.json({ cards: dailyAnswerCard });
+			} else {
+				// 회원 가입 후 처음이 아닌 경우(다시 다른날에 들어온 사람), YYMMDD -> 수정
+				cards = [];
+				console.log('회원가입 후 로그인 테스트중1');
+				const today = moment(Date.now()).format('YYMMDD');
+				const userDaily = await QuestionDaily.findOne({ userId: userId, YYMMDD: today });
 
-			} else { // 회원 가입 후 처음이 아닌 경우(다시 다른날에 들어온 사람), YYMMDD -> 수정
-				cards = []
-				console.log("회원가입 후 로그인 테스트중1")
-				const today = moment(Date.now()).format("YYMMDD");
-				const userDaily = await QuestionDaily.findOne({ userId: userId, YYMMDD: today })
-
-				if (userDaily) { // 오늘 처음이 아닌 경우(다시 접속한 경우)
+				if (userDaily) {
+					// 오늘 처음이 아닌 경우(다시 접속한 경우)
 					const questions = userDaily.questions;
 					for (question of questions) {
-						let card = await QuestionCard.findOne({ _id: question })
-						let created = await User.findOne({ _id: card.createdUser })
-						let answer = await AnswerCard.find({ questionId: question._id, });
+						let card = await QuestionCard.findOne({ _id: question });
+						let created = await User.findOne({ _id: card.createdUser });
+						let answer = await AnswerCard.find({ questionId: question._id });
 						cards.push({
 							cardId: card._id,
 							topic: card.topic,
 							contents: card.contents,
 							createdUser: created.nickname,
 							answerCount: answer.length
-						})
+						});
 					}
-					return res.json({ cards: cards })
-
-				} else { // 회원가입 완료. 오늘 처음 접속한 경우
-					//오늘 처음이므로 랜덤으로 3장 추리기 , 7주일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
+					return res.json({ cards: cards });
+				} else {
+					// 회원가입 완료. 오늘 처음 접속한 경우
+					//오늘 처음이므로 랜덤으로 3장 추리기 , 7일 이내 쓴 카드는 뽑으면 안됨!! -> 현재 날짜(Date.now() - (1000 *60 * 60 *24 * 7)) < createdAt ==> fail ==> answer Table
 					// 친구./ 팔로링 -> FRIEND TABLE에서 배열  반복문 돌림
 
-					let myCards = []
-					console.log("회원가입 후 로그인 테스트중3")
-					friend_ids = await Friend.find({ followingId: userId })
-					friends = [] // 친구들 목록
+					let myCards = [];
+					console.log('회원가입 후 로그인 테스트중3');
+					friend_ids = await Friend.find({ followingId: userId });
+					friends = []; // 친구들 목록
 					for (friend of friend_ids) {
-						friends.push(friend.followerId)
+						friends.push(friend.followerId);
 					}
-					friends_answer = await AnswerCard.find({}).where('userId').in(friends) // 친구들이 쓴 답변 목록
+					friends_answer = await AnswerCard.find({}).where('userId').in(friends); // 친구들이 쓴 답변 목록
 					// console.log("친구들이 쓴 답변 목록 : ", friends_answer)
-					friendAnswerId = []
+					friendAnswerId = [];
 					for (answer of friends_answer) {
-						friendAnswerId.push(answer.questionId)
+						friendAnswerId.push(answer.questionId);
 					}
 					// console.log('친구가 쓴 질문들 목록', friendAnswerId)
 
@@ -120,23 +125,23 @@ router.get('/daily', async (req, res) => {
 					// 친구2	=> 질문2
 
 					// 중복제거
-					friendAnswerId = new Set(friendAnswerId)
-					friendAnswerId = [...friendAnswerId]
+					friendAnswerId = new Set(friendAnswerId);
+					friendAnswerId = [...friendAnswerId];
 					// console.log('친구가 쓴 질문들 목록 중복제거', friendAnswerId)
 
 					// 기간내 카드 제거
-					standardTime = moment(Date.now() - (1000 * 60 * 60 * 24 * 7)).format('YYMMDD')
-					notInclude_temp = await AnswerCard.find({ userId: userId }).where('YYMMDD').gt(standardTime)	// 내가 (질문에 대해) 일주일 안에 쓴 답변
-					notIncludedCards = []	// 일주일내 답변한 카드
+					standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 7).format('YYMMDD');
+					notInclude_temp = await AnswerCard.find({ userId: userId }).where('YYMMDD').gt(standardTime); // 내가 (질문에 대해) 일주일 안에 쓴 답변
+					notIncludedCards = []; // 일주일내 답변한 카드
 					for (card of notInclude_temp) {
-						notIncludedCards.push(card.questionId)
+						notIncludedCards.push(card.questionId);
 					}
 					// console.log('일주일내 답변한카드', notIncludedCards)
 					for (value of notIncludedCards) {
-						findIndex = friendAnswerId.indexOf(value) // 친구가 쓴 질문들 목록 vs 내가 일주일 안에 쓴 답변
-						console.log('findIndex', findIndex)
+						findIndex = friendAnswerId.indexOf(value); // 친구가 쓴 질문들 목록 vs 내가 일주일 안에 쓴 답변
+						console.log('findIndex', findIndex);
 						if (-1 != findIndex) {
-							console.log('같은가 비교', value, friendAnswerId[findIndex])
+							console.log('같은가 비교', value, friendAnswerId[findIndex]);
 							friendAnswerId.splice(findIndex, 1);
 						}
 					}
@@ -144,35 +149,36 @@ router.get('/daily', async (req, res) => {
 					// console.log('친구카드들 중 가능한 카드', friendAnswerId)
 					friendsAvailableCards = await QuestionCard.find({}).where('_id').in(friendAnswerId); // 친구가 작성한 카드 중 사용가능한 카드(친구답변카드-내최근카드)
 					if (friendsAvailableCards.length) {
-						let index = Math.floor(Math.random() * friendsAvailableCards.length)
+						let index = Math.floor(Math.random() * friendsAvailableCards.length);
 						// console.log('친구카드가 담기는 부분')
-						myCards.push(friendsAvailableCards[index]._id)
+						myCards.push(friendsAvailableCards[index]._id);
 					}
 					// console.log("여기까지 오는지 테스트중")
 					availableCards = await QuestionCard.find({}).where('_id').nin(notIncludedCards); // 전체에서 사용할 수 있는 카드
 					while (availableCards.length && myCards.length < 3) {
-						let index = Math.floor(Math.random() * availableCards.length)
+						let index = Math.floor(Math.random() * availableCards.length);
 						if (-1 == myCards.indexOf(availableCards[index]._id)) {
-							myCards.push(availableCards[index]._id)
+							myCards.push(availableCards[index]._id);
 							if (availableCards.length == myCards.length) {
 								break;
 							}
 						}
 					}
 					if (!myCards.length) {
-						return res.json({ cards: [] })
+						return res.json({ cards: [] });
 					}
 
-					await QuestionDaily.create({ // DB에 row 생성.
+					await QuestionDaily.create({
+						// DB에 row 생성.
 						userId: userId,
 						questions: myCards,
-						YYMMDD: moment(Date.now()).format("YYMMDD")
-					})
+						YYMMDD: moment(Date.now()).format('YYMMDD')
+					});
 					resultCards = await QuestionCard.find({}).where('_id').in(myCards);
-					resultCardsInfo = []
+					resultCardsInfo = [];
 					// console.log(resultCardsInfo)
 					for (element of resultCards) {
-						let tempCard = await QuestionCard.findOne({ _id: element._id })
+						let tempCard = await QuestionCard.findOne({ _id: element._id });
 						let createdUser = await User.findOne({ _id: tempCard.createdUser });
 						let answer = await AnswerCard.find({ questionId: element._id });
 						resultCardsInfo.push({
@@ -181,13 +187,12 @@ router.get('/daily', async (req, res) => {
 							contents: tempCard.contents,
 							createdUser: createdUser.nickname,
 							answerCount: answer.length
-						})
+						});
 					}
-					return res.json({ cards: resultCardsInfo })
+					return res.json({ cards: resultCardsInfo });
 				}
 			}
 		}
-
 	} catch (err) {
 		console.log(err);
 		res.status(400).json({ msg: 'fail' });
@@ -202,7 +207,7 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 		const recentAnswerDatas = await AnswerCard.find({ questionId: cardId }).sort({ createdAt: -1 }).limit(3);
 		// console.log(recentAnswerDatas)
 		for (recentAnswerData of recentAnswerDatas) {
-			let answerUser = await User.findOne({ _id: recentAnswerData.userId })
+			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
 			let temp = {
 				questionId: recentAnswerData.questionId,
 				answerId: recentAnswerData.answerId,
@@ -216,10 +221,7 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
 	}
-	return res.status(200).json({ msg: "success", answerData });
-
-
+	return res.status(200).json({ msg: 'success', answerData });
 });
 
 module.exports = router;
-
