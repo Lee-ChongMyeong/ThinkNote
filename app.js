@@ -85,12 +85,12 @@ alarm.on("connection", function (socket) {
 
 	socket.on("leave", (data) => {
 		console.log("leave")
-		socket.leave(data.room)
+		socket.leave()
 	})
 
-	socket.on("disconnect", () => {
-		console.log("disconnect")
-	})
+	// socket.on("disconnect", () => {
+	// 	console.log("disconnect")
+	// })
 })
 
 app.use('/', require('./routers'));

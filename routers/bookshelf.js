@@ -2,6 +2,9 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 // 유저 검색
 // 알파벳 대문자 소문자
@@ -202,20 +205,28 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 });
 
 // 커스텀 질문 등록
-// 질문 하루에 1개만 하기 바꾸기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
+
+        // 하루에 1번 질문할 수 있는것 체크
+        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
+        const createdAtTypeChangeString = JSON.stringify(createdAt);
+        let checkTodayCustomQuestion = createdAtTypeChangeString.split("T");
+        let Today = moment().format('"YYYY-MM-DD');
+
+        if (Today === checkTodayCustomQuestion[0]) {
+            return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' })
+        }
+
+        // 토픽 없을때 빠꾸
+        if (!topic) {
+            return res.status(400).send({ msg: '토픽을 넣어주세요' });
+        }
+
+        // 이미 있는 질문인지 검사
         const originContents = await QuestionCard.findOne({ contents: contents });
-        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId });
-
-        // let createdAt = String.split(' ');
-        // console.log(createdAt[1])
-        // if (!topic) {
-        //     return res.send({ msg: '토픽을 넣어주세요' });
-        // }
-
         if (!originContents) {
             const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId });
             const { nickname } = await User.findOne({ _id: user.userId });
@@ -224,6 +235,7 @@ router.post('/question', authMiddleware, async (req, res, next) => {
             return res.send({ msg: '이미 존재하는 질문입니다' });
         }
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
@@ -416,6 +428,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
 // 더보기 답변들
 // 좋아요 순위
+// 친구가 쓴 것만
 router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query;
@@ -499,9 +512,9 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 });
 
 //다른 사람 커스텀 카드 질문조회
-router.get('/other/:id/question?page=number', authMiddleware, async (req, res, next) => {
+router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
+    console.log('하이')
     try {
-        user = res.locals.user;
         let { page } = req.query;
         const { id } = req.params;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
