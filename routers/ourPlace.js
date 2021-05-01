@@ -59,12 +59,7 @@ router.get('/cards', async (req, res) => {
 					contents: answer.contents,
 					like: like,
 					likeCount: likeCount.length,
-<<<<<<< HEAD
 					commentCount : commentCount.length,
-=======
-					commentCount: commentCount.length,
->>>>>>> de89acc6e54d06c06d67fdb1f012469275830e20
-
 				});
 			}
 			result.push(temp);
