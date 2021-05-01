@@ -364,9 +364,9 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const likeCount = await Like.find({ answerId: answerCardId });
         const likeCountNum = likeCount.length;
-        let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
 
-        if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
+        let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
+        if (alarmInfo['userList'] && (-1 != alarmInfo['userList'].indexOf(user._id))) {
             await Alarm.deleteOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
         } else {
             alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
