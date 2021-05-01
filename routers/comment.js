@@ -48,10 +48,10 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
       result["nickname"] = user.nickname,
       result["profileImg"] = user.profileImg
       res.json({ msg: 'success', result: result });
-
+      
       const alarmSend = require('../lib/sendAlarm')
       await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
-
+      
 
    } catch (err) {
       console.log(err)
