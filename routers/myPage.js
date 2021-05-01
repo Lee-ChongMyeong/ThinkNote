@@ -98,15 +98,15 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		const provider = "탈퇴"
 		const socialId = "탈퇴"
 
-		await AnswerCard.delete({ userId: user.userId });
+		await AnswerCard.deleteMany({ userId: user.userId });
 		console.log('1')
-		await CommentBoard.delete({ userId: user.userId });
+		await CommentBoard.deleteMany({ userId: user.userId });
 		console.log('2')
-		await Like.delete({ userId: user.userId });
+		await Like.deleteMany({ userId: user.userId });
 		console.log('3')
-		await QuestionDaily.delete({ userId: user.userId });
+		await QuestionDaily.deleteMany({ userId: user.userId });
 		console.log('4')
-		await Friend.delete({ followingId: user.userId });
+		await Friend.deleteMany({ followingId: user.userId });
 		console.log('5')
 		await User.updateOne({ _id: user.userId }, { $set: { profile, nickname, provider, socialId } });
 
