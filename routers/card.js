@@ -15,15 +15,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	try {
 		const questionId = req.body['questionId'];
 		const contents = req.body['contents'];
-		const daily = await QuestionDaily.findOne({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		console.log(daily)
-		if (!daily['questions'].length || -1 == daily['questions'].indexOf(req.body['questionId'])) {
-			return res.status(400).json({ msg: 'fail' });
+		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, {$set : { available : false }} );
+		console.log('daily', daily)
+		if (daily['questionId'] == req.body['questionId']) {
+			return res.status(400).json({ msg: 'fail1' });
 		}
-
-		daily[''].splice(daily['questions'].indexOf(req.body['questionId']), 1); 
-		await daily.save();
-
 		const result = await AnswerCard.create({
 			questionId: questionId,
 			contents: contents,
@@ -38,7 +34,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
 	} catch (err) {
-		return res.status(400).json({ msg: 'fail' });
+		return res.status(400).json({ msg: 'fail2' });
 	}
 });
 
