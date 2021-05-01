@@ -107,6 +107,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await Friend.deleteMany({ followerId: user.userId });
 		await User.updateOne({ _id: user.userId }, { $set: { profileImg, nickname, provider, socialId, introduce } });
 
+		return res.send('탈퇴 완료ㅠㅠ')
 	} catch (err) {
 		console.log(err)
 		res.status(400).json({ msg: 'fail' });
