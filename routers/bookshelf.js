@@ -15,7 +15,7 @@ router.post('/searchUser', async (req, res, next) => {
             res.send({ userInfo: 'none' });
         }
         // ({ userId: { $ne: user.userId }, questionId: questionId })
-        const userInfo = await User.find({ nickname: { $ne: "알 수 없는 유저" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+        const userInfo = await User.find({ socialId: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
         if (userInfo) {
             res.send({ userInfo });
         } else {
@@ -430,14 +430,24 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 });
 
 // 더보기 답변들
-// 좋아요 순위
-// 친구가 쓴 것만
-router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
+// 친구가 쓴 것
+// 친구가 쓴 것만 (로그인 안했을 경우는 로그인 필요한 기능이라고 뜨게 말하기)
+router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, next) => {
     try {
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
         const { questionId } = req.params;
-        const allAnswer = await AnswerCard.find({ questionId })
+        user = res.locals.user;
+
+        // 친구 감별
+        const followerId = await Friend.find({ followingId: user.userId })
+        const friendList = []
+
+        for (let i = 0; i < followerId.length; i++) {
+            friendList.push(followerId[i]["followerId"])
+        }
+
+        const allAnswer = await AnswerCard.find({ userId: { $in: friendList }, questionId })
             .sort()
             .skip(page * 2)
             .limit(2);
@@ -455,6 +465,7 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
         }
         return res.send({ answer });
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
