@@ -2,6 +2,9 @@ const express = require('express');
 const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 // 유저 검색
 // 알파벳 대문자 소문자
@@ -207,15 +210,20 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
-        const originContents = await QuestionCard.findOne({ contents: contents });
         let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId });
+        const createdAtTypeChangeString = JSON.stringify(createdAt)
+        let checkTodayCustomQuestion = createdAtTypeChangeString.split("T");
+        let Today = moment().format('"YYYY-MM-DD')
+        console.log(Today)
+        console.log(checkTodayCustomQuestion[0])
 
-        // let createdAt = String.split(' ');
-        // console.log(createdAt[1])
-        // if (!topic) {
-        //     return res.send({ msg: '토픽을 넣어주세요' });
-        // }
+        // 토픽 없을때 빠꾸
+        if (!topic) {
+            return res.send({ msg: '토픽을 넣어주세요' });
+        }
 
+        // 이미 있는 질문인지 검사
+        const originContents = await QuestionCard.findOne({ contents: contents });
         if (!originContents) {
             const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId });
             const { nickname } = await User.findOne({ _id: user.userId });
@@ -224,6 +232,7 @@ router.post('/question', authMiddleware, async (req, res, next) => {
             return res.send({ msg: '이미 존재하는 질문입니다' });
         }
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });

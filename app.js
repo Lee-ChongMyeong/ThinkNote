@@ -79,7 +79,7 @@ alarm.on("connection", function (socket) {
 
 	socket.on("leave", (data) => {
 		console.log("leave")
-		socket.leave(data.room)
+		socket.leave()
 	})
 
 	socket.on("disconnect", () => {
