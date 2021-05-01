@@ -35,14 +35,14 @@ router.get('/cards', async (req, res) => {
 				contents: question.contents,
 				topic: question.topic,
 				nicname: user.nickname,
-				answerCount : answerData.length
-				
+				answerCount: answerData.length
 			};
+
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
-				let commentCount = await CommentBoard.find({ cardId : answer._id });
+				let commentCount = await CommentBoard.find({ cardId: answer._id });
 				let like = false
 				const likeCount = await Like.find({ answerId: answer._id })
 				if (userId) {
@@ -59,8 +59,8 @@ router.get('/cards', async (req, res) => {
 					contents: answer.contents,
 					like: like,
 					likeCount: likeCount.length,
-					commentCount : commentCount.length,
-					
+					commentCount: commentCount.length,
+
 				});
 			}
 			result.push(temp);

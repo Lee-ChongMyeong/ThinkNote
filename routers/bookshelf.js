@@ -316,7 +316,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
             answerId: answerCardId,
             userId: user.userId
         })
-         console.log('2');
+        console.log('2');
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
 
@@ -455,6 +455,8 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         myQuestion = []
 
         for (let i = 0; i < myCustomQuestionCard.length; i++) {
+            let answerData = await AnswerCard.find({ questionId: myCustomQuestionCard[i]['_id'], isOpen: true });
+            if (!answerData) { answerData = 0 }
             myQuestion.push({
                 createdUserId: user.userId,
                 createdUserNickname: user.nickname,
@@ -462,7 +464,8 @@ router.get('/question', authMiddleware, async (req, res, next) => {
                 questionId: myCustomQuestionCard[i]['_id'],
                 questionContents: myCustomQuestionCard[i]['contents'],
                 questionTopic: myCustomQuestionCard[i]['topic'],
-                questionCreatedAt: myCustomQuestionCard[i]['createdAt']
+                questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
+                answerCount: answerData.length
             })
             //질문에 몇명답했는지
         }
