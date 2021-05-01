@@ -66,8 +66,8 @@ alarm.on("connection", function (socket) {
 				countOthers: alarmData.userList.length - 1,
 				cardId: alarmData.cardId,
 				eventType: alarmData.eventType,
-				time: calTime(Date(alarmData.updatedAt))
-			}
+				time: alarmData.date
+			};
 			msg.push(temp)
 		}
 		alarm.to(userId).emit("joinAlarm", { msg, checked })

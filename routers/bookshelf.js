@@ -307,49 +307,21 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
+        console.log('0');
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
         const answer = await AnswerCard.findOne({ _id: answerCardId })
         if (currentLike) { return res.send('이미 좋아요 누른 상태') }
-
+        console.log('1')
         await Like.create({
             answerId: answerCardId,
             userId: user.userId
         })
+         console.log('2');
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
 
-        let AlarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId })
-        console.log(AlarmInfo)
-        console.log('3')
-
-        if (!AlarmInfo) {
-            console.log('if')
-            AlarmInfo = await Alarm.create({
-                userId: answer.userId,
-                userList: [user.userId],
-                cardId: answerCardId,
-                eventType: 'like',
-            })
-        } else {
-            console.log('else')
-            AlarmInfo['userList'].push(user.userId)
-            await AlarmInfo.save()
-        }
-
-        console.log('4')
-        // 앤써카드의 주인 찾아서
-        const alarm = req.alarm
-        console.log(alarm)
-        console.log('============================================')
-        alarm.to(answer.userId).emit("AlarmEvent", {
-            alarmId: AlarmInfo._id,
-            userId: AlarmInfo.userId,
-            recentNickname: user.nickname,
-            cardId: answerCardId,
-            eventType: 'like',
-            checked: true,
-            time: AlarmInfo.updatedAt
-        })
+        const alarmSend = require('../lib/sendAlarm')
+        await alarmSend(answer.userId, answerCardId, 'like', user.userId, req.alarm);
 
         return res.send({ answerCardId, likeCountNum, currentLike: true })
     } catch (err) {
@@ -363,14 +335,12 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
-        console.log('1')
 
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId })
         if (!currentLike) { return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?') }
 
         await Like.deleteOne({ answerId: answerCardId, userId: user.userId })
         await AnswerCard.findOne({ answerId: answerCardId, userId: user.userId })
-        console.log('2')
 
         const likeCount = await Like.find({ answerId: answerCardId })
         console.log(likeCount)
