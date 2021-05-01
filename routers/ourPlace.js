@@ -28,7 +28,7 @@ router.get('/cards', async (req, res) => {
 		for (randomAnswer of randomAnswers) {
 			temp = {};
 			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
-			let answerData = await AnswerCard.find({ userId: { $ne: userId }, { questionId: question._id, isOpen: true });
+			let answerData = await AnswerCard.find({ userId: { $ne: userId }, questionId: question._id, isOpen: true });
 			let user = await User.findOne({ _id: question.createdUser });
 			temp['questions'] = {
 				questionId: question._id,
