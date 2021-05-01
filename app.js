@@ -1,12 +1,12 @@
 const express = require('express');
-const { Server } = require("http")
-const socketIo = require("socket.io")
-const jwt = require('jsonwebtoken')
+const { Server } = require("http");
+const socketIo = require("socket.io");
+const jwt = require('jsonwebtoken');
 
 const mongoose = require('./models/mongoose');
 require('dotenv').config();
 
-const app = express()
+const app = express();
 const cors = require('cors');
 app.use(cors({ origin: "*", credentials: true }))
 
@@ -24,7 +24,7 @@ const calTime = require('./lib/calTime')
 require("moment-timezone")
 moment.tz.setDefault("Asia/Seoul")
 
-const http = Server(app)
+const http = Server(app);
 const io = socketIo(http, {
 	cors: {
 		origin: "*",
@@ -32,7 +32,7 @@ const io = socketIo(http, {
 	},
 })
 
-const alarm = io.of("/alarm")
+const alarm = io.of("/alarm");
 app.use((req, res, next) => {
 	req.alarm = alarm
 	return next();
@@ -68,6 +68,7 @@ alarm.on("connection", function (socket) {
 				alarmId: alarmData._id,
 				userId: alarmData.userId,
 				recentNickname: recentUser.nickname,
+				recentProfileImg: recentUser.profileImg,
 				userNickname: user.nickname,
 				countOthers: alarmData.userList.length - 1,
 				cardId: alarmData.cardId,

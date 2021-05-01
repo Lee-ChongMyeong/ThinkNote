@@ -15,8 +15,7 @@ router.post('/searchUser', async (req, res, next) => {
             res.send({ userInfo: 'none' });
         }
         // ({ userId: { $ne: user.userId }, questionId: questionId })
-        const userInfo = await User.find({ nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-        // nickname: { $ne: words }, find 안에다가 이걸 왜 넣었었찌?
+        const userInfo = await User.find({ nickname: { $ne: "알 수 없는 유저" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
         if (userInfo) {
             res.send({ userInfo });
         } else {
@@ -322,18 +321,17 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
         user = res.locals.user;
-        console.log('0');
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
         const answer = await AnswerCard.findOne({ _id: answerCardId });
         if (currentLike) {
             return res.send('이미 좋아요 누른 상태');
         }
-        console.log('1');
+        // 새로고침하고 커뮤니티왔을 때 그때 좋아요가 되있는걸 취소했을 떄,
+        // 
         await Like.create({
             answerId: answerCardId,
             userId: user.userId
         });
-        console.log('2');
         const likeCount = await Like.find({ answerId: answerCardId });
         const likeCountNum = likeCount.length;
 
@@ -342,7 +340,6 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         return res.send({ answerCardId, likeCountNum, currentLike: true });
     } catch (err) {
-        console.log(err);
         return res.status(400).json({ msg: 'fail' });
     }
 });
@@ -363,13 +360,23 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         const likeCount = await Like.find({ answerId: answerCardId });
         const likeCountNum = likeCount.length;
+
         let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
+<<<<<<< HEAD
         if (alarmInfo && alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
+=======
+        console.log(alarmInfo)
+        console.log(alarmInfo['userList'])
+        if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
+>>>>>>> 542ffdb3dd38e739489a3517a9c87f1e4917d9d5
             await Alarm.deleteOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
-        } else {
+        }
+        // elif (!alarmInfo) { return }
+        else {
             alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
             await alarmInfo.save();
         }
+
         res.send({ answerCardId, likeCountNum, currentLike: false });
         return;
     } catch (err) {
@@ -377,6 +384,7 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
 //더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
     try {
@@ -432,9 +440,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     try {
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-
         const { questionId } = req.params;
-        const { } = await AnswerCard.find({ questionId })
+        const allAnswer = await AnswerCard.find({ questionId })
             .sort()
             .skip(page * 2)
             .limit(2);
@@ -462,7 +469,7 @@ router.get('/cards/:questionId/test', async (req, res) => {
     const answers = await AnswerCard.find({ questionId });
     let answerList = [];
     for (answer of answers) answerList.push(answer._id);
-    let likes = await Like.find().where('answerId').in(answerList);
+    let likes = await Like.find().where('answerId').in(answerList)
     countLike = {};
     for (element of likes) {
         if (!countLike[element.answerId]) countLike[element.answerId] = 1;
@@ -553,7 +560,6 @@ router.patch('/private', authMiddleware, async (req, res, next) => {
         const { answerCardId, isOpen } = req.body
         const answerInfo = await AnswerCard.findOne({ _id: answerCardId })
         if (answerInfo.userId != user.userId) { return res.status(400).send('본인의 글만 공개,비공개 전환이 가능합니다.') }
-
         await AnswerCard.updateOne({ _id: answerCardId }, { $set: { isOpen } })
         return res.send('공개, 비공개 전환 성공')
     } catch (err) {

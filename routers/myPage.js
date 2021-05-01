@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
-const { User } = require('../models');
+const { User, AnswerCard, Like, CommentBoard, Friend, QuestionDaily } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 const s3 = require('../lib/s3.js');
@@ -88,8 +88,26 @@ router.patch('/profile/introduce', authMiddleware, (req, res) => {
 	}
 });
 
+// 회원 탈퇴
+router.delete('/profile/quit', authMiddleware, async (req, res) => {
+	try {
 
+		const user = res.locals.user;
+		const profileImg = "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg"
+		const nickname = "알 수 없는 유저"
+		const provider = "탈퇴"
+		const socialId = "탈퇴"
 
+		await AnswerCard.delete({ userId: user.userId });
+		await CommentBoard.delete({ userId: user.userId });
+		await Like.delete({ userId: user.userId });
+		await QuestionDaily.delete({ userId: user.userId });
+		await Friend.delete({ followingId: user.userId });
+		await User.updateOne({ _id: user.userId }, { $set: { profile, nickname, provider, socialId } });
 
+	} catch {
+		res.status(400).json({ msg: 'fail' });
+	}
+})
 
 module.exports = router;
