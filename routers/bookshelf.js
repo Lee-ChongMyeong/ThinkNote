@@ -98,6 +98,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
                 questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
+                answerCardId: booksDetail[i]['_id'],
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
@@ -148,7 +149,6 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const { YYMMDD, questionId } = req.params;
         user = res.locals.user;
         bookCardDetail = []
-        other = []
         const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD })
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId })
         const questionUserInfo = await User.findOne({ _id: createdUser })
@@ -163,12 +163,13 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
             questionContents: contents,
+            answerCardId: booksDetail._id,
             answerContents: booksDetail.contents,
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             likeCount: likeCountNum
         })
-        return res.send({ bookCardDetail, other })
+        return res.send({ bookCardDetail })
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -180,7 +181,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
         const { YYMMDD, questionId, id } = req.params;
         bookCardDetail = []
         other = []
-        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD });
+        const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD, isOpen: true });
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
         const questionUserInfo = await User.findOne({ _id: createdUser });
 
@@ -379,8 +380,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
 
         const { questionId } = req.params;
-        const allAnswer = await AnswerCard.find({ questionId }).skip(page * 2).limit(2);
-
+        const allAnswer = await AnswerCard.find({ questionId, isOpen: true }).skip(page * 2).limit(2);
         answer = []
         for (let i = 0; i < allAnswer.length; i++) {
             const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
@@ -425,6 +425,7 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
     }
 })
 
+// 좋아요순위 나중에이용할것
 router.get('/cards/:questionId/test', async (req, res) => {
     const { questionId } = req.params;
     const answers = await AnswerCard.find({ questionId });
@@ -504,5 +505,21 @@ router.get('/other/:id/question?page=number', authMiddleware, async (req, res, n
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
+// 공개 비공개 전환
+router.patch('/private', authMiddleware, async (req, res, next) => {
+    try {
+        console.log('하이')
+        user = res.locals.user;
+        const { answerCardId, isOpen } = req.body
+        const answerInfo = await AnswerCard.findOne({ _id: answerCardId })
+        if (answerInfo.userId != user.userId) { return res.status(400).send('본인의 글만 공개,비공개 전환이 가능합니다.') }
+
+        await AnswerCard.updateOne({ _id: answerCardId }, { $set: { isOpen } })
+        return res.send('공개, 비공개 전환 성공')
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+})
 
 module.exports = router;
