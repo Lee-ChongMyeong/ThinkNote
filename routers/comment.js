@@ -2,13 +2,8 @@ const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
 const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
-<<<<<<< HEAD
-const authMiddleware = require('../auth/authMiddleware')
-const jwt = require('jsonwebtoken')
-=======
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
->>>>>>> f7d8ccf962534ffde8bdf12142a90d04e2da5158
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
