@@ -430,14 +430,24 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 });
 
 // 더보기 답변들
-// 좋아요 순위
-// 친구가 쓴 것만
-router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
+// 친구가 쓴 것
+// 친구가 쓴 것만 (로그인 안했을 경우는 로그인 필요한 기능이라고 뜨게 말하기)
+router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, next) => {
     try {
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
         const { questionId } = req.params;
-        const allAnswer = await AnswerCard.find({ questionId })
+        user = res.locals.user;
+
+        // 친구 감별
+        const followerId = await Friend.find({ followingId: user.userId })
+        const friendList = []
+
+        for (let i = 0; i < followerId.length; i++) {
+            friendList.push(followerId[i]["followerId"])
+        }
+
+        const allAnswer = await AnswerCard.find({ userId: { $in: friendList }, questionId })
             .sort()
             .skip(page * 2)
             .limit(2);
@@ -455,6 +465,7 @@ router.get('/moreInfoCard/like/:questionId', async (req, res, next) => {
         }
         return res.send({ answer });
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
