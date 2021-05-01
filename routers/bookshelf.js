@@ -15,7 +15,7 @@ router.post('/searchUser', async (req, res, next) => {
             res.send({ userInfo: 'none' });
         }
         // ({ userId: { $ne: user.userId }, questionId: questionId })
-        const userInfo = await User.find({ socialId: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+        const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
         if (userInfo) {
             res.send({ userInfo });
         } else {
