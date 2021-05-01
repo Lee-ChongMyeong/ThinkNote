@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
-const { CommentBoard, User, AnswerCard } = require('../models');
+const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware')
 const jwt = require('jsonwebtoken')
 const moment = require('moment');
@@ -44,14 +44,13 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 				userId: sanitize(user.id),
 			};
       console.log(result)
-      console.log(await CommentBoard.create(result));
+      let comment = await CommentBoard.create(result);
       result["nickname"] = user.nickname,
       result["profileImg"] = user.profileImg
+      result['commnetId'] = comment._id;
       res.json({ msg: 'success', result: result });
-      
       const alarmSend = require('../lib/sendAlarm')
       await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
-      
 
    } catch (err) {
       console.log(err)
@@ -63,11 +62,24 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 router.delete('/:commentId', authMiddleware, async (req, res, next) => {
    let result = { msg: 'success' };
    try {
+      console.log(1)
       const user = res.locals.user;
       const commentId = req.params.commentId;
+      const commentData = await CommentBoard.findOne({ _id: commentId, userId: user.id });
+      const { userId } = await AnswerCard.findOne({ _id: commentData.cardId });
       const { deletedCount } = await CommentBoard.deleteOne({ _id: commentId, userId: user.id });
       if (!deletedCount) result['msg'] = 'fail';
+
+      let alarmInfo = await Alarm.findOne({ userId: userId, cardId: commentData.cardId, eventType: 'comment' });
+      if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
+         await Alarm.deleteOne({ userId: userId, cardId: commentData.cardId, eventType: 'comment' });
+     } else {
+         alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
+         await alarmInfo.save();
+     }
+
    } catch (err) {
+      console.log(err)
       result['msg'] = 'fail';
    }
    res.json(result);
