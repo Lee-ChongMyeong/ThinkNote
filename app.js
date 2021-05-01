@@ -18,18 +18,13 @@ app.use(express.static('public'));
 const passport = require('./auth/passport');
 app.use(passport.initialize());
 
-
-
-
 const { User, Alarm } = require("./models")
 const moment = require("moment")
 const calTime = require('./lib/calTime')
 require("moment-timezone")
 moment.tz.setDefault("Asia/Seoul")
 
-
 const http = Server(app)
-
 const io = socketIo(http, {
 	cors: {
 		origin: "*",
@@ -38,7 +33,6 @@ const io = socketIo(http, {
 })
 
 const alarm = io.of("/alarm")
-
 app.use((req, res, next) => {
 	req.alarm = alarm
 	return next();
@@ -93,10 +87,6 @@ alarm.on("connection", function (socket) {
 	})
 })
 
-app.get('/testtest', (req, res) => {
-	alarm.to('6086a19c56c17a4ebfd28142').emit('AlarmEvent', { msg: 324234 })
-	res.send('테스트')
-})
 app.use('/', require('./routers'));
 //listen
 http.listen(process.env.LOVE_PORT, () => {

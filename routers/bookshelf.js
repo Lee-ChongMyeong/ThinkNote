@@ -3,7 +3,6 @@ const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = re
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 
-
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res, next) => {
@@ -313,7 +312,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
             answerId: answerCardId,
             userId: user.userId
         })
-         console.log('2');
+        console.log('2');
         const likeCount = await Like.find({ answerId: answerCardId })
         const likeCountNum = likeCount.length
 
@@ -448,19 +447,53 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         let { page } = req.query
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId }).skip(page * 2).limit(2);
-
         myQuestion = []
 
         for (let i = 0; i < myCustomQuestionCard.length; i++) {
+            let answerData = await AnswerCard.find({ questionId: myCustomQuestionCard[i]['_id'], isOpen: true });
+            if (!answerData) { answerData = 0 }
             myQuestion.push({
-                createdUserId: user.userId,
-                createdUserNickname: user.nickname,
-                createdUserProfileImg: user.profileImg,
-                questionId: myCustomQuestionCard._id,
-                questionContents: myCustomQuestionCard.contents,
-                questionTopic: myCustomQuestionCard.topic,
-                questionCreatedAt: myCustomQuestionCard.createdAt
+                // createdUserId: user.userId,
+                // createdUserNickname: user.nickname,
+                // createdUserProfileImg: user.profileImg,
+                questionId: myCustomQuestionCard[i]['_id'],
+                questionContents: myCustomQuestionCard[i]['contents'],
+                questionTopic: myCustomQuestionCard[i]['topic'],
+                questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
+                answerCount: answerData.length
             })
+            //질문에 몇명답했는지
+        }
+        return res.send({ myQuestion })
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+//다른 사람 커스텀 카드 질문조회
+router.get('/other/:id/question?page=number', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        let { page } = req.query;
+        const { id } = req.params;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0
+        const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id }).skip(page * 2).limit(2);
+        myQuestion = []
+
+        for (let i = 0; i < otherCustomQuestionCard.length; i++) {
+            let answerData = await AnswerCard.find({ questionId: otherCustomQuestionCard[i]['_id'], isOpen: true });
+            if (!answerData) { answerData = 0 }
+            myQuestion.push({
+                // createdUserId: user.userId,
+                // createdUserNickname: user.nickname,
+                // createdUserProfileImg: user.profileImg,
+                questionId: otherCustomQuestionCard[i]['_id'],
+                questionContents: otherCustomQuestionCard[i]['contents'],
+                questionTopic: otherCustomQuestionCard[i]['topic'],
+                questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
+                answerCount: answerData.length
+            })
+            //질문에 몇명답했는지
         }
         return res.send({ myQuestion })
     } catch (err) {
