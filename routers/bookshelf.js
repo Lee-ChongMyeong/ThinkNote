@@ -458,9 +458,9 @@ router.get('/question', authMiddleware, async (req, res, next) => {
             let answerData = await AnswerCard.find({ questionId: myCustomQuestionCard[i]['_id'], isOpen: true });
             if (!answerData) { answerData = 0 }
             myQuestion.push({
-                createdUserId: user.userId,
-                createdUserNickname: user.nickname,
-                createdUserProfileImg: user.profileImg,
+                // createdUserId: user.userId,
+                // createdUserNickname: user.nickname,
+                // createdUserProfileImg: user.profileImg,
                 questionId: myCustomQuestionCard[i]['_id'],
                 questionContents: myCustomQuestionCard[i]['contents'],
                 questionTopic: myCustomQuestionCard[i]['topic'],
