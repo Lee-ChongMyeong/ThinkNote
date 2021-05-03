@@ -208,6 +208,7 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
 });
 
 // 커스텀 질문 등록
+// 질문글자 5개 이상 하기
 router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
