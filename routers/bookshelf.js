@@ -32,10 +32,14 @@ router.get('/auth/user/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const UserInfo = await User.findOne({ _id: id });
+        const otherQuestion = await QuestionCard.find({ createdUser: user.userId });
+        const otherAnswer = await AnswerCard.find({ userId: user.userId });
         res.json({
             nickname: UserInfo.nickname,
             profileImg: UserInfo.profileImg,
-            introduce: UserInfo.introduce
+            introduce: UserInfo.introduce,
+            otherCustomQuestionCount: otherQuestion.length,
+            otherAnswerCount: otherAnswer.length
         });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -548,7 +552,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-        const AllmyQuestion = await QuestionCard.find({ createdUser: user.userId });
+        const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
             .skip(page * 2)
             .limit(2);
@@ -568,7 +572,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
             });
         }
         return res.send({
-            myQuestionCount: AllmyQuestion.length,
+            myQuestionCount: allMyQuestion.length,
             myQuestion
         });
     } catch (err) {
@@ -583,6 +587,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
         let { page } = req.query;
         const { id } = req.params;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+        const allOtherQuestion = await QuestionCard.find({ createdUser: user.userId });
         const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
             .skip(page * 2)
             .limit(2);
@@ -602,7 +607,10 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
             });
             //질문에 몇명답했는지
         }
-        return res.send({ myQuestion });
+        return res.send({
+            otherQuestionCount: allOtherQuestion.length,
+            otherQuestion
+        });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
