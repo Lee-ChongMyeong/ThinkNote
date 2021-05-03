@@ -10,12 +10,12 @@ require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
 //질문에 대한 답변 쓰기
+// 4글자 안되면 빠꾸
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
-		const questionId = req.body['questionId'];
-		const contents = req.body['contents'];
-		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, {$set : { available : false }} );
+		const { questionId, contents } = req.body;
+		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
 		console.log('daily', daily)
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
@@ -62,7 +62,7 @@ router.get('/daily', async (req, res) => {
 					createdUser: createdUser.nickname,
 					answerCount: answer.length,
 					available: question.available,
-					profileImg : createdUser.profileImg
+					profileImg: createdUser.profileImg
 				});
 			}
 			return res.json({ cards });
@@ -115,7 +115,7 @@ router.get('/daily', async (req, res) => {
 						createdUser: createdUser.nickname,
 						answerCount: answer.length,
 						available: question.available,
-						profileImg : createdUser.profileImg
+						profileImg: createdUser.profileImg
 					});
 				}
 				return res.json({ cards });
@@ -134,7 +134,7 @@ router.get('/daily', async (req, res) => {
 						createdUser: createdUser.nickname,
 						answerCount: answer.length,
 						available: question.available,
-						profileImg : createdUser.profileImg
+						profileImg: createdUser.profileImg
 					});
 				}
 				return res.json({ cards });

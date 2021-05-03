@@ -408,9 +408,21 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
         const { questionId } = req.params;
-        const allAnswer = await AnswerCard.find({ questionId })
-            .skip(page * 2)
-            .limit(2);
+
+        const allAnswer = await AnswerCard.aggregate([
+            { $match: { questionId: { $eq: questionId } } },
+            { $project: { _id: { $toString: '$_id' }, questionId: 1, contents: 1, YYMMDD: 1, userId: 1 } },
+            { $lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' } },
+            { $sort: { YYMMDD: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, YYMMDD: 1, userId: 1, likes: { $size: '$likes' }
+                }
+                // answerId: '$_id'
+            },
+        ])
 
         answer = [];
         for (let i = 0; i < allAnswer.length; i++) {
@@ -420,7 +432,8 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
                 userNickname: UserInfo.nickname,
                 userProfileImg: UserInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents']
+                answerContents: allAnswer[i]['contents'],
+                answerLikes: allAnswer[i]['likes']
             });
         }
         return res.send({ answer });
@@ -430,7 +443,6 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 });
 
 // 더보기 답변들
-// 친구가 쓴 것
 // 친구가 쓴 것만 (로그인 안했을 경우는 로그인 필요한 기능이라고 뜨게 말하기)
 router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, next) => {
     try {
@@ -447,50 +459,85 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, 
             friendList.push(followerId[i]["followerId"])
         }
 
-        const allAnswer = await AnswerCard.find({ userId: { $in: friendList }, questionId })
-            .sort()
-            .skip(page * 2)
-            .limit(2);
+        const allAnswer = await AnswerCard.aggregate([
+            { $match: { userId: { $in: friendList }, questionId: { $eq: questionId } } },
+            { $project: { _id: { $toString: '$_id' }, questionId: 1, contents: 1, YYMMDD: 1, userId: 1 } },
+            { $lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' } },
+            { $sort: { likes: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, YYMMDD: 1, userId: 1, likes: { $size: '$likes' }
+                }
+            },
+        ])
 
         answer = [];
         for (let i = 0; i < allAnswer.length; i++) {
-            const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+            const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
             answer.push({
-                userId: UserInfo._id,
-                userNickname: UserInfo.nickname,
-                userProfileImg: UserInfo.profileImg,
+                userId: userInfo._id,
+                userNickname: userInfo.nickname,
+                userProfileImg: userInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents']
+                answerContents: allAnswer[i]['contents'],
+                answerLikes: allAnswer[i]['likes']
             });
         }
-        return res.send({ answer });
+        return res.json(answer);
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+// 더보기 답변
+// 좋아요순위 나중에이용할것
+router.get('/moreInfoCard/like/:questionId', async (req, res) => {
+    try {
+        console.log("발동중^^")
+        const { questionId } = req.params;
+        let { page } = req.query;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+        const allAnswer = await AnswerCard.aggregate([
+            { $match: { questionId: { $eq: questionId } } },
+            { $project: { _id: { $toString: '$_id' }, questionId: 1, contents: 1, YYMMDD: 1, userId: 1 } },
+            { $lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' } },
+            { $sort: { likes: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, YYMMDD: 1, userId: 1, likes: { $size: '$likes' }
+                }
+                // answerId: '$_id'
+            },
+        ])
+
+        let answer = [];
+        for (let i = 0; i < allAnswer.length; i++) {
+            const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+            answer.push({
+                userId: userInfo._id,
+                userNickname: userInfo.nickname,
+                userProfileImg: userInfo.profileImg,
+                answerId: allAnswer[i]['_id'],
+                answerContents: allAnswer[i]['contents'],
+                answerLikes: allAnswer[i]['likes']
+            })
+        }
+        // 유저 정보 넣어주기 이름이랑 값
+        return res.json(answer)
+
     } catch (err) {
         console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
 
-// 좋아요순위 나중에이용할것
-router.get('/cards/:questionId/test', async (req, res) => {
-    const { questionId } = req.params;
-    const answers = await AnswerCard.find({ questionId });
-    let answerList = [];
-    for (answer of answers) answerList.push(answer._id);
-    let likes = await Like.find().where('answerId').in(answerList)
-    countLike = {};
-    for (element of likes) {
-        if (!countLike[element.answerId]) countLike[element.answerId] = 1;
-        else countLike[element.answerId] += 1;
-    }
-    mostLike = [];
-    for (key in countLike) mostLike.push({ answerId: key, count: countLike[key] });
-    mostLike.sort((a, b) => {
-        return a.count - b.count;
-    });
-    res.json({ mostLike });
-});
-
 //내 커스텀 카드 질문조회
+// 질문에 몇명답했는지 알아야 함
 router.get('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
@@ -507,16 +554,12 @@ router.get('/question', authMiddleware, async (req, res, next) => {
                 answerData = 0;
             }
             myQuestion.push({
-                // createdUserId: user.userId,
-                // createdUserNickname: user.nickname,
-                // createdUserProfileImg: user.profileImg,
                 questionId: myCustomQuestionCard[i]['_id'],
                 questionContents: myCustomQuestionCard[i]['contents'],
                 questionTopic: myCustomQuestionCard[i]['topic'],
                 questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
                 answerCount: answerData.length
             });
-            //질문에 몇명답했는지
         }
         return res.send({ myQuestion });
     } catch (err) {
