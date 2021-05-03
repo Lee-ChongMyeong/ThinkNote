@@ -32,8 +32,8 @@ router.get('/auth/user/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
         const UserInfo = await User.findOne({ _id: id });
-        const otherQuestion = await QuestionCard.find({ createdUser: user.userId });
-        const otherAnswer = await AnswerCard.find({ userId: user.userId });
+        const otherQuestion = await QuestionCard.find({ createdUser: id });
+        const otherAnswer = await AnswerCard.find({ userId: id });
         res.json({
             nickname: UserInfo.nickname,
             profileImg: UserInfo.profileImg,
@@ -366,8 +366,6 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
         const likeCountNum = likeCount.length;
 
         let alarmInfo = await Alarm.findOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
-        console.log(alarmInfo)
-        console.log(alarmInfo['userList'])
         if (alarmInfo['userList'].length == 1 && (-1 != alarmInfo['userList'].indexOf(user._id))) {
             await Alarm.deleteOne({ userId: answer.userId, cardId: answerCardId, eventType: 'like' });
         }
