@@ -44,17 +44,14 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id)
 		};
-		console.log(result);
 		let comment = await CommentBoard.create(result);
 		(result['nickname'] = user.nickname), (result['profileImg'] = user.profileImg);
 		result['commnetId'] = comment._id;
 		res.json({ msg: 'success', result: result });
 
 		const alarmSend = require('../lib/sendAlarm');
-		console.log(tag)
 		// 태그 있을때
 		if (tag) {
-			console.log('1')
 			for (let i = 0; i < tag.length; i++) {
 				await alarmSend(tag[i], cardId, 'tag', user.userId, req.alarm)
 			}

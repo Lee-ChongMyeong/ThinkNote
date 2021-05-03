@@ -214,6 +214,8 @@ router.post('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         const { contents, topic } = req.body;
 
+        if (contents.length < 5) { return res.status(400).send({ msg: '5글자는 넘겨주셔야져!' }) }
+
         // 하루에 1번 질문할 수 있는것 체크
         let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
         const createdAtTypeChangeString = JSON.stringify(createdAt);
@@ -504,7 +506,6 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, 
 // 좋아요순위 나중에이용할것
 router.get('/moreInfoCard/like/:questionId', async (req, res) => {
     try {
-        console.log("발동중^^")
         const { questionId } = req.params;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -581,7 +582,6 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 
 //다른 사람 커스텀 카드 질문조회
 router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
-    console.log('하이')
     try {
         let { page } = req.query;
         const { id } = req.params;

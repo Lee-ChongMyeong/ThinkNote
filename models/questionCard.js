@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const questionCard = new Schema({
-	topic: { type: String },
+	topic: { type: Array },
 	contents: { type: String, required: true },
 	createdUser: { type: String }
 },
