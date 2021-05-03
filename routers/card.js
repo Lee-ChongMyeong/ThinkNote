@@ -15,7 +15,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	try {
 		const { questionId, contents } = req.body;
 		if (contents.length < 4) {
-			return res.json ({ msg : 'typenumber error'})
+			return res.json({ msg: 'typenumber error' })
 		}
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
 		console.log('daily', daily)
@@ -31,7 +31,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		let cards = [];
 		const todayQuestion = await QuestionDaily.find({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		console.log(todayQuestion)
 		for (question of todayQuestion) {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
@@ -172,7 +171,6 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	let answerData = [];
 	try {
 		const recentAnswerDatas = await AnswerCard.find({ questionId: cardId }).sort({ createdAt: -1 }).limit(3);
-		// console.log(recentAnswerDatas)
 		for (recentAnswerData of recentAnswerDatas) {
 			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
 			let temp = {
