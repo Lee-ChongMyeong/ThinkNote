@@ -10,7 +10,6 @@ require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
 //질문에 대한 답변 쓰기
-// 4글자 안되면 빠꾸
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
@@ -28,7 +27,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		});
 
 		let cards = [];
-		const todayQuestion = await QuestionDaily.find({  userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD')  });
+		const todayQuestion = await QuestionDaily.find({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
 		console.log(todayQuestion)
 		for (question of todayQuestion) {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
@@ -41,13 +40,13 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				createdUser: createdUser.nickname,
 				answerCount: answer.length,
 				available: question.available,
-				profileImg : createdUser.profileImg
+				profileImg: createdUser.profileImg
 			});
 		}
 
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
-		res.json({ msg: 'success', cards : cards, result: result });
+		res.json({ msg: 'success', cards: cards, result: result });
 
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
