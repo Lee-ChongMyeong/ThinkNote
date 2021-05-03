@@ -31,9 +31,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		let cards = [];
 		const todayQuestion = await QuestionDaily.find({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		console.log(todayQuestion)
 		for (question of todayQuestion) {
-			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+			let questionInfo = await QuestionCard.findOne({ _id: question.queonId });
+			console.log(questionInfo)
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 			let answer = await AnswerCard.find({ questionId: question.questionId });
 			cards.push({
@@ -44,6 +44,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				answerCount: answer.length,
 				available: question.available,
 				profileImg: createdUser.profileImg
+				
 			});
 		}
 
@@ -54,6 +55,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
 	} catch (err) {
+		console.log(err)
 		return res.status(400).json({ msg: 'fail2' });
 	}
 })
