@@ -165,8 +165,8 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
-            questionContents: contents,
-            answerContents: booksDetail.contents,
+            questionContents: sanitize(contents),
+            answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             likeCount: likeCountNum
@@ -195,8 +195,8 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
-            questionContents: contents,
-            answerContents: booksDetail.contents,
+            questionContents: sanitize(contents),
+            answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             likeCount: likeCountNum
@@ -214,7 +214,7 @@ router.post('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         const { contents, topic } = req.body;
 
-        if (contents.length < 5) { return res.status(400).send({ msg: '5글자는 넘겨주셔야져!' }) }
+        if (contents.length < 5) { return res.status(400).send({ msg: '그래도 질문인데 5글자는 넘겨주셔야져!' }) }
 
         // 하루에 1번 질문할 수 있는것 체크
         let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
@@ -234,7 +234,7 @@ router.post('/question', authMiddleware, async (req, res, next) => {
         // 이미 있는 질문인지 검사
         const originContents = await QuestionCard.findOne({ contents: contents });
         if (!originContents) {
-            const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId });
+            const CustomQuestion = await QuestionCard.create({ ...sanitize(req.body), createdUser: user.userId });
             const { nickname } = await User.findOne({ _id: user.userId });
             return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
         } else {
@@ -293,7 +293,7 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
             friends.push({
                 friendId: friendInfo._id,
-                friendNickname: friendInfo.nickname,
+                friendNickname: sanitize(friendInfo.nickname),
                 friendProfileImg: friendInfo.profileImg
             });
         }
@@ -313,7 +313,7 @@ router.get('/other/friendList/:id', async (req, res, next) => {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
             othersFriend.push({
                 otherFriendId: friendInfo._id,
-                otherFriendNickname: friendInfo.nickname,
+                otherFriendNickname: sanitize(friendInfo.nickname),
                 otherFriendProfileImg: friendInfo.profileImg
             });
         }
@@ -400,7 +400,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
 
         return res.send({
             questionId: questionInfo._id,
-            questionContents: questionInfo.contents,
+            questionContents: sanitize(questionInfo.contents),
             questionCreatedUserId: userInfo._id,
             questionCreatedUserNickname: userInfo.nickname,
             questionCreatedUserProfileImg: userInfo.profileImg,
@@ -443,7 +443,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
                 userNickname: UserInfo.nickname,
                 userProfileImg: UserInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents'],
+                answerContents: sanitize(allAnswer[i]['contents']),
                 answerLikes: allAnswer[i]['likes']
             });
         }
@@ -492,7 +492,7 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, 
                 userNickname: userInfo.nickname,
                 userProfileImg: userInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents'],
+                answerContents: sanitize(allAnswer[i]['contents']),
                 answerLikes: allAnswer[i]['likes']
             });
         }
@@ -569,7 +569,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
             }
             myQuestion.push({
                 questionId: myCustomQuestionCard[i]['_id'],
-                questionContents: myCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(myCustomQuestionCard[i]['contents']),
                 questionTopic: myCustomQuestionCard[i]['topic'],
                 questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
                 answerCount: answerData.length
@@ -609,7 +609,7 @@ router.get('/like/question', authMiddleware, async (req, res, next) => {
         for (let i = 0; i < myCustomQuestionCard.length; i++) {
             result.push({
                 questionId: myCustomQuest1ionCard[i]['_id'],
-                questionContents: myCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(myCustomQuestionCard[i]['contents']),
                 questionTopic: myCustomQuestionCard[i]['topic'],
                 questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
                 answerCount: myCustomQuestionCard[i]['answerLength']
@@ -643,7 +643,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
             }
             myQuestion.push({
                 questionId: otherCustomQuestionCard[i]['_id'],
-                questionContents: otherCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
                 questionTopic: otherCustomQuestionCard[i]['topic'],
                 questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
                 answerCount: answerData.length
@@ -684,7 +684,7 @@ router.get('/other/like/:id/question', authMiddleware, async (req, res, next) =>
         for (let i = 0; i < otherCustomQuestionCard.length; i++) {
             result.push({
                 questionId: otherCustomQuestionCard[i]['_id'],
-                questionContents: otherCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
                 questionTopic: otherCustomQuestionCard[i]['topic'],
                 questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
                 answerCount: otherCustomQuestionCard[i]['answerLength']
