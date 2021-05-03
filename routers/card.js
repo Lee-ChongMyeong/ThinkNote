@@ -14,7 +14,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents } = req.body;
-		if (req.body.contents.length < 4) {
+		if (contents.length < 4) {
 			return res.json ({ msg : 'typenumber error'})
 		}
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
