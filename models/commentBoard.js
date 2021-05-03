@@ -6,11 +6,7 @@ const commentBoard = new Schema({
    commentContents: { type: String, required: true },
    cardId: { type: String, required: true },
    userId: { type: String, required: true },
-   //    user: {
-   //     type: Types.ObjectId,
-   //     required: true,
-   //     ref: "User",
-   //     }
+   tag: {}
 });
 
 commentBoard.virtual('commentId').get(function () {

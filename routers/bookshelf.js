@@ -546,14 +546,18 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
     }
 });
 
-//내 커스텀 카드 질문조회
+//내 커스텀 카드 질문조회 (최신순)
 router.get('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+
+
         const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
+            .sort('-createdAt')
             .skip(page * 2)
             .limit(2);
         myQuestion = [];
@@ -580,7 +584,46 @@ router.get('/question', authMiddleware, async (req, res, next) => {
     }
 });
 
-//다른 사람 커스텀 카드 질문조회
+// 내 커스텀 카드 질문조회(답변 많은 순)
+router.get('/like/question', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        let { page } = req.query;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+        const myCustomQuestionCard = await QuestionCard.aggregate([
+            { $match: { createdUser: { $eq: user.userId } } },
+            { $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+            { $lookup: { from: 'answercards', localField: '_id', foreignField: 'questionId', as: 'answercards' } },
+            { $sort: { answercards: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, createdUser: 1, answerLength: { $size: '$answercards' }
+                }
+            },
+        ])
+
+        let result = [];
+        for (let i = 0; i < myCustomQuestionCard.length; i++) {
+            result.push({
+                questionId: myCustomQuest1ionCard[i]['_id'],
+                questionContents: myCustomQuestionCard[i]['contents'],
+                questionTopic: myCustomQuestionCard[i]['topic'],
+                questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
+                answerCount: myCustomQuestionCard[i]['answerLength']
+            });
+        }
+        return res.send({
+            result: result
+        });
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+//다른 사람 커스텀 카드 질문조회 (최신순)
 router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
     try {
         let { page } = req.query;
@@ -588,6 +631,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
         const allOtherQuestion = await QuestionCard.find({ createdUser: user.userId });
         const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
+            .sort('-createdAt')
             .skip(page * 2)
             .limit(2);
         myQuestion = [];
@@ -609,6 +653,46 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
         return res.send({
             otherQuestionCount: allOtherQuestion.length,
             otherQuestion
+        });
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+//다른 사람 커스텀 카드 질문조회 (인기순)
+router.get('/other/like/:id/question', authMiddleware, async (req, res, next) => {
+    try {
+        let { page } = req.query;
+        const { id } = req.params;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+        const otherCustomQuestionCard = await QuestionCard.aggregate([
+            { $match: { createdUser: { $eq: id } } },
+            { $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+            { $lookup: { from: 'answercards', localField: '_id', foreignField: 'questionId', as: 'answercards' } },
+            { $sort: { answercards: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, createdUser: 1, answerLength: { $size: '$answercards' }
+                }
+            },
+        ])
+
+        let result = [];
+        for (let i = 0; i < otherCustomQuestionCard.length; i++) {
+            result.push({
+                questionId: otherCustomQuestionCard[i]['_id'],
+                questionContents: otherCustomQuestionCard[i]['contents'],
+                questionTopic: otherCustomQuestionCard[i]['topic'],
+                questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
+                answerCount: otherCustomQuestionCard[i]['answerLength']
+            });
+            //질문에 몇명답했는지
+        }
+        return res.send({
+            result: result
         });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
