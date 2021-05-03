@@ -57,6 +57,7 @@ alarm.on("connection", function (socket) {
 		msg = []
 		let checked = false
 		for (alarmData of alarms) {
+			console.log('alarmData', alarmData)
 			if (alarmData.checked == true)
 				checked = true
 
