@@ -389,6 +389,10 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
         const userInfo = await User.findOne({ _id: questionInfo.userId });
         const answerData = await AnswerCard.find({ questionId: questionId, isOpen: true });
 
+        if (!answerData) {
+            answerData = 0;
+        }
+
         return res.send({
             questionId: questionInfo._id,
             questionContents: questionInfo.contents,
@@ -544,6 +548,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+        const AllmyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
             .skip(page * 2)
             .limit(2);
@@ -562,7 +567,10 @@ router.get('/question', authMiddleware, async (req, res, next) => {
                 answerCount: answerData.length
             });
         }
-        return res.send({ myQuestion });
+        return res.send({
+            myQuestionCount: AllmyQuestion.length,
+            myQuestion
+        });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
@@ -603,7 +611,6 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
 // 공개 비공개 전환
 router.patch('/private', authMiddleware, async (req, res, next) => {
     try {
-        console.log('하이')
         user = res.locals.user;
         const { answerCardId, isOpen } = req.body
         const answerInfo = await AnswerCard.findOne({ _id: answerCardId })

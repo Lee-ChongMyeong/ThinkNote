@@ -35,6 +35,7 @@ router.get('/:cardId', async (req, res, next) => {
 // 댓글 입력
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const cardId = req.params.cardId;
+	const { tag } = req.body;
 	const user = res.locals.user;
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
 	try {
@@ -50,6 +51,14 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 		res.json({ msg: 'success', result: result });
 
 		const alarmSend = require('../lib/sendAlarm');
+
+		// 태그 있을때
+		if (tag) {
+			for (let i = 0; i < tag.length; i++) {
+				await alarmSend(tag[i], cardId, 'tag', user.userId, req.alarm)
+			}
+		}
+
 		await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
 	} catch (err) {
 		console.log(err);
@@ -65,10 +74,10 @@ router.delete('/:commentId', authMiddleware, async (req, res, next) => {
 		const user = res.locals.user;
 		const commentId = req.params.commentId;
 		const commentData = await CommentBoard.findOne({ _id: commentId, userId: user.id });
-      console.log(commentData)
-      const answerCardData = await AnswerCard.findOne({ _id: commentData.cardId });
-      const userId = answerCardData.userId;
-      const answerId = answerCardData._id;
+		console.log(commentData)
+		const answerCardData = await AnswerCard.findOne({ _id: commentData.cardId });
+		const userId = answerCardData.userId;
+		const answerId = answerCardData._id;
 
 		const { deletedCount } = await CommentBoard.deleteOne({ _id: commentId, userId: user.id });
 		if (!deletedCount) result['msg'] = 'fail';
