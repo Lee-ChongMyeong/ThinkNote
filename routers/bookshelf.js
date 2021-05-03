@@ -387,13 +387,15 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
         const { questionId } = req.params;
         const questionInfo = await QuestionCard.findOne({ _id: questionId });
         const userInfo = await User.findOne({ _id: questionInfo.userId });
+        const answerData = await AnswerCard.find({ questionId: questionId, isOpen: true });
 
         return res.send({
             questionId: questionInfo._id,
             questionContents: questionInfo.contents,
             questionCreatedUserId: userInfo._id,
             questionCreatedUserNickname: userInfo.nickname,
-            questionCreatedUserProfileImg: userInfo.profileImg
+            questionCreatedUserProfileImg: userInfo.profileImg,
+            answerCount: answerData.length
         });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -537,7 +539,6 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 });
 
 //내 커스텀 카드 질문조회
-// 질문에 몇명답했는지 알아야 함
 router.get('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
@@ -585,9 +586,6 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
                 answerData = 0;
             }
             myQuestion.push({
-                // createdUserId: user.userId,
-                // createdUserNickname: user.nickname,
-                // createdUserProfileImg: user.profileImg,
                 questionId: otherCustomQuestionCard[i]['_id'],
                 questionContents: otherCustomQuestionCard[i]['contents'],
                 questionTopic: otherCustomQuestionCard[i]['topic'],
