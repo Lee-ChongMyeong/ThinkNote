@@ -6,7 +6,7 @@ const commentBoard = new Schema({
    commentContents: { type: String, required: true },
    cardId: { type: String, required: true },
    userId: { type: String, required: true },
-   tag: { type: mongoose.Types.ObjectId }
+   tag: { type: Array }
 },
    { timestamps: true });
 

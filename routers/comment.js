@@ -20,10 +20,11 @@ router.get('/:cardId', async (req, res, next) => {
 			let temp = {
 				commentId: comment.commentId,
 				commentContents: sanitize(comment.commentContents),
-				commentTag: sanitize(comment.tag),
+				commentTag: JSON.stringify(sanitize(comment.tag)),
 				userId: comment.userId,
 				nickname: userInfo.nickname,
 				profileImg: userInfo['profileImg']
+				// alert(JSON.stringify(myObj))
 			};
 			result['comments'].push(temp);
 		}
