@@ -91,7 +91,7 @@ router.get('/daily', async (req, res) => {
 					profileImg: createdUser.profileImg
 				});
 			}
-			return res.json({ cards });
+			return res.json({ cards, profileImg });
 		} else { // 로그인 했을때 
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
@@ -150,6 +150,8 @@ router.get('/daily', async (req, res) => {
 				// 재방문인경우
 				let cards = [];
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
+
+
 				for (question of todayQuestion) {
 					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
@@ -159,9 +161,9 @@ router.get('/daily', async (req, res) => {
 						topic: questionInfo.topic,
 						contents: questionInfo.contents,
 						createdUser: createdUser.nickname,
-						answerCount: answer.length,
+						profileImg: createdUser.profileImg,
 						available: question.available,
-						profileImg: createdUser.profileImg
+						answerCount: answer.length
 					});
 				}
 				return res.json({ cards });
