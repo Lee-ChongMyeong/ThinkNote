@@ -6,6 +6,7 @@ const user = new Schema({
 	socialId: { type: String, required: true },
 	profileImg: { type: String, required: true, default: "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg" },
 	introduce: { type: String, default: '' },
+	preferredTopic: { type: Array },
 	provider: { type: String }
 },
 	{ timestamps: true });

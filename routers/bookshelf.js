@@ -37,32 +37,30 @@ router.post('/searchUserDetail', async (req, res, next) => {
         if (!words) {
             res.send({ userInfo: 'none' });
         }
-        if (authorization){
+        if (authorization) {
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
             console.log('userId', userId)
             const user = await User.findOne({ _id: userId });
-		    if (!user) {throw err; }
+            if (!user) { throw err; }
             let userInfo = await User.findOne({ nickname: words }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
             await Search.create({
-                searchUserId : userInfo._id,
-                userId : userId
+                searchUserId: userInfo._id,
+                userId: userId
             })
 
-            res.status(200).json({ msg : 'success' });
+            res.status(200).json({ msg: 'success' });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
     }
 });
 
-
-
 // 최신 유저 검색 목록
 router.get('/searchUser', async (req, res, next) => {
     const { authorization } = req.headers;
-    let result = { msg : 'success', searchUser : [] }
+    let result = { msg: 'success', searchUser: [] }
     try {
         // 로그인 안했을때
 
@@ -72,17 +70,17 @@ router.get('/searchUser', async (req, res, next) => {
         const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
         console.log('userId', userId)
         const user = await User.findOne({ _id: userId });
-		if (!user) {throw err; }
-        const users = await Search.findOne({ userId : userId })
+        if (!user) { throw err; }
+        const users = await Search.findOne({ userId: userId })
         console.log(users)
         console.log(users.userId)
-        for ( userData of users ) {
+        for (userData of users) {
             console.log(3)
             const userInfo = await User.findOne({ _id: userData.userId });
             let temp = {
-                userId : userData.userId,
-                nickname : userInfo.nickname,
-                profileImg : userInfo["profileImg"]
+                userId: userData.userId,
+                nickname: userInfo.nickname,
+                profileImg: userInfo["profileImg"]
             };
             result['searchUser'].push(temp);
         }
@@ -91,19 +89,19 @@ router.get('/searchUser', async (req, res, next) => {
     }
 });
 
-
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지
 router.get('/auth/user/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const UserInfo = await User.findOne({ _id: id });
+        const userInfo = await User.findOne({ _id: id });
         const otherQuestion = await QuestionCard.find({ createdUser: id });
         const otherAnswer = await AnswerCard.find({ userId: id });
         res.json({
-            nickname: UserInfo.nickname,
-            profileImg: UserInfo.profileImg,
-            introduce: UserInfo.introduce,
+            nickname: userInfo.nickname,
+            profileImg: userInfo.profileImg,
+            introduce: userInfo.introduce,
+            topic: userInfo.topic,
             otherCustomQuestionCount: otherQuestion.length,
             otherAnswerCount: otherAnswer.length
         });
