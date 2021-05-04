@@ -30,81 +30,50 @@ router.post('/searchUser', async (req, res, next) => {
 });
 
 // 유저검색 완료(검색 유저 클릭했을때)
+// 나중에 미들웨어 붙여서 하기
 router.post('/searchUserDetail', async (req, res, next) => {
     try {
         const { id } = req.body;
         const { authorization } = req.headers;
-        if (!id) {
-            res.send({ userInfo: 'none' });
+        if (!id) { res.send({ userInfo: 'none' }); }
+        if (!authorization) { return res.status(200).send({ msg: '로그인 안 하고 검색했습니다!' }) }
+
+        const [tokenType, tokenValue] = authorization.split(' ');
+        if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+        const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+
+        const myUserInfo = await User.findOne({ _id: userId }); // 내 ID
+        let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });  // 다른사람 ID
+
+        const checkSearch = await Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId })
+        const checkAllSearch = await Search.find({ userId: myUserInfo.userId })
+
+        console.log(checkAllSearch.length)
+        if (checkAllSearch.length >= 6) {
+            await Search.deleteOne({ userId: myUserInfo.userId })
         }
-        console.log('1')
-        if (authorization) {
-            const [tokenType, tokenValue] = authorization.split(' ');
-            if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
-            const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 
-            const myUserInfo = await User.findOne({ _id: userId }); // 내 ID
-            if (!myUserInfo) { throw err; }
-            console.log('2')
-
-            let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });  // 다른사람 ID
-            console.log(otherUserInfo)
-
-            const checkSearch = await Search.findOne({ searchUserId: otherUserInfo._id, userId: user.userId })
-            console.log(checkSearch)
-            console.log('3')
-
-            // DB : 5개 유지
-            // 중복검색시 DB에 안들어가게.
-
-            // 강태진  09: 50
-            // 조형석  09: 40
-            // 이대호  09: 32
-            // 이총명  09: 31
-            // 강태진  09 :30 
-            // 이대호  08 :20
-
-            // 이총명
-            // 강태진
-            // 이대호
-            // 조형석
-            // 조상균
-            // 임다빈   --> delete
-
-            // 강태진
-            // 이총명
-            if (checkSearch.length >= 6) {
-                const lastSearch = await Search.findbyIdAndDeleteOne({ searchUserId: otherUserInfo, userId: user.userId }).sort()
-
-            }
+        if (!checkSearch) {
+            const result = await Search.create({
+                searchUserId: otherUserInfo._id,
+                userId: userId,
+                YYMMDD: moment().format('YYMMDD')
+            })
+            return res.json({ result })
+        } else {
             if (checkSearch.length >= 2) {
-                await Search.deleteMany({ searchUserId: otherUserInfo._id, userId: user.userId })
-                const result = await Search.create({
-                    searchUserId: userInfo._id,
-                    userId: userId,
-                    YYMMDD: moment().format('YYMMDD')
-                })
-            } else {
-                const result = await Search.create({
-                    searchUserId: userInfo._id,
-                    userId: userId,
-                    YYMMDD: moment().format('YYMMDD')
-                })
+                await Search.deleteOne({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId })
             }
-
-
-            // if (!checkSearch) {
-            //     await Search.create({
-            //         searchUserId: otherUserInfo._id,
-            //         userId: userId,
-            //         YYMMDD: moment().format('YYMMDD')
-            //     })
-            //     console.log('5')
-            // } else {
-
-            return res.status(200).json({ msg: 'success', result });
+            await Search.deleteOne({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId })
+            const result = await Search.create({
+                searchUserId: otherUserInfo._id,
+                userId: userId,
+                YYMMDD: moment().format('YYMMDD')
+            })
+            return res.json({ result })
         }
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
@@ -131,6 +100,7 @@ router.get('/searchUser', async (req, res, next) => {
                 let temp = {
                     profileImg: userInfo["profileImg"],
                     nickname: userInfo.nickname,
+                    searchUserId: userData.searchUserId,
                     userId: userData.userId,
                 };
                 result['searchUser'].push(temp);
@@ -668,8 +638,6 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-
-
 
         const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
