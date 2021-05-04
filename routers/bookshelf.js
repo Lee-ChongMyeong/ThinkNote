@@ -34,43 +34,75 @@ router.post('/searchUserDetail', async (req, res, next) => {
     try {
         const { id } = req.body;
         const { authorization } = req.headers;
-        if (!id ) {
+        if (!id) {
             res.send({ userInfo: 'none' });
         }
         console.log('1')
-        if (authorization){
+        if (authorization) {
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-            
+
             const myUserInfo = await User.findOne({ _id: userId }); // 내 ID
-		    if (!myUserInfo) {throw err; }
+            if (!myUserInfo) { throw err; }
             console.log('2')
 
             let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });  // 다른사람 ID
             console.log(otherUserInfo)
 
-            const checkSearch = await Search.findOne({ searchUserId : otherUserInfo._id })
+            const checkSearch = await Search.findOne({ searchUserId: otherUserInfo._id, userId: user.userId })
             console.log(checkSearch)
             console.log('3')
 
-            if (!checkSearch) {
-                await Search.create({
-                searchUserId : otherUserInfo._id,
-                userId : userId,
-                YYMMDD: moment().format('YYMMDD')
-            })
-            console.log('5')
+            // DB : 5개 유지
+            // 중복검색시 DB에 안들어가게.
+
+            // 강태진  09: 50
+            // 조형석  09: 40
+            // 이대호  09: 32
+            // 이총명  09: 31
+            // 강태진  09 :30 
+            // 이대호  08 :20
+
+            // 이총명
+            // 강태진
+            // 이대호
+            // 조형석
+            // 조상균
+            // 임다빈   --> delete
+
+            // 강태진
+            // 이총명
+            if (checkSearch.length >= 6) {
+                const lastSearch = await Search.findbyIdAndDeleteOne({ searchUserId: otherUserInfo, userId: user.userId }).sort({ udpatedAt: -1 })
+
+            }
+            if (checkSearch.length >= 2) {
+                await Search.deleteMany({ searchUserId: otherUserInfo._id, userId: user.userId })
+                const result = await Search.create({
+                    searchUserId: userInfo._id,
+                    userId: userId,
+                    YYMMDD: moment().format('YYMMDD')
+                })
             } else {
-                await Search.deleteOne({searchUserId : otherUserInfo._id})
-                await Search.create({
-                searchUserId : userInfo._id,
-                userId : userId,
-                YYMMDD: moment().format('YYMMDD')
+                const result = await Search.create({
+                    searchUserId: userInfo._id,
+                    userId: userId,
+                    YYMMDD: moment().format('YYMMDD')
                 })
             }
 
-            return res.status(200).json({ msg : 'success', userInfo });
+
+            // if (!checkSearch) {
+            //     await Search.create({
+            //         searchUserId: otherUserInfo._id,
+            //         userId: userId,
+            //         YYMMDD: moment().format('YYMMDD')
+            //     })
+            //     console.log('5')
+            // } else {
+
+            return res.status(200).json({ msg: 'success', result });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -90,11 +122,11 @@ router.get('/searchUser', async (req, res, next) => {
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
             console.log('userId', userId)
             const user = await User.findOne({ _id: userId });
-		    if (!user) {throw err; }
-            
-            const users = await Search.find({ userId : userId }).where('YYMMDD').gt(standardTime).limit(5);
+            if (!user) { throw err; }
+
+            const users = await Search.find({ userId: userId }).where('YYMMDD').gt(standardTime).limit(5);
             console.log(users)
-            for ( userData of users ) {
+            for (userData of users) {
                 const userInfo = await User.findOne({ _id: userData.searchUserId });
                 let temp = {
                     profileImg: userInfo["profileImg"],
