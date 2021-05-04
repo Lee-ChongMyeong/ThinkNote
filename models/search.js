@@ -4,6 +4,7 @@ const { Schema, model, Types } = mongoose;
 const search = new Schema({
     searchUserId : { type: String, required: true },
     userId : { type: String, required: true },
+    YYMMDD: { type: String },
 },
    { timestamps: true });
 
