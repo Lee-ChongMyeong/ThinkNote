@@ -8,15 +8,17 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
+require('dotenv').config();
 
 //질문에 대한 답변 쓰기
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents } = req.body;
-		if (contents.length < 4) {
-			return res.json({ msg: 'typenumber error' })
-		}
+		// 글자제한
+		// if (contents.length < 4) {
+		// 	return res.json({ msg: 'typenumber error' })
+		// }
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
 		console.log('daily', daily)
 		if (daily['questionId'] == req.body['questionId']) {
@@ -65,6 +67,7 @@ router.get('/daily', async (req, res) => {
 	let result = { msg: 'success', dailyData: [] };
 	try {
 		const { authorization } = req.headers;
+		// 로그인 안했을때
 		if (!authorization) {
 			let admin_id = '608971a172444320da6e8671';
 			const questionCards = await QuestionCard.aggregate([
@@ -88,7 +91,7 @@ router.get('/daily', async (req, res) => {
 				});
 			}
 			return res.json({ cards });
-		} else {
+		} else { // 로그인 했을때 
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
@@ -169,7 +172,7 @@ router.get('/daily', async (req, res) => {
 	}
 });
 
-// 최신 답변 3개 받기
+//최신 답변 3개 받기
 router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	const cardId = req.params.cardId;
 	let answerData = [];
@@ -192,5 +195,33 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	}
 	return res.status(200).json({ msg: 'success', answerData });
 });
+
+// 최신답변 3개 받기(데이터 한번에)
+router.get('/recentAnswer/:userId', async (req, res, next) => {
+	const userId = req.params.userId;
+	let answerData = [];
+	try {
+		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
+		console.log(todayQuestion)
+		for (todayQuestionData of todayQuestion){
+		const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
+			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
+			let temp = {
+				questionId: recentAnswerData.questionId,
+				answerId: recentAnswerData.answerId,
+				contents: recentAnswerData.contents,
+				profileImg: answerUser.profileImg,
+				nickname: answerUser.nickname,
+				userId: answerUser.userId
+			};
+			answerData.push(temp);
+		}
+	} catch (err) {
+		console.log(err)
+		return res.status(400).json({ msg: 'fail2' });
+	}
+	return res.status(200).json({ msg: 'success', answerData });
+});
+
 
 module.exports = router;
