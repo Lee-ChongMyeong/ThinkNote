@@ -13,4 +13,6 @@ router.use('/ourPlace', require('./ourPlace'));
 
 router.use('/comment', require('./comment'));
 
+router.use('/serviceInfo', require('./serviceInfo'));
+
 module.exports = router
