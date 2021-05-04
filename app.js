@@ -82,8 +82,12 @@ alarm.on("connection", function (socket) {
 	})
 
 	socket.on("openAlarm", async function (data) {
+		console.log(data.socket.room)
+		console.log(data.room)
 		console.log(socket.room)
-		const alarms = await Alarm.updateMany({ userId: socket.room }, { $set: { checked: false } })
+		console.log('======')
+		console.log(data.id)
+		const alarms = await Alarm.updateMany({ userId: id }, { $set: { checked: false } })
 	})
 
 	socket.on("leave", (data) => {
