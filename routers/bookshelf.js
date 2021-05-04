@@ -62,27 +62,27 @@ router.get('/searchUser', async (req, res, next) => {
     const { authorization } = req.headers;
     let result = { msg: 'success', searchUser: [] }
     try {
-        // 로그인 안했을때
 
         // 로그인 했을때
-        const [tokenType, tokenValue] = authorization.split(' ');
-        if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
-        const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-        console.log('userId', userId)
-        const user = await User.findOne({ _id: userId });
-        if (!user) { throw err; }
-        const users = await Search.findOne({ userId: userId })
-        console.log(users)
-        console.log(users.userId)
-        for (userData of users) {
-            console.log(3)
-            const userInfo = await User.findOne({ _id: userData.userId });
-            let temp = {
-                userId: userData.userId,
-                nickname: userInfo.nickname,
-                profileImg: userInfo["profileImg"]
-            };
-            result['searchUser'].push(temp);
+        if (authorization) {
+            const [tokenType, tokenValue] = authorization.split(' ');
+            if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+            const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+            console.log('userId', userId)
+            const user = await User.findOne({ _id: userId });
+            if (!user) { throw err; }
+            const users = await Search.find({ userId: userId })
+            console.log(users)
+            for (userData of users) {
+                const userInfo = await User.findOne({ _id: userData.userId });
+                let temp = {
+                    profileImg: userInfo["profileImg"],
+                    nickname: userInfo.nickname,
+                    userId: userData.userId,
+                };
+                result['searchUser'].push(temp);
+            }
+            res.status(200).json({ result });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
