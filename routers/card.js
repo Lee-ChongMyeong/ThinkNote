@@ -14,7 +14,7 @@ require('dotenv').config();
 router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
-		const { questionId, contents } = req.body;
+		const { questionId, contents, isOpen } = req.body;
 		// 글자제한
 		// if (contents.length < 4) {
 		// 	return res.json({ msg: 'typenumber error' })
@@ -28,7 +28,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			questionId: questionId,
 			contents: contents,
 			YYMMDD: moment().format('YYMMDD'),
-			userId: user.userId
+			userId: user.userId,
+			isOpen: isOpen
 		});
 
 		let cards = [];
@@ -46,7 +47,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				answerCount: answer.length,
 				available: question.available,
 				profileImg: createdUser.profileImg
-				
+
 			});
 		}
 
@@ -97,7 +98,7 @@ router.get('/daily', async (req, res) => {
 					otherProfileImg : ThreeCards
 				});
 			}
-			return res.json({ cards });
+			return res.json({ cards, profileImg });
 		} else { // 로그인 했을때 
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
@@ -164,6 +165,8 @@ router.get('/daily', async (req, res) => {
 				let cards = [];
 
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
+
+
 				for (question of todayQuestion) {
 					let ThreeCards = [];
 					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
@@ -219,32 +222,33 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	return res.status(200).json({ msg: 'success', answerData });
 });
 
-// 최신답변 3개 받기(데이터 한번에)
-router.get('/recentAnswer/:userId', async (req, res, next) => {
-	const userId = req.params.userId;
-	let answerData = [];
-	try {
-		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
-		console.log(todayQuestion)
-		for (todayQuestionData of todayQuestion){
-		const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
-			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
-			let temp = {
-				questionId: recentAnswerData.questionId,
-				answerId: recentAnswerData.answerId,
-				contents: recentAnswerData.contents,
-				profileImg: answerUser.profileImg,
-				nickname: answerUser.nickname,
-				userId: answerUser.userId
-			};
-			answerData.push(temp);
-		}
-	} catch (err) {
-		console.log(err)
-		return res.status(400).json({ msg: 'fail2' });
-	}
-	return res.status(200).json({ msg: 'success', answerData });
-});
+// // 최신답변 3개 받기(데이터 한번에)
+// 임시 정지
+// router.get('/recentAnswer/:userId', async (req, res, next) => {
+// 	const userId = req.params.userId;
+// 	let answerData = [];
+// 	try {
+// 		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
+// 		console.log(todayQuestion)
+// 		for (todayQuestionData of todayQuestion){
+// 		const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
+// 			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
+// 			let temp = {
+// 				questionId: recentAnswerData.questionId,
+// 				answerId: recentAnswerData.answerId,
+// 				contents: recentAnswerData.contents,
+// 				profileImg: answerUser.profileImg,
+// 				nickname: answerUser.nickname,
+// 				userId: answerUser.userId
+// 			};
+// 			answerData.push(temp);
+// 		}
+// 	} catch (err) {
+// 		console.log(err)
+// 		return res.status(400).json({ msg: 'fail2' });
+// 	}
+// 	return res.status(200).json({ msg: 'success', answerData });
+// });
 
 
 module.exports = router;
