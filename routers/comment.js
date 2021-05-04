@@ -24,6 +24,7 @@ router.get('/:cardId', async (req, res, next) => {
 				userId: comment.userId,
 				nickname: userInfo.nickname,
 				profileImg: userInfo['profileImg']
+				// alert(JSON.stringify(myObj))
 			};
 			result['comments'].push(temp);
 		}
@@ -37,14 +38,17 @@ router.get('/:cardId', async (req, res, next) => {
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const cardId = req.params.cardId;
 	const { tag } = req.body;
+	console.log(tag)
 	const user = res.locals.user;
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
 	try {
 		let result = {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
-			userId: sanitize(user.id)
+			userId: sanitize(user.id),
+			tag: sanitize(tag)
 		};
+
 		let comment = await CommentBoard.create(result);
 		(result['nickname'] = user.nickname), (result['profileImg'] = user.profileImg);
 		result['commentId'] = comment._id;
@@ -54,7 +58,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 		// 태그 있을때
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				await alarmSend(tag[i], cardId, 'tag', user.userId, req.alarm)
+				await alarmSend(tag[i]['userId'], cardId, 'tag', user.userId, req.alarm)
 			}
 		}
 
