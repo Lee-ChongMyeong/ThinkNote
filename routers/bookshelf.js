@@ -11,57 +11,46 @@ require('dotenv').config();
 
 // 유저 검색
 // 알파벳 대문자 소문자
-// router.post('/searchUser', async (req, res, next) => {
-//     try {
-//         const { words } = req.body;
-//         if (!words) {
-//             res.send({ userInfo: 'none' });
-//         }
-//         // ({ userId: { $ne: user.userId }, questionId: questionId })
-//         const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-//         if (userInfo) {
-//             res.send({ userInfo });
-//         } else {
-//             res.send({ userInfo: 'none' });
-//         }
-//     } catch (err) {
-//         return res.status(400).json({ msg: 'fail' });
-//     }
-// });
-
-// 유저검색
 router.post('/searchUser', async (req, res, next) => {
+    try {
+        const { words } = req.body;
+        if (!words) {
+            res.send({ userInfo: 'none' });
+        }
+        // ({ userId: { $ne: user.userId }, questionId: questionId })
+        const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+        if (userInfo) {
+            res.send({ userInfo });
+        } else {
+            res.send({ userInfo: 'none' });
+        }
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+// 유저검색 완료(검색 유저 클릭했을때)
+router.post('/searchUserDetail', async (req, res, next) => {
     try {
         const { words } = req.body;
         const { authorization } = req.headers;
         if (!words) {
             res.send({ userInfo: 'none' });
         }
-        // 로그인 안했을 때 
+        if (authorization){
+            const [tokenType, tokenValue] = authorization.split(' ');
+            if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+            const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+            console.log('userId', userId)
+            const user = await User.findOne({ _id: userId });
+		    if (!user) {throw err; }
+            let userInfo = await User.findOne({ nickname: words }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+            await Search.create({
+                searchUserId : userInfo._id,
+                userId : userId
+            })
 
-        // 로그인 했을때
-        const [tokenType, tokenValue] = authorization.split(' ');
-        if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
-        const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-        console.log('userId', userId)
-        const user = await User.findOne({ _id: userId });
-		if (!user) {throw err; }
-        console.log(1)
-        const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-        console.log(userInfo)
-        console.log(userInfo["_id"])
-        console.log(2)
-        
-        await Search.create({
-            searchUserId : userInfo._id,
-            userId : userId
-        })
-
-        console.log(3)
-        if (userInfo) {
-            res.send({ userInfo });
-        } else {
-            res.send({ userInfo: 'none' });
+            res.status(200).json({ msg : 'success' });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -75,6 +64,8 @@ router.get('/searchUser', async (req, res, next) => {
     const { authorization } = req.headers;
     let result = { msg : 'success', searchUser : [] }
     try {
+        // 로그인 안했을때
+
         // 로그인 했을때
         const [tokenType, tokenValue] = authorization.split(' ');
         if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
