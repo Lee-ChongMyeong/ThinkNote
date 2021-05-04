@@ -78,17 +78,24 @@ router.get('/daily', async (req, res) => {
 			]);
 			let cards = [];
 			for (question of questionCards) {
+				let ThreeCards = [];
 				let questionInfo = await QuestionCard.findOne({ _id: question._id });
 				let createdUser = await User.findOne({ _id: question.createdUser });
 				let answer = await AnswerCard.find({ questionId: question._id });
+				let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
+					for (answerData of threeAnswer) {
+						let createdUser = await User.findOne({ _id: answerData.userId });
+						Threecards.push({ otherProfileImg : createdUser.profileImg })
+					}
 				cards.push({
 					cardId: questionInfo._id,
 					topic: questionInfo.topic,
 					contents: questionInfo.contents,
 					createdUser: createdUser.nickname,
-					answerCount: answer.length,
 					available: question.available,
-					profileImg: createdUser.profileImg
+					profileImg: createdUser.profileImg,
+					answerCount: answer.length,
+					otherProfileImg : ThreeCards
 				});
 			}
 			return res.json({ cards, profileImg });
@@ -131,39 +138,55 @@ router.get('/daily', async (req, res) => {
 				let cards = [];
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
 				for (question of todayQuestion) {
+					let ThreeCards = [];
 					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 					let answer = await AnswerCard.find({ questionId: question.questionId });
-					console.log(questionInfo)
+					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
+					for (answerData of threeAnswer) {
+						let createdUser = await User.findOne({ _id: answerData.userId });
+						Threecards.push({ otherProfileImg : createdUser.profileImg })
+					}
+
 					cards.push({
 						cardId: questionInfo._id,
 						topic: questionInfo.topic,
 						contents: questionInfo.contents,
 						createdUser: createdUser.nickname,
-						answerCount: answer.length,
 						available: question.available,
-						profileImg: createdUser.profileImg
+						profileImg: createdUser.profileImg,
+						answerCount: answer.length,
+						otherProfileImg : ThreeCards
 					});
 				}
 				return res.json({ cards });
 			} else {
 				// 재방문인경우
 				let cards = [];
+
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
 
 
 				for (question of todayQuestion) {
+					let ThreeCards = [];
 					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 					let answer = await AnswerCard.find({ questionId: question.questionId });
+					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
+					for (answerData of threeAnswer) {
+						let createdUser = await User.findOne({ _id: answerData.userId });
+						Threecards.push({ otherProfileImg : createdUser.profileImg })
+					}
+					
 					cards.push({
 						cardId: questionInfo._id,
 						topic: questionInfo.topic,
 						contents: questionInfo.contents,
 						createdUser: createdUser.nickname,
-						profileImg: createdUser.profileImg,
 						available: question.available,
-						answerCount: answer.length
+						profileImg: createdUser.profileImg,
+						answerCount: answer.length,
+						otherProfileImg : ThreeCards
 					});
 				}
 				return res.json({ cards });
