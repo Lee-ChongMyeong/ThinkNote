@@ -3,6 +3,7 @@ const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = re
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 const moment = require('moment');
+const sanitize = require('sanitize-html');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
@@ -165,8 +166,8 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
-            questionContents: contents,
-            answerContents: booksDetail.contents,
+            questionContents: sanitize(contents),
+            answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             likeCount: likeCountNum
@@ -195,8 +196,8 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
-            questionContents: contents,
-            answerContents: booksDetail.contents,
+            questionContents: sanitize(contents),
+            answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             likeCount: likeCountNum
@@ -213,32 +214,31 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
-
-        if (contents.length < 5) { return res.status(400).send({ msg: '5글자는 넘겨주셔야져!' }) }
-
+        console.log(contents)
+        console.log(user.nickname)
+        if (!topic) { return res.status(400).send({ msg: '토픽을 넣어주세요' }); }
+        if (contents.length < 5) { return res.status(400).send({ msg: '그래도 질문인데 5글자는 넘겨주셔야져!' }) }
+        const Today = moment().format("YYYY-MM-DD");
         // 하루에 1번 질문할 수 있는것 체크
-        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
-        const createdAtTypeChangeString = JSON.stringify(createdAt);
-        let checkTodayCustomQuestion = createdAtTypeChangeString.split("T");
-        let Today = moment().format('"YYYY-MM-DD');
+        const checkToday = await QuestionCard.findOne({ createdUser: user.userId, createdAt: Today }).sort({ date: 1 }).limit(1)
+        if (checkToday === null) {
+            // 이미 있는 질문인지 검사
+            const originContents = await QuestionCard.findOne({ contents: contents });
+            if (!originContents) {
+                const CustomQuestion = await QuestionCard.create({
+                    topic: sanitize(topic),
+                    contents: sanitize(contents),
+                    createdUser: user.userId,
+                    createdAt: moment().format("YYYY-MM-DD")
+                });
+                const { nickname } = await User.findOne({ _id: user.userId });
+                return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
 
-        if (Today === checkTodayCustomQuestion[0]) {
-            return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' })
-        }
-
-        // 토픽 없을때 빠꾸
-        if (!topic) {
-            return res.status(400).send({ msg: '토픽을 넣어주세요' });
-        }
-
-        // 이미 있는 질문인지 검사
-        const originContents = await QuestionCard.findOne({ contents: contents });
-        if (!originContents) {
-            const CustomQuestion = await QuestionCard.create({ ...req.body, createdUser: user.userId });
-            const { nickname } = await User.findOne({ _id: user.userId });
-            return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+            } else {
+                return res.send({ msg: '이미 존재하는 질문입니다' });
+            }
         } else {
-            return res.send({ msg: '이미 존재하는 질문입니다' });
+            if (Today === checkToday.createdAt) { return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' }) }
         }
     } catch (err) {
         console.log(err)
@@ -293,7 +293,7 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
             friends.push({
                 friendId: friendInfo._id,
-                friendNickname: friendInfo.nickname,
+                friendNickname: sanitize(friendInfo.nickname),
                 friendProfileImg: friendInfo.profileImg
             });
         }
@@ -313,7 +313,7 @@ router.get('/other/friendList/:id', async (req, res, next) => {
             const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
             othersFriend.push({
                 otherFriendId: friendInfo._id,
-                otherFriendNickname: friendInfo.nickname,
+                otherFriendNickname: sanitize(friendInfo.nickname),
                 otherFriendProfileImg: friendInfo.profileImg
             });
         }
@@ -400,7 +400,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
 
         return res.send({
             questionId: questionInfo._id,
-            questionContents: questionInfo.contents,
+            questionContents: sanitize(questionInfo.contents),
             questionCreatedUserId: userInfo._id,
             questionCreatedUserNickname: userInfo.nickname,
             questionCreatedUserProfileImg: userInfo.profileImg,
@@ -443,7 +443,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
                 userNickname: UserInfo.nickname,
                 userProfileImg: UserInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents'],
+                answerContents: sanitize(allAnswer[i]['contents']),
                 answerLikes: allAnswer[i]['likes']
             });
         }
@@ -492,7 +492,7 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, 
                 userNickname: userInfo.nickname,
                 userProfileImg: userInfo.profileImg,
                 answerId: allAnswer[i]['_id'],
-                answerContents: allAnswer[i]['contents'],
+                answerContents: sanitize(allAnswer[i]['contents']),
                 answerLikes: allAnswer[i]['likes']
             });
         }
@@ -546,14 +546,18 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
     }
 });
 
-//내 커스텀 카드 질문조회
+//내 커스텀 카드 질문조회 (최신순)
 router.get('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+
+
         const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
+            .sort('-createdAt')
             .skip(page * 2)
             .limit(2);
         myQuestion = [];
@@ -565,7 +569,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
             }
             myQuestion.push({
                 questionId: myCustomQuestionCard[i]['_id'],
-                questionContents: myCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(myCustomQuestionCard[i]['contents']),
                 questionTopic: myCustomQuestionCard[i]['topic'],
                 questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
                 answerCount: answerData.length
@@ -580,7 +584,46 @@ router.get('/question', authMiddleware, async (req, res, next) => {
     }
 });
 
-//다른 사람 커스텀 카드 질문조회
+// 내 커스텀 카드 질문조회(답변 많은 순)
+router.get('/like/question', authMiddleware, async (req, res, next) => {
+    try {
+        user = res.locals.user;
+        let { page } = req.query;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+        const myCustomQuestionCard = await QuestionCard.aggregate([
+            { $match: { createdUser: { $eq: user.userId } } },
+            { $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+            { $lookup: { from: 'answercards', localField: '_id', foreignField: 'questionId', as: 'answercards' } },
+            { $sort: { answercards: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, createdUser: 1, answerLength: { $size: '$answercards' }
+                }
+            },
+        ])
+
+        let result = [];
+        for (let i = 0; i < myCustomQuestionCard.length; i++) {
+            result.push({
+                questionId: myCustomQuest1ionCard[i]['_id'],
+                questionContents: sanitize(myCustomQuestionCard[i]['contents']),
+                questionTopic: myCustomQuestionCard[i]['topic'],
+                questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
+                answerCount: myCustomQuestionCard[i]['answerLength']
+            });
+        }
+        return res.send({
+            result: result
+        });
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+//다른 사람 커스텀 카드 질문조회 (최신순)
 router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
     try {
         let { page } = req.query;
@@ -588,6 +631,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
         const allOtherQuestion = await QuestionCard.find({ createdUser: user.userId });
         const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
+            .sort('-createdAt')
             .skip(page * 2)
             .limit(2);
         myQuestion = [];
@@ -599,7 +643,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
             }
             myQuestion.push({
                 questionId: otherCustomQuestionCard[i]['_id'],
-                questionContents: otherCustomQuestionCard[i]['contents'],
+                questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
                 questionTopic: otherCustomQuestionCard[i]['topic'],
                 questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
                 answerCount: answerData.length
@@ -609,6 +653,46 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
         return res.send({
             otherQuestionCount: allOtherQuestion.length,
             otherQuestion
+        });
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
+//다른 사람 커스텀 카드 질문조회 (인기순)
+router.get('/other/like/:id/question', authMiddleware, async (req, res, next) => {
+    try {
+        let { page } = req.query;
+        const { id } = req.params;
+        page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+        const otherCustomQuestionCard = await QuestionCard.aggregate([
+            { $match: { createdUser: { $eq: id } } },
+            { $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+            { $lookup: { from: 'answercards', localField: '_id', foreignField: 'questionId', as: 'answercards' } },
+            { $sort: { answercards: -1 } },
+            { $skip: page * 2 },
+            { $limit: 2 },
+            {
+                $project: {
+                    _id: 1, contents: 1, createdUser: 1, answerLength: { $size: '$answercards' }
+                }
+            },
+        ])
+
+        let result = [];
+        for (let i = 0; i < otherCustomQuestionCard.length; i++) {
+            result.push({
+                questionId: otherCustomQuestionCard[i]['_id'],
+                questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
+                questionTopic: otherCustomQuestionCard[i]['topic'],
+                questionCreatedAt: otherCustomQuestionCard[i]['createdAt'],
+                answerCount: otherCustomQuestionCard[i]['answerLength']
+            });
+            //질문에 몇명답했는지
+        }
+        return res.send({
+            result: result
         });
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });

@@ -130,6 +130,7 @@ router.get('/daily', async (req, res) => {
 					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 					let answer = await AnswerCard.find({ questionId: question.questionId });
+					console.log(questionInfo)
 					cards.push({
 						cardId: questionInfo._id,
 						topic: questionInfo.topic,
