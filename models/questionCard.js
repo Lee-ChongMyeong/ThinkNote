@@ -4,9 +4,9 @@ const { Schema } = mongoose;
 const questionCard = new Schema({
 	topic: { type: Array },
 	contents: { type: String, required: true },
-	createdUser: { type: String }
-},
-	{ timestamps: true });
+	createdUser: { type: String },
+	createdAt: { type: String }
+});
 
 questionCard.virtual('questionId').get(function () {
 	return this._id.toHexString();

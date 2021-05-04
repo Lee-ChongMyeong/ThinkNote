@@ -3,6 +3,7 @@ const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = re
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 const moment = require('moment');
+const sanitize = require('sanitize-html');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
@@ -213,32 +214,31 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
-
+        console.log(contents)
+        console.log(user.nickname)
+        if (!topic) { return res.status(400).send({ msg: '토픽을 넣어주세요' }); }
         if (contents.length < 5) { return res.status(400).send({ msg: '그래도 질문인데 5글자는 넘겨주셔야져!' }) }
-
+        const Today = moment().format("YYYY-MM-DD");
         // 하루에 1번 질문할 수 있는것 체크
-        let { createdAt } = await QuestionCard.findOne({ createdUser: user.userId }).sort("-createdAt");
-        const createdAtTypeChangeString = JSON.stringify(createdAt);
-        let checkTodayCustomQuestion = createdAtTypeChangeString.split("T");
-        let Today = moment().format('"YYYY-MM-DD');
+        const checkToday = await QuestionCard.findOne({ createdUser: user.userId, createdAt: Today }).sort({ date: 1 }).limit(1)
+        if (checkToday === null) {
+            // 이미 있는 질문인지 검사
+            const originContents = await QuestionCard.findOne({ contents: contents });
+            if (!originContents) {
+                const CustomQuestion = await QuestionCard.create({
+                    topic: sanitize(topic),
+                    contents: sanitize(contents),
+                    createdUser: user.userId,
+                    createdAt: moment().format("YYYY-MM-DD")
+                });
+                const { nickname } = await User.findOne({ _id: user.userId });
+                return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
 
-        if (Today === checkTodayCustomQuestion[0]) {
-            return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' })
-        }
-
-        // 토픽 없을때 빠꾸
-        if (!topic) {
-            return res.status(400).send({ msg: '토픽을 넣어주세요' });
-        }
-
-        // 이미 있는 질문인지 검사
-        const originContents = await QuestionCard.findOne({ contents: contents });
-        if (!originContents) {
-            const CustomQuestion = await QuestionCard.create({ ...sanitize(req.body), createdUser: user.userId });
-            const { nickname } = await User.findOne({ _id: user.userId });
-            return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+            } else {
+                return res.send({ msg: '이미 존재하는 질문입니다' });
+            }
         } else {
-            return res.send({ msg: '이미 존재하는 질문입니다' });
+            if (Today === checkToday.createdAt) { return res.status(400).send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' }) }
         }
     } catch (err) {
         console.log(err)
