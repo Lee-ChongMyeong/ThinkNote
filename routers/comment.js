@@ -40,7 +40,6 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const cardId = req.params.cardId;
 	const { tag } = req.body;
 	const user = res.locals.user;
-	console.log(tag)
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
 	console.log('==하이==')
 
