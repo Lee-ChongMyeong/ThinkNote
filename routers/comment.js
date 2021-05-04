@@ -44,7 +44,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
-			tag: sanitiza(tag)
+			tag: sanitize(tag)
 		};
 
 		let comment = await CommentBoard.create(result);
