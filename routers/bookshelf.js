@@ -32,25 +32,39 @@ router.post('/searchUser', async (req, res, next) => {
 // 유저검색 완료(검색 유저 클릭했을때)
 router.post('/searchUserDetail', async (req, res, next) => {
     try {
-        const { words } = req.body;
+        const { id } = req.body;
         const { authorization } = req.headers;
-        if (!words) {
+        if (!id ) {
             res.send({ userInfo: 'none' });
         }
+         
         if (authorization){
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-            console.log('userId', userId)
-            const user = await User.findOne({ _id: userId });
+            
+            const myUserInfo = await User.findOne({ _id: userId });
 		    if (!user) {throw err; }
-            let userInfo = await User.findOne({ nickname: words }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-            await Search.create({
-                searchUserId : userInfo._id,
-                userId : userId
-            })
 
-            res.status(200).json({ msg : 'success' });
+            let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+            
+            const checkSearch = await Search.findOne({ searchUserId : otherUserInfo._id })
+            
+            if (!checkSearch) {
+                await Search.create({
+                searchUserId : userInfo._id,
+                userId : userId,
+                YYMMDD: moment().format('YYMMDD')
+            })} else {
+                await Search.deleteOne({searchUserId : otherUserInfo._id})
+                await Search.create({
+                searchUserId : userInfo._id,
+                userId : userId,
+                YYMMDD: moment().format('YYMMDD')
+                })
+            }
+
+            res.status(200).json({ msg : 'success', userInfo });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
@@ -64,7 +78,7 @@ router.get('/searchUser', async (req, res, next) => {
     const { authorization } = req.headers;
     let result = { msg : 'success', searchUser : [] }
     try {
-
+        standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 30).format('YYMMDD');
         // 로그인 했을때
         if (authorization){
             const [tokenType, tokenValue] = authorization.split(' ');
@@ -73,10 +87,11 @@ router.get('/searchUser', async (req, res, next) => {
             console.log('userId', userId)
             const user = await User.findOne({ _id: userId });
 		    if (!user) {throw err; }
-            const users = await Search.find({ userId : userId })
+            
+            const users = await Search.find({ userId : userId }).where('YYMMDD').gt(standardTime).limit(5);
             console.log(users)
             for ( userData of users ) {
-                const userInfo = await User.findOne({ _id: userData.userId });
+                const userInfo = await User.findOne({ _id: userData.searchUserId });
                 let temp = {
                     profileImg : userInfo["profileImg"],
                     nickname : userInfo.nickname,
