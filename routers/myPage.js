@@ -78,7 +78,7 @@ router.patch('/profile/nickname', authMiddleware, async (req, res) => {
 	}
 });
 
-router.patch('/profile/introduce', authMiddleware, (req, res) => {
+router.patch('/profile/introduce', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		user.introduce = sanitize(req.body.introduce);
@@ -116,6 +116,15 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		console.log(err)
 		res.status(400).json({ msg: 'fail' });
 	}
+})
+
+// 선호 주제 선택
+router.patch('/profile/preferredTopic', authMiddleware, async (req, res) => {
+	const user = res.locals.user;
+	const { topic } = req.body;
+	const updateTopic = await User.updateOne(
+		{ _id: user.userId }, { $set: { topic } }
+	)
 })
 
 module.exports = router;

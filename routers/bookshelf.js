@@ -71,16 +71,14 @@ router.post('/searchUserDetail', async (req, res, next) => {
     }
 });
 
-
-
 // 최신 유저 검색 목록
 router.get('/searchUser', async (req, res, next) => {
     const { authorization } = req.headers;
-    let result = { msg : 'success', searchUser : [] }
+    let result = { msg: 'success', searchUser: [] }
     try {
         standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 30).format('YYMMDD');
         // 로그인 했을때
-        if (authorization){
+        if (authorization) {
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
@@ -93,9 +91,9 @@ router.get('/searchUser', async (req, res, next) => {
             for ( userData of users ) {
                 const userInfo = await User.findOne({ _id: userData.searchUserId });
                 let temp = {
-                    profileImg : userInfo["profileImg"],
-                    nickname : userInfo.nickname,
-                    userId : userData.userId,
+                    profileImg: userInfo["profileImg"],
+                    nickname: userInfo.nickname,
+                    userId: userData.userId,
                 };
                 result['searchUser'].push(temp);
             }
@@ -106,19 +104,19 @@ router.get('/searchUser', async (req, res, next) => {
     }
 });
 
-
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지
 router.get('/auth/user/:id', async (req, res, next) => {
     try {
         const { id } = req.params;
-        const UserInfo = await User.findOne({ _id: id });
+        const userInfo = await User.findOne({ _id: id });
         const otherQuestion = await QuestionCard.find({ createdUser: id });
         const otherAnswer = await AnswerCard.find({ userId: id });
         res.json({
-            nickname: UserInfo.nickname,
-            profileImg: UserInfo.profileImg,
-            introduce: UserInfo.introduce,
+            nickname: userInfo.nickname,
+            profileImg: userInfo.profileImg,
+            introduce: userInfo.introduce,
+            topic: userInfo.topic,
             otherCustomQuestionCount: otherQuestion.length,
             otherAnswerCount: otherAnswer.length
         });
