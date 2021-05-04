@@ -47,7 +47,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 		};
 		let comment = await CommentBoard.create(result);
 		(result['nickname'] = user.nickname), (result['profileImg'] = user.profileImg);
-		result['commnetId'] = comment._id;
+		result['commentId'] = comment._id;
 		res.json({ msg: 'success', result: result });
 
 		const alarmSend = require('../lib/sendAlarm');

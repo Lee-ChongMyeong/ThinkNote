@@ -169,7 +169,7 @@ router.get('/daily', async (req, res) => {
 	}
 });
 
-// 최신 답변 3개 받기
+//최신 답변 3개 받기
 router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	const cardId = req.params.cardId;
 	let answerData = [];
@@ -192,5 +192,33 @@ router.get('/recentAnswer/:cardId', async (req, res, next) => {
 	}
 	return res.status(200).json({ msg: 'success', answerData });
 });
+
+// 최신답변 3개 받기(데이터 한번에)
+router.get('/recentAnswer/:userId', async (req, res, next) => {
+	const userId = req.params.userId;
+	let answerData = [];
+	try {
+		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
+		console.log(todayQuestion)
+		for (todayQuestionData of todayQuestion){
+		const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
+			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
+			let temp = {
+				questionId: recentAnswerData.questionId,
+				answerId: recentAnswerData.answerId,
+				contents: recentAnswerData.contents,
+				profileImg: answerUser.profileImg,
+				nickname: answerUser.nickname,
+				userId: answerUser.userId
+			};
+			answerData.push(temp);
+		}
+	} catch (err) {
+		console.log(err)
+		return res.status(400).json({ msg: 'fail2' });
+	}
+	return res.status(200).json({ msg: 'success', answerData });
+});
+
 
 module.exports = router;
