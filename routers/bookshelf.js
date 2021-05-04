@@ -1,22 +1,63 @@
 const express = require('express');
-const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard } = require('../models');
+const { AnswerCard, User, QuestionCard, Friend, Like, Alarm, CommentBoard, Search } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
 const moment = require('moment');
 const sanitize = require('sanitize-html');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 // 유저 검색
 // 알파벳 대문자 소문자
+// router.post('/searchUser', async (req, res, next) => {
+//     try {
+//         const { words } = req.body;
+//         if (!words) {
+//             res.send({ userInfo: 'none' });
+//         }
+//         // ({ userId: { $ne: user.userId }, questionId: questionId })
+//         const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+//         if (userInfo) {
+//             res.send({ userInfo });
+//         } else {
+//             res.send({ userInfo: 'none' });
+//         }
+//     } catch (err) {
+//         return res.status(400).json({ msg: 'fail' });
+//     }
+// });
+
+// 유저검색
 router.post('/searchUser', async (req, res, next) => {
     try {
         const { words } = req.body;
+        const { authorization } = req.headers;
         if (!words) {
             res.send({ userInfo: 'none' });
         }
-        // ({ userId: { $ne: user.userId }, questionId: questionId })
+        // 로그인 안했을 때 
+
+        // 로그인 했을때
+        const [tokenType, tokenValue] = authorization.split(' ');
+        if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+        const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+        console.log('userId', userId)
+        const user = await User.findOne({ _id: userId });
+		if (!user) {throw err; }
+        console.log(1)
         const userInfo = await User.find({ provider: { $ne: "탈퇴" }, nickname: new RegExp(`${words}`) }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
+        console.log(userInfo)
+        console.log(userInfo["_id"])
+        console.log(2)
+        
+        await Search.create({
+            searchUserId : userInfo._id,
+            userId : userId
+        })
+
+        console.log(3)
         if (userInfo) {
             res.send({ userInfo });
         } else {
@@ -26,6 +67,39 @@ router.post('/searchUser', async (req, res, next) => {
         return res.status(400).json({ msg: 'fail' });
     }
 });
+
+
+
+// 최신 유저 검색 목록
+router.get('/searchUser', async (req, res, next) => {
+    const { authorization } = req.headers;
+    let result = { msg : 'success', searchUser : [] }
+    try {
+        // 로그인 했을때
+        const [tokenType, tokenValue] = authorization.split(' ');
+        if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+        const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+        console.log('userId', userId)
+        const user = await User.findOne({ _id: userId });
+		if (!user) {throw err; }
+        const users = await Search.findOne({ userId : userId })
+        console.log(users)
+        console.log(users.userId)
+        for ( userData of users ) {
+            console.log(3)
+            const userInfo = await User.findOne({ _id: userData.userId });
+            let temp = {
+                userId : userData.userId,
+                nickname : userInfo.nickname,
+                profileImg : userInfo["profileImg"]
+            };
+            result['searchUser'].push(temp);
+        }
+    } catch (err) {
+        return res.status(400).json({ msg: 'fail' });
+    }
+});
+
 
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지

@@ -8,6 +8,7 @@ const moment = require('moment');
 const mongoose = require('mongoose');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
+require('dotenv').config();
 
 //질문에 대한 답변 쓰기
 router.post('/', authMiddleware, async (req, res, next) => {
@@ -66,6 +67,7 @@ router.get('/daily', async (req, res) => {
 	let result = { msg: 'success', dailyData: [] };
 	try {
 		const { authorization } = req.headers;
+		// 로그인 안했을때
 		if (!authorization) {
 			let admin_id = '608971a172444320da6e8671';
 			const questionCards = await QuestionCard.aggregate([
@@ -89,7 +91,7 @@ router.get('/daily', async (req, res) => {
 				});
 			}
 			return res.json({ cards });
-		} else {
+		} else { // 로그인 했을때 
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
