@@ -4,6 +4,7 @@ const sanitize = require('sanitize-html');
 const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
@@ -20,7 +21,7 @@ router.get('/:cardId', async (req, res, next) => {
 			let temp = {
 				commentId: comment.commentId,
 				commentContents: sanitize(comment.commentContents),
-				commentTag: sanitize(comment.tag),
+				commentTag: comment.tag,
 				userId: comment.userId,
 				nickname: userInfo.nickname,
 				profileImg: userInfo['profileImg']
@@ -38,31 +39,31 @@ router.get('/:cardId', async (req, res, next) => {
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const cardId = req.params.cardId;
 	const { tag } = req.body;
-	console.log(tag)
 	const user = res.locals.user;
+	console.log(tag)
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
+	console.log('==하이==')
+
 	try {
 		let result = {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
-			tag: sanitize(tag)
+			tag: tag
 		};
 
 		let comment = await CommentBoard.create(result);
 		(result['nickname'] = user.nickname), (result['profileImg'] = user.profileImg);
 		result['commnetId'] = comment._id;
-
 		res.json({ msg: 'success', result: result });
 
 		const alarmSend = require('../lib/sendAlarm');
 		// 태그 있을때
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				await alarmSend(tag[i]['userId'], cardId, 'tag', user.userId, req.alarm)
+				await alarmSend(tag[i][1], cardId, 'tag', user.userId, req.alarm)
 			}
 		}
-
 		await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
 	} catch (err) {
 		console.log(err);
