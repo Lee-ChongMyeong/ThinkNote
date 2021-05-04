@@ -30,7 +30,6 @@ router.post('/searchUser', async (req, res, next) => {
 });
 
 // 유저검색 완료(검색 유저 클릭했을때)
-// 나중에 미들웨어 붙여서 하기
 router.post('/searchUserDetail', async (req, res, next) => {
     try {
         const { id } = req.body;
@@ -638,6 +637,8 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         user = res.locals.user;
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+
 
         const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
