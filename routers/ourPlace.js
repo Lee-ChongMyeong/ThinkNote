@@ -5,6 +5,7 @@ const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 require('dotenv').config()
 
+// 랜덤으로 질문에 답글이 하나 이상 달린 글 출력
 router.get('/cards', async (req, res) => {
 	let userId = ''
 	try {
@@ -15,6 +16,7 @@ router.get('/cards', async (req, res) => {
 			userId = payload.userId
 		}
 	} catch (error) {
+		console.log(error)
 		console.log('토큰 해독 에러')
 	}
 	try {
@@ -38,6 +40,7 @@ router.get('/cards', async (req, res) => {
 				answerCount: answerData.length
 			};
 
+			// 자신을 제외한 공개된 답변들만 출력
 			let answers = await AnswerCard.find({ userId: { $ne: userId }, questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
 			for (answer of answers) {
@@ -75,25 +78,6 @@ router.get('/cards/:questionId', async (req, res) => {
 	const { questionId } = req.params;
 	result = await questionInfo(questionId);
 	res.json({ result });
-});
-
-router.get('/cards/:questionId/test', async (req, res) => {
-	const { questionId } = req.params;
-	const answers = await AnswerCard.find({ questionId });
-	let answerList = [];
-	for (answer of answers) answerList.push(answer._id);
-	let likes = await Like.find().where('answerId').in(answerList);
-	countLike = {};
-	for (element of likes) {
-		if (!countLike[element.answerId]) countLike[element.answerId] = 1;
-		else countLike[element.answerId] += 1;
-	}
-	mostLike = [];
-	for (key in countLike) mostLike.push({ answerId: key, count: countLike[key] });
-	mostLike.sort((a, b) => {
-		return a.count - b.count;
-	});
-	res.json({ mostLike });
 });
 
 module.exports = router;
