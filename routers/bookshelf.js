@@ -37,25 +37,31 @@ router.post('/searchUserDetail', async (req, res, next) => {
         if (!id ) {
             res.send({ userInfo: 'none' });
         }
-         
+        console.log('1')
         if (authorization){
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
             
-            const myUserInfo = await User.findOne({ _id: userId });
-		    if (!user) {throw err; }
+            const myUserInfo = await User.findOne({ _id: userId }); // 내 ID
+		    if (!myUserInfo) {throw err; }
+            console.log('2')
 
-            let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });
-            
+            let otherUserInfo = await User.findOne({ _id: id }, { createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 });  // 다른사람 ID
+            console.log(otherUserInfo)
+
             const checkSearch = await Search.findOne({ searchUserId : otherUserInfo._id })
-            
+            console.log(checkSearch)
+            console.log('3')
+
             if (!checkSearch) {
                 await Search.create({
-                searchUserId : userInfo._id,
+                searchUserId : otherUserInfo._id,
                 userId : userId,
                 YYMMDD: moment().format('YYMMDD')
-            })} else {
+            })
+            console.log('5')
+            } else {
                 await Search.deleteOne({searchUserId : otherUserInfo._id})
                 await Search.create({
                 searchUserId : userInfo._id,
@@ -64,7 +70,7 @@ router.post('/searchUserDetail', async (req, res, next) => {
                 })
             }
 
-            res.status(200).json({ msg : 'success', userInfo });
+            return res.status(200).json({ msg : 'success', userInfo });
         }
     } catch (err) {
         return res.status(400).json({ msg: 'fail' });
