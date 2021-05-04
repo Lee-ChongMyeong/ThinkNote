@@ -74,7 +74,7 @@ router.post('/searchUserDetail', async (req, res, next) => {
             // 강태진
             // 이총명
             if (checkSearch.length >= 6) {
-                const lastSearch = await Search.findbyIdAndDeleteOne({ searchUserId: otherUserInfo, userId: user.userId }).sort({ udpatedAt: -1 })
+                const lastSearch = await Search.findbyIdAndDeleteOne({ searchUserId: otherUserInfo, userId: user.userId }).sort()
 
             }
             if (checkSearch.length >= 2) {
