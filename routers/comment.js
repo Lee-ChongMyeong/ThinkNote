@@ -37,6 +37,7 @@ router.get('/:cardId', async (req, res, next) => {
 router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const cardId = req.params.cardId;
 	const { tag } = req.body;
+	console.log(tag)
 	const user = res.locals.user;
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
 	try {
@@ -57,7 +58,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 		// 태그 있을때
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				await alarmSend(tag[i], cardId, 'tag', user.userId, req.alarm)
+				await alarmSend(tag[i]['userId'], cardId, 'tag', user.userId, req.alarm)
 			}
 		}
 
