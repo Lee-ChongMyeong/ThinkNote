@@ -168,7 +168,6 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
     try {
         const { YYMMDD } = req.params;
         user = res.locals.user;
-
         const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD });
         booksDiary = [];
 
@@ -234,7 +233,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 // 날짜 작성 보여주기 // 답변 crud
 router.get('/bookCardDetail/:YYMMDD/:questionId/:answerId', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD, questionId } = req.params;
+        const { YYMMDD, questionId, answerId } = req.params;
         user = res.locals.user;
         bookCardDetail = [];
         other = [];
@@ -273,7 +272,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId/:answerId', authMiddleware, asyn
 // 다른 사람 질문 카드 디테일 확인
 router.get('/other/bookCardDetail/:YYMMDD/:questionId/:answerId/:id', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD, questionId, id } = req.params;
+        const { YYMMDD, questionId, answerId, id } = req.params;
         bookCardDetail = [];
         other = [];
         const booksDetail = await AnswerCard.findOne({ userId: id, YYMMDD: YYMMDD });
