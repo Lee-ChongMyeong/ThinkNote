@@ -12,7 +12,7 @@ router.get("/", authMiddleware, async (req, res) => {
         nickname: user.nickname,
         profileImg: user.profileImg,
         introduce: user.introduce,
-        topic: user.topic,
+        topic: user.preferredTopic,
         myCustomQuestionCount: myQuestion.length,
         myAnswerCount: myAnswer.length
     })

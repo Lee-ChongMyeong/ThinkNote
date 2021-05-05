@@ -120,7 +120,7 @@ router.get('/auth/user/:id', async (req, res, next) => {
             nickname: userInfo.nickname,
             profileImg: userInfo.profileImg,
             introduce: userInfo.introduce,
-            topic: userInfo.topic,
+            topic: userInfo.preferredTopic,
             otherCustomQuestionCount: otherQuestion.length,
             otherAnswerCount: otherAnswer.length
         });
