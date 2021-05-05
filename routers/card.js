@@ -39,7 +39,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		// console.log('todayQuestion', todayQuestion)
 
 		let ThreeCards = [];
-		let threeAnswer = AnswerCard.find({ questionId: questionId })
+		let threeAnswer = await AnswerCard.find({ questionId: questionId })
 		console.log('-=============밖')
 		console.log(threeAnswer)
 
@@ -47,6 +47,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			console.log('-=============안')
 			for (let i = 0; i < threeAnswer.length; i++) {
 				let createdUser = await User.findOne({ _id: threeAnswer[i]['userId'] });
+				console.log(createdUser[i]['profileImg'])
 				ThreeCards.push({ otherProfileImg: createdUser[i]['profileImg'] })
 			}
 		}
