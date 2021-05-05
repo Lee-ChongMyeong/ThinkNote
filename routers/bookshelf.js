@@ -429,6 +429,7 @@ router.get('/other/friendList/:id', async (req, res, next) => {
 router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
     try {
         const { answerCardId } = req.body;
+        console.log(answerCardId)
         user = res.locals.user;
         const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
         const answer = await AnswerCard.findOne({ _id: answerCardId });
