@@ -15,13 +15,14 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
-		console.log(isOpen)
+		console.log('userid', user.userId)
 		// 글자제한
 		// if (contents.length < 4) {
 		// 	return res.json({ msg: 'typenumber error' })
 		// }
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
-		// console.log('daily', daily)
+		console.log('daily', daily);
+		console.log( moment(Date.now()).format('YYMMDD'))
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
 		}
@@ -34,7 +35,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		});
 
 		let cards = [];
-		const todayQuestion = await QuestionDaily.find({ userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') });
+		const todayQuestion = await QuestionDaily.find({ userId: user.userId, YYMMDD: moment(Date.now()).format('YYMMDD') });
+		console.log('todayQuestion', todayQuestion)
 		for (question of todayQuestion) {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			console.log(questionInfo)
@@ -45,9 +47,10 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				topic: questionInfo.topic,
 				contents: questionInfo.contents,
 				createdUser: createdUser.nickname,
-				answerCount: answer.length,
 				available: question.available,
-				profileImg: createdUser.profileImg
+				profileImg: createdUser.profileImg,
+				answerCount: answer.length,
+				otherProfileImg : createdUser.profileImg
 			});
 		}
 
