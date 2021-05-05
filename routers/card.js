@@ -40,6 +40,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		for (question of todayQuestion) {
 			let ThreeCards = [];
+
+			console.log(question)
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 			let answer = await AnswerCard.find({ questionId: question.questionId });
