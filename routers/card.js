@@ -98,7 +98,7 @@ router.get('/daily', async (req, res) => {
 					otherProfileImg: ThreeCards
 				});
 			}
-			return res.json({ cards, profileImg });
+			return res.json({ cards });
 		} else { // 로그인 했을때 
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
