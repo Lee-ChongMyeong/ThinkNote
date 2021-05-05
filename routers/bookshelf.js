@@ -273,6 +273,7 @@ router.get('/bookCardDetail/:answerId', async (req, res, next) => {
         });
         return res.send({ bookCardDetail, other });
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
