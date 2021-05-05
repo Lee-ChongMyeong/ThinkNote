@@ -15,6 +15,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
+		console.log(isOpen)
 		// 글자제한
 		// if (contents.length < 4) {
 		// 	return res.json({ msg: 'typenumber error' })
@@ -174,7 +175,7 @@ router.get('/daily', async (req, res) => {
 					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 					for (answerData of threeAnswer) {
 						let createdUser = await User.findOne({ _id: answerData.userId });
-						Threecards.push({ otherProfileImg: createdUser.profileImg })
+						ThreeCards.push({ otherProfileImg: createdUser.profileImg })
 					}
 
 					cards.push({

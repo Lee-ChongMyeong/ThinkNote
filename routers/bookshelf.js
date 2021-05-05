@@ -47,7 +47,6 @@ router.post('/searchUserDetail', async (req, res, next) => {
         const checkSearch = await Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId })
         const checkAllSearch = await Search.find({ userId: myUserInfo.userId })
 
-        console.log(checkAllSearch.length)
         if (checkAllSearch.length >= 6) {
             await Search.deleteOne({ userId: myUserInfo.userId })
         }
@@ -88,12 +87,10 @@ router.get('/searchUser', async (req, res, next) => {
             const [tokenType, tokenValue] = authorization.split(' ');
             if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
             const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-            console.log('userId', userId)
             const user = await User.findOne({ _id: userId });
             if (!user) { throw err; }
 
             const users = await Search.find({ userId: userId }).where('YYMMDD').gt(standardTime).limit(5);
-            console.log(users)
             for (userData of users) {
                 const userInfo = await User.findOne({ _id: userData.searchUserId });
                 let temp = {
@@ -299,8 +296,6 @@ router.post('/question', authMiddleware, async (req, res, next) => {
     try {
         user = res.locals.user;
         const { contents, topic } = req.body;
-        console.log(contents)
-        console.log(user.nickname)
         if (!topic) { return res.status(400).send({ msg: '토픽을 넣어주세요' }); }
         if (contents.length < 5) { return res.status(400).send({ msg: '그래도 질문인데 5글자는 넘겨주셔야져!' }) }
         const Today = moment().format("YYYY-MM-DD");
