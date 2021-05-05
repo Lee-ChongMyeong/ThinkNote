@@ -231,7 +231,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 
 // 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
-router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) => {
+router.get('/bookCardDetail/:answerId', async (req, res, next) => {
     try {
         const { answerId } = req.params;
         user = res.locals.user;
