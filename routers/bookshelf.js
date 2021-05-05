@@ -249,12 +249,10 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
         // const currentLike = false;
-        console.log(user)
         if (user) {
             const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
             if (checkCurrentLike) { var currentLike = true } else { var currentLike = false }
         } else { var currentLike = false }
-
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
@@ -451,6 +449,7 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 
         return res.send({ answerCardId, likeCountNum, currentLike: true });
     } catch (err) {
+        console.log(err)
         return res.status(400).json({ msg: 'fail' });
     }
 });
