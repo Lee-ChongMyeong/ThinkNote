@@ -42,7 +42,7 @@ router.get('/cards', async (req, res) => {
 			};
 
 			// 자신을 제외한 공개된 답변들만 출력
-			let answers = await AnswerCard.find({ userId: { $ne: userId }, questionId: question._id, isOpen: true }).limit(4);
+			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(4);
 			temp['answers'] = [];
 			for (answer of answers) {
 				let answerUser = await User.findOne({ _id: answer.userId });
