@@ -184,6 +184,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
                 questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
+                answerId: booksDetail[i]['_id'],
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
@@ -228,14 +229,14 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 });
 
 // 내 질문 카드 디테일 확인
-// 날짜 작성 보여주기
-router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, res, next) => {
+// 날짜 작성 보여주기 // 답변 crud
+router.get('/bookCardDetail/:YYMMDD/:questionId/:answerId', authMiddleware, async (req, res, next) => {
     try {
         const { YYMMDD, questionId } = req.params;
         user = res.locals.user;
         bookCardDetail = [];
         other = [];
-        const booksDetail = await AnswerCard.findOne({ userId: user.userId, YYMMDD: YYMMDD });
+        const booksDetail = await AnswerCard.findOne({ _id: answerId });
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
         const questionUserInfo = await User.findOne({ _id: createdUser });
         // const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
@@ -243,16 +244,23 @@ router.get('/bookCardDetail/:YYMMDD/:questionId', authMiddleware, async (req, re
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
 
+        const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
+        const currentLike = false
+
+        if (checkCurrentLike) { const currentLike = true }
+
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
             questionContents: sanitize(contents),
+            answerId: booksDetail._id,
             answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
-            likeCount: likeCountNum
+            currentLike: currentLike,
+            likeCount: likeCountNum,
         });
         return res.send({ bookCardDetail, other });
     } catch (err) {

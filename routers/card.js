@@ -22,7 +22,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		// }
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
 		console.log('daily', daily);
-		console.log( moment(Date.now()).format('YYMMDD'))
+		console.log(moment(Date.now()).format('YYMMDD'))
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
 		}
@@ -50,7 +50,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				available: question.available,
 				profileImg: createdUser.profileImg,
 				answerCount: answer.length,
-				otherProfileImg : createdUser.profileImg
+				otherProfileImg: createdUser.profileImg
 			});
 		}
 
@@ -233,8 +233,8 @@ router.get('/recentAnswer/:userId', async (req, res, next) => {
 	try {
 		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
 		console.log(todayQuestion)
-		for (todayQuestionData of todayQuestion){
-		const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
+		for (todayQuestionData of todayQuestion) {
+			const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
 			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
 			let temp = {
 				questionId: recentAnswerData.questionId,
