@@ -15,14 +15,14 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
-		console.log('userid', user.userId)
+		// console.log('userid', user.userId)
 		// 글자제한
 		// if (contents.length < 4) {
 		// 	return res.json({ msg: 'typenumber error' })
 		// }
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
-		console.log('daily', daily);
-		console.log(moment(Date.now()).format('YYMMDD'))
+		// console.log('daily', daily);
+		// console.log(moment(Date.now()).format('YYMMDD'))
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
 		}
@@ -36,19 +36,22 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		let cards = [];
 		const todayQuestion = await QuestionDaily.find({ userId: user.userId, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		console.log('todayQuestion', todayQuestion)
+		// console.log('todayQuestion', todayQuestion)
 
 		let ThreeCards = [];
 		let threeAnswer = AnswerCard.find({ questionId: questionId })
 
-		for (answerData of threeAnswer) {
-			let createdUser = await User.findOne({ _id: answerData.userId });
-			ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+		if (threeAnswer) {
+			console.log(threeAnswer)
+			for (answerData of threeAnswer) {
+				let createdUser = await User.findOne({ _id: answerData.userId });
+				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+			}
 		}
 
 		for (question of todayQuestion) {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-			console.log(questionInfo)
+			// console.log(questionInfo)
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 			let answer = await AnswerCard.find({ questionId: question.questionId });
 			cards.push({
@@ -244,7 +247,6 @@ router.get('/recentAnswer/:userId', async (req, res, next) => {
 	let answerData = [];
 	try {
 		const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
-		console.log(todayQuestion)
 		for (todayQuestionData of todayQuestion) {
 			const recentAnswerData = await AnswerCard.find({ questionId: todayQuestionData.questionId }).sort({ createdAt: -1 }).limit(3);
 			let answerUser = await User.findOne({ _id: recentAnswerData.userId });
