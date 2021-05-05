@@ -638,8 +638,6 @@ router.get('/question', authMiddleware, async (req, res, next) => {
         let { page } = req.query;
         page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-
-
         const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
         const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
             .sort('-createdAt')

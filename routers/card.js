@@ -83,10 +83,10 @@ router.get('/daily', async (req, res) => {
 				let createdUser = await User.findOne({ _id: question.createdUser });
 				let answer = await AnswerCard.find({ questionId: question._id });
 				let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
-					for (answerData of threeAnswer) {
-						let createdUser = await User.findOne({ _id: answerData.userId });
-						Threecards.push({ otherProfileImg : createdUser.profileImg })
-					}
+				for (answerData of threeAnswer) {
+					let createdUser = await User.findOne({ _id: answerData.userId });
+					ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+				}
 				cards.push({
 					cardId: questionInfo._id,
 					topic: questionInfo.topic,
@@ -95,7 +95,7 @@ router.get('/daily', async (req, res) => {
 					available: question.available,
 					profileImg: createdUser.profileImg,
 					answerCount: answer.length,
-					otherProfileImg : ThreeCards
+					otherProfileImg: ThreeCards
 				});
 			}
 			return res.json({ cards, profileImg });
@@ -145,7 +145,7 @@ router.get('/daily', async (req, res) => {
 					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 					for (answerData of threeAnswer) {
 						let createdUser = await User.findOne({ _id: answerData.userId });
-						Threecards.push({ otherProfileImg : createdUser.profileImg })
+						Threecards.push({ otherProfileImg: createdUser.profileImg })
 					}
 
 					cards.push({
@@ -156,7 +156,7 @@ router.get('/daily', async (req, res) => {
 						available: question.available,
 						profileImg: createdUser.profileImg,
 						answerCount: answer.length,
-						otherProfileImg : ThreeCards
+						otherProfileImg: ThreeCards
 					});
 				}
 				return res.json({ cards });
@@ -175,9 +175,9 @@ router.get('/daily', async (req, res) => {
 					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 					for (answerData of threeAnswer) {
 						let createdUser = await User.findOne({ _id: answerData.userId });
-						Threecards.push({ otherProfileImg : createdUser.profileImg })
+						Threecards.push({ otherProfileImg: createdUser.profileImg })
 					}
-					
+
 					cards.push({
 						cardId: questionInfo._id,
 						topic: questionInfo.topic,
@@ -186,7 +186,7 @@ router.get('/daily', async (req, res) => {
 						available: question.available,
 						profileImg: createdUser.profileImg,
 						answerCount: answer.length,
-						otherProfileImg : ThreeCards
+						otherProfileImg: ThreeCards
 					});
 				}
 				return res.json({ cards });
