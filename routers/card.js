@@ -35,36 +35,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		});
 
 		const todayQuestion = await QuestionDaily.find({ userId: user.userId, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		// console.log('todayQuestion', todayQuestion)
-
-		// for (question of todayQuestion) {
-		// 	let ThreeCards = [];
-		// 	console.log(question)
-		// 	let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-		// 	let createdUser = await User.findOne({ _id: questionInfo.createdUser });
-		// 	let answer = await AnswerCard.find({ questionId: question.questionId });
-
-		// 	let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
-		// 	console.log(threeAnswer)
-		// 	for (answerData of threeAnswer) {
-		// 		let createdUser = await User.findOne({ _id: answerData.userId });
-		// 		ThreeCards.push({ otherProfileImg: createdUser.profileImg })
-		// 	}
-		// 	console.log('====')
-		// 	console.log(ThreeCards)
-
-		// 	cards.push({
-		// 		cardId: questionInfo._id,
-		// 		topic: questionInfo.topic,
-		// 		contents: questionInfo.contents,
-		// 		createdUser: createdUser.nickname,
-		// 		createdUserId: createdUser._id,
-		// 		available: question.available,
-		// 		profileImg: createdUser.profileImg,
-		// 		answerCount: answer.length,
-		// 		otherProfileImg: ThreeCards
-		// 	});
-		// }
 		let cards = [];
 		for (question of todayQuestion) {
 			let ThreeCards = [];
@@ -89,13 +59,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				otherProfileImg: ThreeCards
 			});
 		}
-		console.log('====')
-		console.log(cards)
-
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
 		res.json({ msg: 'success', cards: cards, result: result });
-
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
 	} catch (err) {
