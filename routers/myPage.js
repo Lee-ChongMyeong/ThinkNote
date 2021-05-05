@@ -120,11 +120,17 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 
 // 선호 주제 선택
 router.patch('/profile/preferredTopic', authMiddleware, async (req, res) => {
-	const user = res.locals.user;
-	const { topic } = req.body;
-	const updateTopic = await User.updateOne(
-		{ _id: user.userId }, { $set: { topic } }
-	)
+	try {
+		console.log('하이')
+		const user = res.locals.user;
+		const { topic } = req.body;
+		const updateTopic = await User.updateOne(
+			{ _id: user.userId }, { $set: { topic } }
+		)
+		return res.send('응 성공이야^^')
+	} catch (err) {
+		return res.send('실패야^^')
+	}
 })
 
 module.exports = router;
