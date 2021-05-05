@@ -92,7 +92,7 @@ router.get('/daily', async (req, res) => {
 					topic: questionInfo.topic,
 					contents: questionInfo.contents,
 					createdUser: createdUser.nickname,
-					available: question.available,
+					available: true,
 					profileImg: createdUser.profileImg,
 					answerCount: answer.length,
 					otherProfileImg: ThreeCards
