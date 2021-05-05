@@ -71,7 +71,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 			let answer = await AnswerCard.find({ questionId: question.questionId });
-			let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
+			let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 			for (answerData of threeAnswer) {
 				let createdUser = await User.findOne({ _id: answerData.userId });
 				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
