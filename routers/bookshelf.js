@@ -229,18 +229,23 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
     }
 });
 
-// 내 질문 카드 디테일 확인
+// 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
-router.get('/bookCardDetail/:questionId/:answerId', authMiddleware, async (req, res, next) => {
+router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) => {
     try {
-        const { YYMMDD, questionId, answerId } = req.params;
+        const { answerId } = req.params;
         user = res.locals.user;
         bookCardDetail = [];
         other = [];
+
+        // 만든 사람 찾기
         const booksDetail = await AnswerCard.findOne({ _id: answerId });
-        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
+        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: booksDetail.questionId });
         const questionUserInfo = await User.findOne({ _id: createdUser });
-        // const others = await AnswerCard.find({ userId: { $ne: user.userId }, questionId: questionId }).limit(3)
+
+        //답변단 사람 찾기
+        const answerUserInfo = await User.findeOne({ _id: booksDetail.userId })
+
 
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
@@ -253,14 +258,15 @@ router.get('/bookCardDetail/:questionId/:answerId', authMiddleware, async (req, 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
-            questionCreatedUserProfileImg: questionUserInfo.profileImg,
+            profileImg: questionUserInfo.profileImg,
             questionTopic: topic,
             questionContents: sanitize(contents),
             answerId: booksDetail._id,
             answerContents: sanitize(booksDetail.contents),
-            answerUserNickname: user.nickname,
+            answerUserProfileImg: answerUserInfo.profileImg,
+            nickname: sanitize(answerUserInfo.nickname),
             isOpen: booksDetail.isOpen,
-            currentLike: currentLike,
+            like: currentLike,
             likeCount: likeCountNum
         });
         return res.send({ bookCardDetail, other });
@@ -269,42 +275,42 @@ router.get('/bookCardDetail/:questionId/:answerId', authMiddleware, async (req, 
     }
 });
 
-// 다른 사람 질문 카드 디테일 확인
-router.get('/other/bookCardDetail/:questionId/:answerId/:id', authMiddleware, async (req, res, next) => {
-    try {
-        const { YYMMDD, questionId, answerId, id } = req.params;
-        bookCardDetail = [];
-        other = [];
-        const booksDetail = await AnswerCard.findOne({ _id: answerId });
-        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
-        const questionUserInfo = await User.findOne({ _id: createdUser });
+// 다른 사람 질문 카드 디테일 확인 폐기처리
+// router.get('/other/bookCardDetail/:questionId/:answerId/:id', authMiddleware, async (req, res, next) => {
+//     try {
+//         const { YYMMDD, questionId, answerId, id } = req.params;
+//         bookCardDetail = [];
+//         other = [];
+//         const booksDetail = await AnswerCard.findOne({ _id: answerId });
+//         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: questionId });
+//         const questionUserInfo = await User.findOne({ _id: createdUser });
 
-        const likeCount = await Like.find({ answerId: booksDetail['_id'] });
-        const likeCountNum = likeCount.length;
+//         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
+//         const likeCountNum = likeCount.length;
 
-        const checkCurrentLike = await Like.findOne({ userId: id, answerId: answerId })
-        const currentLike = false
+//         const checkCurrentLike = await Like.findOne({ userId: id, answerId: answerId })
+//         const currentLike = false
 
-        if (checkCurrentLike) { const currentLike = true }
+//         if (checkCurrentLike) { const currentLike = true }
 
-        bookCardDetail.push({
-            questionCreatedUserId: questionUserInfo._id,
-            questionCreatedUserNickname: questionUserInfo.nickname,
-            questionCreatedUserProfileImg: questionUserInfo.profileImg,
-            questionTopic: topic,
-            questionContents: sanitize(contents),
-            answerId: booksDetail._id,
-            answerContents: sanitize(booksDetail.contents),
-            answerUserNickname: user.nickname,
-            isOpen: booksDetail.isOpen,
-            currentLike: currentLike,
-            likeCount: likeCountNum
-        });
-        return res.send({ bookCardDetail, other });
-    } catch (err) {
-        return res.status(400).json({ msg: 'fail' });
-    }
-});
+//         bookCardDetail.push({
+//             questionCreatedUserId: questionUserInfo._id,
+//             questionCreatedUserNickname: questionUserInfo.nickname,
+//             questionCreatedUserProfileImg: questionUserInfo.profileImg,
+//             questionTopic: topic,
+//             questionContents: sanitize(contents),
+//             answerId: booksDetail._id,
+//             answerContents: sanitize(booksDetail.contents),
+//             answerUserNickname: user.nickname,
+//             isOpen: booksDetail.isOpen,
+//             currentLike: currentLike,
+//             likeCount: likeCountNum
+//         });
+//         return res.send({ bookCardDetail, other });
+//     } catch (err) {
+//         return res.status(400).json({ msg: 'fail' });
+//     }
+// });
 
 // 커스텀 질문 등록
 // 질문글자 5개 이상 하기
