@@ -18,31 +18,29 @@ router.get(`/${process.env.LOVE_SERVICEINFO_QUESTIONLIST}`, async (req, res) => 
     return res.send(adminQuestion)
 })
 
-// // 답변 많은순 질문 받아오기
-// router.get(`/test`, async (req, res) => {
-//     const adminId = '608971a172444320da6e8671'
-//     const questionList = await QuestionCard.find({ userId: "608971a172444320da6e8671" })
-//     const popularQuestionList = await QuestionCard.aggregate{ [
-//         { $match: { createdUser: { $eq: adminId } } },
-//         { $project: { _id: { $toString: '$_id', } } }
-//         { $limit: 30 }
-//     ]
-// };
+// 답변 많은순 질문 받아오기
+router.get(`/test`, async (req, res) => {
+    // const adminId = '608971a172444320da6e8671'
+    // const questionList = await QuestionCard.find({ userId: "608971a172444320da6e8671" })
+    const popularQuestionList = await QuestionCard.aggregate([
+        { $project: { _id: { $toString: '$_id', } } },
+        { $limit: 30 }
+    ]);
 
-// let adminQuestion = [];
-// for (questionListData of questionList) {
-//     const answerList = await AnswerCard.find({ questionId: questionListData._id })
-//     let answerListCount = answerList.length;
+let adminQuestion = [];
+for (questionListData of questionList) {
+    const answerList = await AnswerCard.find({ questionId: questionListData._id })
+    let answerListCount = answerList.length;
 
-//     adminQuestion.push({
-//         questionId: questionListData._id,
-//     })
+    adminQuestion.push({
+        questionId: questionListData._id,
+    })
 
-//     return res.json(adminQuestion)
-// }
+    return res.json(adminQuestion)
+}
 
-// res.json({ questionlist })
-// })
+res.json({ questionlist })
+})
 
 
 
