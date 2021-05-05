@@ -38,29 +38,17 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		const todayQuestion = await QuestionDaily.find({ userId: user.userId, YYMMDD: moment(Date.now()).format('YYMMDD') });
 		// console.log('todayQuestion', todayQuestion)
 
-		let ThreeCards = [];
-		let threeAnswer = await AnswerCard.find({ questionId: questionId })
-		console.log('-=============밖')
-		console.log(threeAnswer)
-
-		if (threeAnswer) {
-			console.log('-=============안')
-			for (let i = 0; i < threeAnswer.length; i++) {
-				const { profileImg } = await User.findOne({ _id: threeAnswer[i]['userId'] });
-				console.log(profileImg)
-				console.log('====훗=====')
-				console.log(profileImg)
-				ThreeCards.push(profileImg)
-			}
-		}
-		console.log("쓰리카드")
-		console.log(ThreeCards)
-
 		for (question of todayQuestion) {
+			let ThreeCards = [];
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-			// console.log(questionInfo)
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
 			let answer = await AnswerCard.find({ questionId: question.questionId });
+			let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
+			for (answerData of threeAnswer) {
+				let createdUser = await User.findOne({ _id: answerData.userId });
+				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+			}
+
 			cards.push({
 				cardId: questionInfo._id,
 				topic: questionInfo.topic,
@@ -69,13 +57,14 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				createdUserId: createdUser._id,
 				available: question.available,
 				profileImg: createdUser.profileImg,
-				answerCount: answer.length
+				answerCount: answer.length,
+				otherProfileImg: ThreeCards
 			});
 		}
 
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
-		res.json({ msg: 'success', cards: cards, otherProfileImg: ThreeCards, result: result });
+		res.json({ msg: 'success', cards: cards, result: result });
 
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
