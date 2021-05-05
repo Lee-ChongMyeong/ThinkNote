@@ -67,7 +67,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		// }
 		let cards = [];
 		for (question of todayQuestion) {
-			console.log(question)
 			let ThreeCards = [];
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			let createdUser = await User.findOne({ _id: question.createdUser });
@@ -90,18 +89,18 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			});
 		}
 		console.log('====')
-		console.log(ThreeCards)
+		console.log(cards))
 
-		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
+const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 
-		res.json({ msg: 'success', cards: cards, result: result });
+res.json({ msg: 'success', cards: cards, result: result });
 
-		const alarmSend = require('../lib/sendAlarm');
-		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
+const alarmSend = require('../lib/sendAlarm');
+await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);
 	} catch (err) {
-		console.log(err)
-		return res.status(400).json({ msg: 'fail2' });
-	}
+	console.log(err)
+	return res.status(400).json({ msg: 'fail2' });
+}
 })
 
 // 질문 랜덤 3개 받기
