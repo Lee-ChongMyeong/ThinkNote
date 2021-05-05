@@ -46,12 +46,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		if (threeAnswer) {
 			console.log('-=============안')
 			for (let i = 0; i < threeAnswer.length; i++) {
-				let createdUser = await User.findOne({ _id: threeAnswer[i]['userId'] });
-				console.log(createdUser)
+				const { profileImg } = await User.findOne({ _id: threeAnswer[i]['userId'] });
+				console.log(profileImg)
 				console.log('====훗=====')
-				console.log(createdUser[i])
-				console.log(createdUser[i]['profileImg'])
-				ThreeCards.push({ otherProfileImg: createdUser[i]['profileImg'] })
+				console.log(profileImg)
+				ThreeCards.push({ otherProfileImg: profileImg })
 			}
 		}
 
