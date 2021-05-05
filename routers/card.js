@@ -40,9 +40,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		let ThreeCards = [];
 		let threeAnswer = AnswerCard.find({ questionId: questionId })
+		console.log('-=============밖')
+		console.log(threeAnswer)
 
 		if (threeAnswer) {
-			console.log(threeAnswer)
+			console.log('-=============안')
 			for (answerData of threeAnswer) {
 				let createdUser = await User.findOne({ _id: answerData.userId });
 				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
