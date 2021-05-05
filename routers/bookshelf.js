@@ -210,12 +210,14 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
             const questionUserInfo = await User.findOne({ _id: createdUser });
             const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] });
             const likeCountNum = likeCount.length;
+
             booksDiary.push({
                 questionId: _id,
                 questionCreatedUserId: questionUserInfo._id,
                 questionCreatedUserNickname: questionUserInfo.nickname,
                 questionCreatedUserProfileImg: questionUserInfo.profileImg,
                 questionContents: contents,
+                answerId: booksDetail[i]['_id'],
                 answerContents: booksDetail[i]['contents'],
                 answerUserNickname: user.nickname,
                 isOpen: booksDetail[i]['isOpen'],
@@ -260,7 +262,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId/:answerId', authMiddleware, asyn
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
             currentLike: currentLike,
-            likeCount: likeCountNum,
+            likeCount: likeCountNum
         });
         return res.send({ bookCardDetail, other });
     } catch (err) {
@@ -269,7 +271,7 @@ router.get('/bookCardDetail/:YYMMDD/:questionId/:answerId', authMiddleware, asyn
 });
 
 // 다른 사람 질문 카드 디테일 확인
-router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/bookCardDetail/:YYMMDD/:questionId/:answerId/:id', authMiddleware, async (req, res, next) => {
     try {
         const { YYMMDD, questionId, id } = req.params;
         bookCardDetail = [];
@@ -281,15 +283,22 @@ router.get('/other/bookCardDetail/:YYMMDD/:questionId/:id', authMiddleware, asyn
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
 
+        const checkCurrentLike = await Like.findOne({ userId: id, answerId: answerId })
+        const currentLike = false
+
+        if (checkCurrentLike) { const currentLike = true }
+
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             questionCreatedUserProfileImg: questionUserInfo.profileImg,
             questionTopic: topic,
             questionContents: sanitize(contents),
+            answerId: booksDetail._id,
             answerContents: sanitize(booksDetail.contents),
             answerUserNickname: user.nickname,
             isOpen: booksDetail.isOpen,
+            currentLike: currentLike,
             likeCount: likeCountNum
         });
         return res.send({ bookCardDetail, other });
