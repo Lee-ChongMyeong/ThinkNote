@@ -44,8 +44,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
 			let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 			for (answerData of threeAnswer) {
 				let createdUser = await User.findOne({ _id: answerData.userId });
-				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+				ThreeCards.push({
+					otherProfileImg: createdUser.profileImg,
+					otherUserId: createdUser._id
+				})
 			}
+
 			console.log(ThreeCards)
 			cards.push({
 				cardId: questionInfo._id,
@@ -92,7 +96,10 @@ router.get('/daily', async (req, res) => {
 				let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
 				for (answerData of threeAnswer) {
 					let createdUser = await User.findOne({ _id: answerData.userId });
-					ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+					ThreeCards.push({
+						otherProfileImg: createdUser.profileImg,
+						otherUserId: createdUser._id
+					})
 				}
 				cards.push({
 					cardId: questionInfo._id,
@@ -153,7 +160,10 @@ router.get('/daily', async (req, res) => {
 					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 					for (answerData of threeAnswer) {
 						let createdUser = await User.findOne({ _id: answerData.userId });
-						ThreeCards.push({ otherProfileImg: createdUser.profileImg })
+						ThreeCards.push({
+							otherProfileImg: createdUser.profileImg,
+							otherUserId: createdUser._id
+						})
 					}
 
 					cards.push({
