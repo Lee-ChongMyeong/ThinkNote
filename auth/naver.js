@@ -8,7 +8,7 @@ const naverStrategy = new NaverStrategy(
 	{
 		clientID: process.env.LOVE_NAVER_CLIENT_ID,
 		clientSecret: process.env.LOVE_NAVER_SECRET,
-		callbackURL: '/auth/naver/oauth'
+		callbackURL: 'http://lkj99.shop/auth/naver/oauth'
 	},
 	function (accessToken, refreshToken, profile, done) {
 		try {

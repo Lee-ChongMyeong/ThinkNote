@@ -8,7 +8,7 @@ const kakaoStrategy = new KakaoStrategy(
 	{
 		clientID: process.env.LOVE_KAKAO_CLIENT_ID,
 		clientSecret: process.env.LOVE_KAKAO_SECRET,
-		callbackURL: '/auth/kakao/oauth'
+		callbackURL: 'http://lkj99.shop/auth/kakao/oauth'
 	},
 	function (accessToken, refreshToken, profile, done) {
 		try {
