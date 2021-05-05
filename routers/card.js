@@ -20,7 +20,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 		// 	return res.json({ msg: 'typenumber error' })
 		// }
 		const daily = await QuestionDaily.updateOne({ questionId: questionId, userId: user._id, YYMMDD: moment(Date.now()).format('YYMMDD') }, { $set: { available: false } });
-		console.log('daily', daily)
+		// console.log('daily', daily)
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
 		}
@@ -47,7 +47,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				answerCount: answer.length,
 				available: question.available,
 				profileImg: createdUser.profileImg
-
 			});
 		}
 
@@ -145,7 +144,7 @@ router.get('/daily', async (req, res) => {
 					let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
 					for (answerData of threeAnswer) {
 						let createdUser = await User.findOne({ _id: answerData.userId });
-						Threecards.push({ otherProfileImg: createdUser.profileImg })
+						ThreeCards.push({ otherProfileImg: createdUser.profileImg })
 					}
 
 					cards.push({
