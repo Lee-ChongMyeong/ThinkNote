@@ -231,7 +231,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 
 // 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
-router.get('/bookCardDetail/:answerId', async (req, res, next) => {
+router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) => {
     try {
         const { answerId } = req.params;
         console.log(answerId)
@@ -249,9 +249,10 @@ router.get('/bookCardDetail/:answerId', async (req, res, next) => {
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
 
-        const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
-        const currentLike = false
-        if (checkCurrentLike) { const currentLike = true }
+        if (user) {
+            const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
+            if (checkCurrentLike) { const currentLike = true } else { const currentLike = false }
+        } else { const currentLike = false }
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
