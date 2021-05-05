@@ -15,6 +15,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 	user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
+		console.log('questionId', questionId)
 		// console.log('userid', user.userId)
 		// 글자제한
 		// if (contents.length < 4) {
@@ -36,15 +37,16 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
 		let cards = [];
 		const todayQuestion = await QuestionDaily.find({ userId: user.userId, YYMMDD: moment(Date.now()).format('YYMMDD') });
-		// console.log('todayQuestion', todayQuestion)
+		console.log('todayQuestion', todayQuestion)
 
 		for (question of todayQuestion) {
 			let ThreeCards = [];
+			let answer = await AnswerCard.find({ questionId: question.questionId });
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
 			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
-			let answer = await AnswerCard.find({ questionId: question.questionId });
 
 			let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
+			console.log('threeAnswer', threeAnswer)
 			for (answerData of threeAnswer) {
 				let createdUser = await User.findOne({ _id: answerData.userId });
 				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
