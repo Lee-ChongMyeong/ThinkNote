@@ -240,7 +240,7 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
         other = [];
         // 만든 사람 찾기
         const booksDetail = await AnswerCard.findOne({ _id: answerId });
-        const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: booksDetail.questionId });
+        const { contents, createdUser, topic, _id } = await QuestionCard.findOne({ _id: booksDetail.questionId });
         const questionUserInfo = await User.findOne({ _id: createdUser });
 
         //답변단 사람 찾기
@@ -255,6 +255,7 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
         } else { var currentLike = false }
 
         bookCardDetail.push({
+            questionId: _id,
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
             profileImg: questionUserInfo.profileImg,
@@ -262,6 +263,7 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
             questionContents: sanitize(contents),
             answerId: booksDetail._id,
             answerContents: sanitize(booksDetail.contents),
+            answerUserId: answerUserInfo._id,
             answerUserProfileImg: answerUserInfo.profileImg,
             nickname: sanitize(answerUserInfo.nickname),
             isOpen: booksDetail.isOpen,
