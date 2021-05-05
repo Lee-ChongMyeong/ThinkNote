@@ -50,9 +50,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				console.log(profileImg)
 				console.log('====훗=====')
 				console.log(profileImg)
-				ThreeCards.push({ otherProfileImg: profileImg })
+				ThreeCards.push(profileImg)
 			}
 		}
+		console.log("쓰리카드")
+		console.log(ThreeCards)
 
 		for (question of todayQuestion) {
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
