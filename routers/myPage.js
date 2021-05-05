@@ -94,7 +94,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 	try {
 		const number = String(Math.floor(Math.random() * 100000))
 		const user = res.locals.user;
-		profileImg = "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg"
+		const profileImg = "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg"
 		// 닉네임이 유니크값이라서 혹시나 겹치면 몽고오류뜨면서 ㅈㅈ임, if같은거 필요해 보임
 		user.nickname = "알 수 없는 유저"
 		user.provider = "탈퇴"
