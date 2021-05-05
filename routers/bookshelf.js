@@ -232,12 +232,14 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 // 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
 router.get('/bookCardDetail/:answerId', async (req, res, next) => {
+    console.log('1')
     try {
         const { answerId } = req.params;
+        console.log(answerId)
         user = res.locals.user;
         bookCardDetail = [];
         other = [];
-
+        console.log('2')
         // 만든 사람 찾기
         const booksDetail = await AnswerCard.findOne({ _id: answerId });
         const { contents, createdUser, topic } = await QuestionCard.findOne({ _id: booksDetail.questionId });
@@ -245,16 +247,16 @@ router.get('/bookCardDetail/:answerId', async (req, res, next) => {
 
         //답변단 사람 찾기
         const answerUserInfo = await User.findeOne({ _id: booksDetail.userId })
-
+        console.log('3')
 
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
 
         const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
         const currentLike = false
-
+        console.log('4')
         if (checkCurrentLike) { const currentLike = true }
-
+        console.log('5')
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
             questionCreatedUserNickname: questionUserInfo.nickname,
