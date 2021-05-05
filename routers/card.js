@@ -76,6 +76,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 				let createdUser = await User.findOne({ _id: answerData.userId });
 				ThreeCards.push({ otherProfileImg: createdUser.profileImg })
 			}
+			console.log(ThreeCards)
 			cards.push({
 				cardId: questionInfo._id,
 				topic: questionInfo.topic,
