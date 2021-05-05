@@ -248,11 +248,13 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
 
         const likeCount = await Like.find({ answerId: booksDetail['_id'] });
         const likeCountNum = likeCount.length;
-
+        // const currentLike = false;
+        console.log(user)
         if (user) {
             const checkCurrentLike = await Like.findOne({ userId: user.userId, answerId: answerId })
-            if (checkCurrentLike) { const currentLike = true } else { const currentLike = false }
-        } else { const currentLike = false }
+            if (checkCurrentLike) { var currentLike = true } else { var currentLike = false }
+        } else { var currentLike = false }
+
 
         bookCardDetail.push({
             questionCreatedUserId: questionUserInfo._id,
