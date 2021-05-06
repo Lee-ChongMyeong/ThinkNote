@@ -1,24 +1,25 @@
 const mongoose = require('mongoose');
-const { Schema, model, Types } = mongoose;
+const { Schema } = mongoose;
 
-
-const commentBoard = new Schema({
-   commentContents: { type: String, required: true },
-   cardId: { type: String, required: true },
-   userId: { type: String, required: true },
-   tag: { type: Array }
-},
-   { timestamps: true });
+const commentBoard = new Schema(
+	{
+		commentContents: { type: String, required: true },
+		cardId: { type: String, required: true },
+		userId: { type: String, required: true },
+		tag: { type: Array }
+	},
+	{ timestamps: true }
+);
 
 commentBoard.virtual('commentId').get(function () {
-   return this._id.toHexString();
+	return this._id.toHexString();
 });
 
 commentBoard.set('toObject', {
-   virtuals: true
+	virtuals: true
 });
 commentBoard.set('toJSON', {
-   virtuals: true
+	virtuals: true
 });
 
 module.exports = mongoose.model('CommentBoard', commentBoard);

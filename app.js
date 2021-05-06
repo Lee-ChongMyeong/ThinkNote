@@ -1,14 +1,13 @@
 const express = require('express');
-const { Server } = require("http");
-const socketIo = require("socket.io");
+const { Server } = require('http');
+const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 
-const mongoose = require('./models/mongoose');
 require('dotenv').config();
 
 const app = express();
 const cors = require('cors');
-app.use(cors({ origin: "*", credentials: true }))
+app.use(cors({ origin: '*', credentials: true }));
 
 // 미들웨어
 app.use(express.json());
@@ -18,52 +17,50 @@ app.use(express.static('public'));
 const passport = require('./auth/passport');
 app.use(passport.initialize());
 
-const { User, Alarm } = require("./models")
-const moment = require("moment")
-const calTime = require('./lib/calTime')
-require("moment-timezone")
-moment.tz.setDefault("Asia/Seoul")
+const { User, Alarm } = require('./models');
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 const http = Server(app);
 const io = socketIo(http, {
 	cors: {
-		origin: "*",
-		methods: ["GET", "POST"],
-	},
-})
+		origin: '*',
+		methods: ['GET', 'POST']
+	}
+});
 
-const alarm = io.of("/alarm");
+const alarm = io.of('/alarm');
 app.use((req, res, next) => {
-	req.alarm = alarm
+	req.alarm = alarm;
 	return next();
-})
+});
 // app.set('alarm', alarm)
 
-alarm.on("connection", function (socket) {
-	console.log('New connection')
-	socket.on("joinAlarm", async function (data) {
-		// const req = socket.request
-		// const { headers: { referer } } = req
-		const { token } = data
+alarm.on('connection', function (socket) {
+	console.log('New connection');
+	socket.on('joinAlarm', async function (data) {
+		const { token } = data;
 		if (!token) {
-			socket.disconnect()
-			return
+			socket.disconnect();
+			return;
 		}
 		// console.log(referer)
-		console.log('로그인 성공')
+		console.log('로그인 성공');
 		const { userId } = jwt.verify(token, process.env.LOVE_JWT_SECRET);
-		socket.join(userId) // room - 내_id
-		let alarms = await Alarm.find({ userId: userId }).sort('-date').limit(20)
-		msg = []
-		let checked = false
-		for (alarmData of alarms) {
-			console.log('alarmData', alarmData)
-			if (alarmData.checked == true)
-				checked = true
+		socket.join(userId); // room - 내_id
+		let alarms = await Alarm.find({ userId: userId }).sort('-date').limit(20);
+		const msg = [];
+		let checked = false;
+		for (let alarmData of alarms) {
+			console.log('alarmData', alarmData);
+			if (alarmData.checked == true) checked = true;
 
-			const recentUser = await User.findOne({ _id: alarmData.userList[alarmData.userList.length - 1] });
+			const recentUser = await User.findOne({
+				_id: alarmData.userList[alarmData.userList.length - 1]
+			});
 			const user = await User.findOne({ _id: userId });
-			console.log('user', user)
+			console.log('user', user);
 
 			let temp = {
 				alarmId: alarmData._id,
@@ -76,33 +73,25 @@ alarm.on("connection", function (socket) {
 				eventType: alarmData.eventType,
 				time: moment(alarmData.date).format('YY-MM-DD HH:mm:ss')
 			};
-			msg.push(temp)
+			msg.push(temp);
 		}
-		alarm.to(userId).emit("joinAlarm", { msg, checked })
-	})
+		alarm.to(userId).emit('joinAlarm', { msg, checked });
+	});
 
-	socket.on("openAlarm", async function (data) {
-		console.log('======')
-		console.log(data.id)
-		const alarms = await Alarm.updateMany({ userId: data.id }, { $set: { checked: false } })
-	})
+	socket.on('openAlarm', async function (data) {
+		console.log('======');
+		console.log(data.id);
+		await Alarm.updateMany({ userId: data.id }, { $set: { checked: false } });
+	});
 
-	socket.on("leave", (data) => {
-		console.log("leave")
-		socket.leave()
-	})
-
-	// socket.on("disconnect", () => {
-	// 	console.log("disconnect")
-	// })
-})
+	socket.on('leave', () => {
+		console.log('leave');
+		socket.leave();
+	});
+});
 
 app.use('/', require('./routers'));
 //listen
 http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);
 });
-
-
-
-

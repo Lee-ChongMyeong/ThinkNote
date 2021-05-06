@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const answerCard = new Schema({
-	questionId: { type: String },
-	contents: { type: String, required: true },
-	YYMMDD: { type: String },
-	userId: { type: String },
-	isOpen: { type: Boolean, default: true },
-},
-	{ timestamps: true });
+const answerCard = new Schema(
+	{
+		questionId: { type: String },
+		contents: { type: String, required: true },
+		YYMMDD: { type: String },
+		userId: { type: String },
+		isOpen: { type: Boolean, default: true }
+	},
+	{ timestamps: true }
+);
 
 answerCard.virtual('answerId').get(function () {
 	return this._id.toHexString();

@@ -15,4 +15,4 @@ router.use('/comment', require('./comment'));
 
 router.use('/serviceInfo', require('./serviceInfo'));
 
-module.exports = router
+module.exports = router;

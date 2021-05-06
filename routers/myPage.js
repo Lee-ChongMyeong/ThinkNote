@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-constant-condition */
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
@@ -35,7 +37,8 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		// 프로필 이미지가 들어온 경우
 		if (data.defaultImg == 'true') {
 			deleteImg(user.profileImg);
-			user.profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
+			user.profileImg =
+				'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
 		} else if (req.file) {
 			deleteImg(user.profileImg);
 			user.profileImg = req.file.location;
@@ -74,13 +77,13 @@ router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
 	}
 });
 
-
 // 회원 탈퇴
 router.delete('/profile/quit', authMiddleware, async (req, res) => {
 	try {
 		const number = String(Math.floor(Math.random() * 100000));
 		const user = res.locals.user;
-		const profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
+		user.profileImg =
+			'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
 		user.nickname = '알 수 없는 유저';
 		user.provider = '탈퇴';
 		user.introduce = '';
@@ -96,7 +99,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await Friend.deleteMany({ followingId: user.userId });
 		await Friend.deleteMany({ followerId: user.userId });
 
-		return res.json({msg:'탈퇴 완료'});
+		return res.json({ msg: '탈퇴 완료' });
 	} catch (err) {
 		console.log(err);
 		res.status(400).json({ msg: 'fail' });

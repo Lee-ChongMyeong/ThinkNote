@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');
+/* eslint-disable no-constant-condition */
 const KakaoStrategy = require('passport-kakao').Strategy;
 // 카카오 로그인 전략
 
@@ -21,7 +22,8 @@ const kakaoStrategy = new KakaoStrategy(
 						let nickname = await randomNickname();
 						while (true) {
 							// 닉네임 중복 방지
-							if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
+							if (await User.findOne({ nickname: nickname }))
+								nickname = await randomNickname();
 							else break;
 						}
 						user = new User({

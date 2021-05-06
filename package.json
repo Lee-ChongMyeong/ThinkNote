@@ -20,6 +20,7 @@
   "dependencies": {
     "aws-sdk": "^2.893.0",
     "axios": "^0.21.1",
+    "babel-eslint": "^10.1.0",
     "connect-mongo": "^4.4.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -44,5 +45,11 @@
     "prettier": "^2.2.1",
     "sanitize-html": "^2.3.3",
     "socket.io": "^4.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.25.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "2.2.1"
   }
 }

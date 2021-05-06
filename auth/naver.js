@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');
@@ -21,7 +22,8 @@ const naverStrategy = new NaverStrategy(
 						let nickname = await randomNickname();
 						while (true) {
 							// 닉네임 중복 방지
-							if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
+							if (await User.findOne({ nickname: nickname }))
+								nickname = await randomNickname();
 							else break;
 						}
 						user = new User({
