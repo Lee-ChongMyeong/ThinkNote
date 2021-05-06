@@ -3,7 +3,6 @@ const { Server } = require('http');
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 require('./models/mongoose');
-
 require('dotenv').config();
 
 const app = express();
