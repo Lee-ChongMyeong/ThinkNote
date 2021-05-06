@@ -528,7 +528,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
         const allAnswer = await AnswerCard.aggregate([
             { $match: { questionId: { $eq: questionId } } },
-            { $project: { _id: { $toString: '$_id' }, questionId: 1, contents: 1, YYMMDD: 1, userId: 1 } },
+            { $project: { _id: { $toString: '$_id' }, questionId: 1, contents: 1, YYMMDD: 1, userId: 1 } }, // $ 한 요소를 말하는 것임
             { $lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' } },
             { $sort: { YYMMDD: -1 } },
             { $skip: page * 2 },
