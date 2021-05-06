@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-constant-condition */
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
@@ -80,7 +82,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 	try {
 		const number = String(Math.floor(Math.random() * 100000));
 		const user = res.locals.user;
-		const profileImg =
+		user.profileImg =
 			'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
 		user.nickname = '알 수 없는 유저';
 		user.provider = '탈퇴';

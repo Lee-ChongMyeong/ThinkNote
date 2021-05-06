@@ -3,20 +3,18 @@ const router = express.Router();
 const sanitize = require('sanitize-html');
 const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
 // 댓글 리스트
-router.get('/:cardId', async (req, res, next) => {
+router.get('/:cardId', async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
 	try {
 		//const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
 		const comments = await CommentBoard.find({ cardId: cardId }).sort({ date: -1 });
-		for (comment of comments) {
+		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			let temp = {
 				commentId: comment.commentId,
@@ -36,7 +34,7 @@ router.get('/:cardId', async (req, res, next) => {
 });
 
 // 댓글 입력
-router.post('/:cardId', authMiddleware, async (req, res, next) => {
+router.post('/:cardId', authMiddleware, async (req, res) => {
 	const cardId = req.params.cardId;
 	const { tag } = req.body;
 	const user = res.locals.user;
@@ -73,7 +71,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 });
 
 // 댓글 삭제
-router.delete('/:commentId', authMiddleware, async (req, res, next) => {
+router.delete('/:commentId', authMiddleware, async (req, res) => {
 	let result = { msg: 'success' };
 	try {
 		console.log(1);

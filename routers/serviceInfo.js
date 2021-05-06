@@ -1,21 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const {
-	AnswerCard,
-	User,
-	QuestionCard,
-	Friend,
-	Like,
-	Alarm,
-	CommentBoard,
-	Search
-} = require('../models');
+const { QuestionCard } = require('../models');
 require('dotenv').config();
 
 //어드민 질문 받아오기
 router.get(`/${process.env.LOVE_SERVICEINFO_QUESTIONLIST}`, async (req, res) => {
 	const questionList = await QuestionCard.find({ createdUser: '608971a172444320da6e8671' });
-	adminQuestion = [];
+	const adminQuestion = [];
 	for (let i = 0; i < questionList.length; i++) {
 		const topic = questionList[i]['topic'];
 		const contents = questionList[i]['contents'];
@@ -26,7 +17,7 @@ router.get(`/${process.env.LOVE_SERVICEINFO_QUESTIONLIST}`, async (req, res) => 
 });
 
 // 답변 많은순 질문 받아오기
-router.get(`/test`, async (req, res, next) => {
+router.get(`/test`, async (req, res) => {
 	try {
 		const popularQuestionList = await QuestionCard.aggregate([
 			{ $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
@@ -51,7 +42,7 @@ router.get(`/test`, async (req, res, next) => {
 		]);
 
 		let result = [];
-		for (popularQuestion of popularQuestionList) {
+		for (let popularQuestion of popularQuestionList) {
 			result.push({
 				questionId: popularQuestion._id,
 				quesitonContents: popularQuestion.contents,

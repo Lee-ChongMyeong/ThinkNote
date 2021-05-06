@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');
+/* eslint-disable no-constant-condition */
 const KakaoStrategy = require('passport-kakao').Strategy;
 // 카카오 로그인 전략
 

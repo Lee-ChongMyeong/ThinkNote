@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');
@@ -16,7 +17,7 @@ const googleStrategy = new GoogleStrategy(
 				{
 					socialId: profile.id
 				},
-				async function (err, user) {
+				async (err, user) => {
 					if (!user) {
 						let nickname = await randomNickname();
 						while (true) {

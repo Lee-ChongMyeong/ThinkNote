@@ -20,6 +20,7 @@
   "dependencies": {
     "aws-sdk": "^2.893.0",
     "axios": "^0.21.1",
+    "babel-eslint": "^10.1.0",
     "connect-mongo": "^4.4.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

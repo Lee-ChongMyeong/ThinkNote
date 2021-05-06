@@ -20,7 +20,7 @@ require('dotenv').config();
 
 // 유저 검색
 // 알파벳 대문자 소문자
-router.post('/searchUser', async (req, res, next) => {
+router.post('/searchUser', async (req, res) => {
 	try {
 		const { words } = req.body;
 		if (!words) {
@@ -42,7 +42,7 @@ router.post('/searchUser', async (req, res, next) => {
 });
 
 // 유저검색 완료(검색 유저 클릭했을때)
-router.post('/searchUserDetail', async (req, res, next) => {
+router.post('/searchUserDetail', async (req, res) => {
 	try {
 		const { id } = req.body;
 		const { authorization } = req.headers;
@@ -102,11 +102,11 @@ router.post('/searchUserDetail', async (req, res, next) => {
 });
 
 // 최신 유저 검색 목록
-router.get('/searchUser', async (req, res, next) => {
+router.get('/searchUser', async (req, res) => {
 	const { authorization } = req.headers;
 	let result = { msg: 'success', searchUser: [] };
 	try {
-		standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 30).format('YYMMDD');
+		let standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 30).format('YYMMDD');
 		// 로그인 했을때
 		if (authorization) {
 			const [tokenType, tokenValue] = authorization.split(' ');
@@ -114,14 +114,14 @@ router.get('/searchUser', async (req, res, next) => {
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 			const user = await User.findOne({ _id: userId });
 			if (!user) {
-				throw err;
+				throw 'undefined user!';
 			}
 
 			const users = await Search.find({ userId: userId })
 				.where('YYMMDD')
 				.gt(standardTime)
 				.limit(5);
-			for (userData of users) {
+			for (let userData of users) {
 				const userInfo = await User.findOne({ _id: userData.searchUserId });
 				let temp = {
 					profileImg: userInfo['profileImg'],
@@ -140,7 +140,7 @@ router.get('/searchUser', async (req, res, next) => {
 
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지
-router.get('/auth/user/:id', async (req, res, next) => {
+router.get('/auth/user/:id', async (req, res) => {
 	try {
 		const { id } = req.params;
 		const userInfo = await User.findOne({ _id: id });
@@ -160,10 +160,10 @@ router.get('/auth/user/:id', async (req, res, next) => {
 });
 
 // 내 책장 월별 확인
-router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
+router.get('/books/:YYMM', authMiddleware, async (req, res) => {
 	try {
 		const { YYMM } = req.params;
-		user = res.locals.user;
+		const user = res.locals.user;
 		const books = await AnswerCard.aggregate([
 			{ $match: { userId: user.userId, YYMMDD: { $regex: `${YYMM}..` } } },
 			{ $group: { _id: '$YYMMDD', count: { $sum: 1 } } }
@@ -177,7 +177,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res, next) => {
 });
 
 // 다른 사람 책장 월별 확인
-router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res) => {
 	try {
 		const { YYMM } = req.params;
 		const { id } = req.params;
@@ -194,12 +194,12 @@ router.get('/other/books/:YYMM/:id', authMiddleware, async (req, res, next) => {
 });
 
 // 내 책장 일별 확인
-router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
+router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
-		user = res.locals.user;
+		const user = res.locals.user;
 		const booksDetail = await AnswerCard.find({ userId: user.userId, YYMMDD: YYMMDD });
-		booksDiary = [];
+		const booksDiary = [];
 
 		for (let i = 0; i < booksDetail.length; i++) {
 			const { contents, createdUser, _id } = await QuestionCard.findOne({
@@ -230,12 +230,12 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res, next) => {
 });
 
 // 다른 사람 책장 일별 확인
-router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, next) => {
+router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
 		const { id } = req.params;
 		const booksDetail = await AnswerCard.find({ userId: id, YYMMDD: YYMMDD });
-		booksDiary = [];
+		const booksDiary = [];
 		for (let i = 0; i < booksDetail.length; i++) {
 			const { contents, createdUser, _id } = await QuestionCard.findOne({
 				_id: booksDetail[i]['questionId']
@@ -252,7 +252,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 				questionContents: contents,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
-				answerUserNickname: user.nickname,
+				answerUserNickname: '', //수정 필요!!!!!!!!!!!!
 				isOpen: booksDetail[i]['isOpen'],
 				likeCount: likeCountNum
 			});
@@ -265,13 +265,14 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res, nex
 
 // 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
-router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) => {
+router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res) => {
 	try {
 		const { answerId } = req.params;
 		console.log(answerId);
-		user = res.locals.user;
-		bookCardDetail = [];
-		other = [];
+		const user = res.locals.user;
+		const bookCardDetail = [];
+		const other = [];
+		let currentLike = false;
 		// 만든 사람 찾기
 		const booksDetail = await AnswerCard.findOne({ _id: answerId });
 		const { contents, createdUser, topic, _id } = await QuestionCard.findOne({
@@ -291,12 +292,12 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
 				answerId: answerId
 			});
 			if (checkCurrentLike) {
-				var currentLike = true;
+				currentLike = true;
 			} else {
-				var currentLike = false;
+				currentLike = false;
 			}
 		} else {
-			var currentLike = false;
+			currentLike = false;
 		}
 
 		bookCardDetail.push({
@@ -361,9 +362,9 @@ router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res, next) =
 
 // 커스텀 질문 등록
 // 질문글자 5개 이상 하기
-router.post('/question', authMiddleware, async (req, res, next) => {
+router.post('/question', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		const { contents, topic } = req.body;
 		if (!topic) {
 			return res.status(400).send({ msg: '토픽을 넣어주세요' });
@@ -408,9 +409,9 @@ router.post('/question', authMiddleware, async (req, res, next) => {
 });
 
 // 친구 추가
-router.post('/addfriend', authMiddleware, async (req, res, next) => {
+router.post('/addfriend', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		const { friendId } = req.body;
 		const checkFriend = await Friend.findOne({
 			followingId: user.userId,
@@ -420,7 +421,7 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
 			return res.send('이미 친구입니다.');
 		}
 
-		const addfriend = await Friend.create({
+		await Friend.create({
 			followingId: user.userId,
 			followerId: friendId
 		});
@@ -431,9 +432,9 @@ router.post('/addfriend', authMiddleware, async (req, res, next) => {
 });
 
 // 친구해제ㅠㅠ
-router.delete('/friend', authMiddleware, async (req, res, next) => {
+router.delete('/friend', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		const { friendId } = req.body;
 		const checkFriend = await Friend.findOne({
 			followingId: user.userId,
@@ -451,11 +452,11 @@ router.delete('/friend', authMiddleware, async (req, res, next) => {
 
 // 내 친구 목록 확인
 // 무한 스크롤 추가 하기
-router.get('/friendList', authMiddleware, async (req, res, next) => {
+router.get('/friendList', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		const friendList = await Friend.find({ followingId: user.userId });
-		friends = [];
+		const friends = [];
 		for (let i = 0; i < friendList.length; i++) {
 			const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
 			friends.push({
@@ -471,11 +472,11 @@ router.get('/friendList', authMiddleware, async (req, res, next) => {
 });
 
 // 타인의 친구 목록
-router.get('/other/friendList/:id', async (req, res, next) => {
+router.get('/other/friendList/:id', async (req, res) => {
 	try {
 		const { id } = req.params;
 		const friendList = await Friend.find({ followingId: id });
-		othersFriend = [];
+		const othersFriend = [];
 		for (let i = 0; i < friendList.length; i++) {
 			const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
 			othersFriend.push({
@@ -491,11 +492,11 @@ router.get('/other/friendList/:id', async (req, res, next) => {
 });
 
 // 답변카드 좋아요 클릭
-router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
+router.post('/like/answerCard', authMiddleware, async (req, res) => {
 	try {
 		const { answerCardId } = req.body;
 		console.log(answerCardId);
-		user = res.locals.user;
+		const user = res.locals.user;
 		const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
 		const answer = await AnswerCard.findOne({ _id: answerCardId });
 		if (currentLike) {
@@ -521,10 +522,10 @@ router.post('/like/answerCard', authMiddleware, async (req, res, next) => {
 });
 
 // 답변카드 좋아요 취소 클릭
-router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
+router.patch('/like/answerCard', authMiddleware, async (req, res) => {
 	try {
 		const { answerCardId } = req.body;
-		user = res.locals.user;
+		const user = res.locals.user;
 
 		const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
 		if (!currentLike) {
@@ -564,16 +565,12 @@ router.patch('/like/answerCard', authMiddleware, async (req, res, next) => {
 });
 
 //더보기 질문 타이틀
-router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
+router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 	try {
 		const { questionId } = req.params;
 		const questionInfo = await QuestionCard.findOne({ _id: questionId });
 		const userInfo = await User.findOne({ _id: questionInfo.userId });
 		const answerData = await AnswerCard.find({ questionId: questionId, isOpen: true });
-
-		if (!answerData) {
-			answerData = 0;
-		}
 
 		return res.send({
 			questionId: questionInfo._id,
@@ -590,7 +587,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res, next) => {
 
 // 더보기 답변들
 // 기본 내려주기
-router.get('/moreInfoCard/:questionId', async (req, res, next) => {
+router.get('/moreInfoCard/:questionId', async (req, res) => {
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -626,7 +623,7 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 			}
 		]);
 
-		answer = [];
+		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			answer.push({
@@ -646,12 +643,12 @@ router.get('/moreInfoCard/:questionId', async (req, res, next) => {
 
 // 더보기 답변들
 // 친구가 쓴 것만 (로그인 안했을 경우는 로그인 필요한 기능이라고 뜨게 말하기)
-router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, next) => {
+router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) => {
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 		const { questionId } = req.params;
-		user = res.locals.user;
+		const user = res.locals.user;
 
 		// 친구 감별
 		const followerId = await Friend.find({ followingId: user.userId });
@@ -689,7 +686,7 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res, 
 			}
 		]);
 
-		answer = [];
+		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			answer.push({
@@ -765,9 +762,9 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 });
 
 //내 커스텀 카드 질문조회 (최신순)
-router.get('/question', authMiddleware, async (req, res, next) => {
+router.get('/question', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
@@ -776,7 +773,7 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 			.sort('-createdAt')
 			.skip(page * 2)
 			.limit(2);
-		myQuestion = [];
+		const myQuestion = [];
 
 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
 			let answerData = await AnswerCard.find({
@@ -804,9 +801,9 @@ router.get('/question', authMiddleware, async (req, res, next) => {
 });
 
 // 내 커스텀 카드 질문조회(답변 많은 순)
-router.get('/like/question', authMiddleware, async (req, res, next) => {
+router.get('/like/question', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
@@ -837,7 +834,7 @@ router.get('/like/question', authMiddleware, async (req, res, next) => {
 		let result = [];
 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
 			result.push({
-				questionId: myCustomQuest1ionCard[i]['_id'],
+				questionId: myCustomQuestionCard[i]['_id'],
 				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
 				questionTopic: myCustomQuestionCard[i]['topic'],
 				questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
@@ -853,26 +850,24 @@ router.get('/like/question', authMiddleware, async (req, res, next) => {
 });
 
 //다른 사람 커스텀 카드 질문조회 (최신순)
-router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
+router.get('/other/:id/question', authMiddleware, async (req, res) => {
 	try {
 		let { page } = req.query;
 		const { id } = req.params;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-		const allOtherQuestion = await QuestionCard.find({ createdUser: user.userId });
+		const allOtherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
 			.sort('-createdAt')
 			.skip(page * 2)
 			.limit(2);
-		myQuestion = [];
+		const myQuestion = [];
 
 		for (let i = 0; i < otherCustomQuestionCard.length; i++) {
 			let answerData = await AnswerCard.find({
 				questionId: otherCustomQuestionCard[i]['_id'],
 				isOpen: true
 			});
-			if (!answerData) {
-				answerData = 0;
-			}
+
 			myQuestion.push({
 				questionId: otherCustomQuestionCard[i]['_id'],
 				questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
@@ -883,8 +878,8 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
 			//질문에 몇명답했는지
 		}
 		return res.send({
-			otherQuestionCount: allOtherQuestion.length,
-			otherQuestion
+			otherQuestionCount: allOtherQuestion.length
+			//otherQuestion // 확인필요 !!!!!!!!!!!!!!!!!!
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
@@ -892,7 +887,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res, next) => {
 });
 
 //다른 사람 커스텀 카드 질문조회 (인기순)
-router.get('/other/like/:id/question', authMiddleware, async (req, res, next) => {
+router.get('/other/like/:id/question', authMiddleware, async (req, res) => {
 	try {
 		let { page } = req.query;
 		const { id } = req.params;
@@ -942,9 +937,9 @@ router.get('/other/like/:id/question', authMiddleware, async (req, res, next) =>
 });
 
 // 공개 비공개 전환
-router.patch('/private', authMiddleware, async (req, res, next) => {
+router.patch('/private', authMiddleware, async (req, res) => {
 	try {
-		user = res.locals.user;
+		const user = res.locals.user;
 		const { answerCardId, isOpen } = req.body;
 		const answerInfo = await AnswerCard.findOne({ _id: answerCardId });
 		if (answerInfo.userId != user.userId) {

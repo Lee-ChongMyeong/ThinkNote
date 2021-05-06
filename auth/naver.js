@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 require('dotenv').config();
 const { User } = require('../models');
 const randomNickname = require('../lib/nickname');

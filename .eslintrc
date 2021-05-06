@@ -1,4 +1,5 @@
 {
+	"parser": "babel-eslint",
 	// 코드 포맷을 prettier로 설정
 	"plugins": [
 		"prettier"
