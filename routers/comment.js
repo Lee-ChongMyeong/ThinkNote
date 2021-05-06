@@ -22,7 +22,8 @@ router.get('/:cardId', async (req, res) => {
 				tag: comment.tag,
 				userId: comment.userId,
 				nickname: userInfo.nickname,
-				profileImg: userInfo['profileImg']
+				profileImg: userInfo['profileImg'],
+				commentCreatedAt: comment.createdAt
 				// alert(JSON.stringify(myObj))
 			};
 			result['comments'].push(temp);
@@ -46,7 +47,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
-			tag: tag
+			tag: tag,
+			commentCreatedAt: moment().format('YYYY-MM-DD +')
 		};
 
 		let comment = await CommentBoard.create(result);
