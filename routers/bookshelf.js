@@ -771,8 +771,8 @@ router.get('/question', authMiddleware, async (req, res) => {
 		const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
 		const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
 			.sort('-createdAt')
-			.skip(page * 2)
-			.limit(2);
+			.skip(page * 15)
+			.limit(15);
 		const myQuestion = [];
 
 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
