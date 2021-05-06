@@ -8,37 +8,87 @@ const s3 = require('../lib/s3.js');
 const randomNickname = require('../lib/nickname');
 require('dotenv').config();
 
-router.patch('/profile/defaultImg', authMiddleware, (req, res) => {
+// s3에서 이미지 삭제
+const deleteImg = (fileName) => {
+	fileName = fileName.split('.com/profileImg/')[1];
+	s3.deleteObject(
+		{
+			Bucket: process.env.AWS_S3_BUCKET_NAME,
+			Key: fileName
+		},
+		(err, data) => {
+			if (err) console.log('s3에 지울 이미지 없음');
+		}
+	);
+};
+
+// 프로필 변경
+router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req, res) => {
 	try {
 		const user = res.locals.user;
-		user.profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
-		user.save();
-		res.json({ profileImg: user.profileImg });
-	} catch {
+		const data = req.body;
+		// 사용 불가능한 닉네임
+		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
+			return res.status(400).json({ msg: 'unavailable_nickname' });
+		if (2 > data.nickname.length || 12 < data.nickname.length)
+			return res.status(400).json({ msg: 'please check nickname length' });
+		// 프로필 이미지가 들어온 경우
+		if (data.defaultImg == 'true') {
+			deleteImg(user.profileImg);
+			user.profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
+		} else if (req.file) {
+			deleteImg(user.profileImg);
+			user.profileImg = req.file.location;
+		}
+		user.nickname = sanitize(data.nickname);
+		user.introduce = sanitize(data.introduce);
+		user.preferredTopic = JSON.parse(data.topic);
+		await user.save();
+		res.json({
+			userId: user._id,
+			nickname: user.nickname,
+			introduce: user.introduce,
+			profileImg: user.profileImg,
+			topic: user.preferredTopic
+		});
+	} catch (err) {
+		console.log(err);
 		res.status(400).json({ msg: 'fail' });
 	}
 });
 
-router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'), async (req, res) => {
-	try {
-		const user = res.locals.user;
+// router.patch('/profile/defaultImg', authMiddleware, (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		user.profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
+// 		user.save();
+// 		res.json({ profileImg: user.profileImg });
+// 	} catch {
+// 		res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
-		s3.deleteObject(
-			{
-				Bucket: process.env.AWS_S3_BUCKET_NAME,
-				Key: user.profileImg.split('.com/images/')[1]
-			},
-			(err, data) => {
-				if (err) console.log('s3에 지울 이미지 없음');
-			}
-		);
-		user.profileImg = req.file.location;
-		user.save();
-		res.json({ profileImg: user.profileImg });
-	} catch {
-		res.status(400).json({ msg: 'fail' });
-	}
-});
+// router.patch('/profile/profileImg', authMiddleware, multer.single('profileImg'), async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+
+// 		s3.deleteObject(
+// 			{
+// 				Bucket: process.env.AWS_S3_BUCKET_NAME,
+// 				Key: user.profileImg.split('.com/images/')[1]
+// 			},
+// 			(err, data) => {
+// 				if (err) console.log('s3에 지울 이미지 없음');
+// 			}
+// 		);
+
+// 		user.profileImg = req.file.location;
+// 		user.save();
+// 		res.json({ profileImg: user.profileImg });
+// 	} catch {
+// 		res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
 router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
 	try {
@@ -57,51 +107,51 @@ router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
 	}
 });
 
-router.patch('/profile/nickname', authMiddleware, async (req, res) => {
-	// if 조건 확인 이미 있는 존재하는 닉네임입니다.
-	try {
-		const user = res.locals.user;
-		const nickname = sanitize(req.body.nickname);
-		if (2 > nickname.length || 12 < nickname.length) return res.status(400).json({ msg: `Please check nickname length` });
-		User.findOne({ nickname }).then((result) => {
-			if (result || !nickname) {
-				res.status(400).json({ msg: 'same nickname' });
-			} else {
-				user.nickname = nickname;
-				user.save();
-				res.json({ nickname: user.nickname });
-			}
-		});
-	} catch {
-		console.log('에러');
-		res.status(400).json({ msg: 'fail' });
-	}
-});
+// router.patch('/profile/nickname', authMiddleware, async (req, res) => {
+// 	// if 조건 확인 이미 있는 존재하는 닉네임입니다.
+// 	try {
+// 		const user = res.locals.user;
+// 		const nickname = sanitize(req.body.nickname);
+// 		if (2 > nickname.length || 12 < nickname.length) return res.status(400).json({ msg: `Please check nickname length` });
+// 		User.findOne({ nickname }).then((result) => {
+// 			if (result || !nickname) {
+// 				res.status(400).json({ msg: 'same nickname' });
+// 			} else {
+// 				user.nickname = nickname;
+// 				user.save();
+// 				res.json({ nickname: user.nickname });
+// 			}
+// 		});
+// 	} catch {
+// 		console.log('에러');
+// 		res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
-router.patch('/profile/introduce', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		user.introduce = sanitize(req.body.introduce);
-		user.save();
-		res.json({ introduce: user.introduce });
-	} catch {
-		res.status(400).json({ msg: 'fail' });
-	}
-});
+// router.patch('/profile/introduce', authMiddleware, async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		user.introduce = sanitize(req.body.introduce);
+// 		user.save();
+// 		res.json({ introduce: user.introduce });
+// 	} catch {
+// 		res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
 // 회원 탈퇴
 router.delete('/profile/quit', authMiddleware, async (req, res) => {
 	try {
-		const number = String(Math.floor(Math.random() * 100000))
+		const number = String(Math.floor(Math.random() * 100000));
 		const user = res.locals.user;
-		const profileImg = "https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg"
+		const profileImg = 'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
 		// 닉네임이 유니크값이라서 혹시나 겹치면 몽고오류뜨면서 ㅈㅈ임, if같은거 필요해 보임
-		user.nickname = "알 수 없는 유저"
-		user.provider = "탈퇴"
-		user.introduce = " "
-		const currentSocialId = user.socialId
-		user.socialId = `${currentSocialId}` + `-${number}`
-		await user.save()
+		user.nickname = '알 수 없는 유저';
+		user.provider = '탈퇴';
+		user.introduce = ' ';
+		const currentSocialId = user.socialId;
+		user.socialId = `${currentSocialId}` + `-${number}`;
+		await user.save();
 
 		// 누군가 팔로잉 그 부분도 다 삭제
 		await AnswerCard.deleteMany({ userId: user.userId });
@@ -111,25 +161,25 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await Friend.deleteMany({ followingId: user.userId });
 		await Friend.deleteMany({ followerId: user.userId });
 
-		return res.send('탈퇴 완료ㅠㅠ')
+		return res.send('탈퇴 완료ㅠㅠ');
 	} catch (err) {
-		console.log(err)
+		console.log(err);
 		res.status(400).json({ msg: 'fail' });
 	}
-})
+});
 
 // 선호 주제 선택
-router.patch('/profile/preferredTopic', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		const { topic } = req.body;
-		const updateTopic = await User.updateOne(
-			{ _id: user.userId }, { $set: { preferredTopic: topic } }
-		)
-		return res.send('응 성공이야^^')
-	} catch (err) {
-		return res.send('실패야^^')
-	}
-})
+// router.patch('/profile/preferredTopic', authMiddleware, async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		const { topic } = req.body;
+// 		const updateTopic = await User.updateOne(
+// 			{ _id: user.userId }, { $set: { preferredTopic: topic } }
+// 		)
+// 		return res.send('응 성공이야^^')
+// 	} catch (err) {
+// 		return res.send('실패야^^')
+// 	}
+// })
 
 module.exports = router;
