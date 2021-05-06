@@ -819,8 +819,8 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 				}
 			},
 			{ $sort: { answercards: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
 			{
 				$project: {
 					_id: 1,
@@ -858,8 +858,8 @@ router.get('/other/:id/question', authMiddleware, async (req, res) => {
 		const allOtherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
 			.sort('-createdAt')
-			.skip(page * 2)
-			.limit(2);
+			.skip(page * 15)
+			.limit(15);
 		const myQuestion = [];
 
 		for (let i = 0; i < otherCustomQuestionCard.length; i++) {
@@ -905,8 +905,8 @@ router.get('/other/like/:id/question', authMiddleware, async (req, res) => {
 				}
 			},
 			{ $sort: { answercards: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
 			{
 				$project: {
 					_id: 1,
