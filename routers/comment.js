@@ -41,7 +41,7 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 	const { tag } = req.body;
 	const user = res.locals.user;
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
-	console.log('==하이==')
+	console.log('==하이==');
 
 	try {
 		let result = {
@@ -58,11 +58,11 @@ router.post('/:cardId', authMiddleware, async (req, res, next) => {
 
 		const alarmSend = require('../lib/sendAlarm');
 		// 태그 있을때
-		console.log(tag)
+		console.log(tag);
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				console.log(tag[i][1])
-				await alarmSend(tag[i][1], cardId, 'tag', user.userId, req.alarm)
+				console.log(tag[i][1]);
+				await alarmSend(tag[i][1], cardId, 'tag', user.userId, req.alarm);
 			}
 		}
 		await alarmSend(userId, cardId, 'comment', user.userId, req.alarm);
@@ -80,7 +80,7 @@ router.delete('/:commentId', authMiddleware, async (req, res, next) => {
 		const user = res.locals.user;
 		const commentId = req.params.commentId;
 		const commentData = await CommentBoard.findOne({ _id: commentId, userId: user.id });
-		console.log(commentData)
+		console.log(commentData);
 		const answerCardData = await AnswerCard.findOne({ _id: commentData.cardId });
 		const userId = answerCardData.userId;
 		const answerId = answerCardData._id;
@@ -89,13 +89,22 @@ router.delete('/:commentId', authMiddleware, async (req, res, next) => {
 		if (!deletedCount) result['msg'] = 'fail';
 
 		let isComment = await CommentBoard.findOne({ cardId: answerId, userId: user.id });
-		let alarmInfo = await Alarm.findOne({ userId: userId, cardId: commentData.cardId, eventType: 'comment' });
+		let alarmInfo = await Alarm.findOne({
+			userId: userId,
+			cardId: commentData.cardId,
+			eventType: 'comment'
+		});
 		if (!isComment) {
 			if (-1 != alarmInfo['userList'].indexOf(user._id)) {
 				alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
 				await alarmInfo.save();
 			}
-			if (alarmInfo['userList'].length == 0) await Alarm.deleteOne({ userId: userId, cardId: commentData.cardId, eventType: 'comment' });
+			if (alarmInfo['userList'].length == 0)
+				await Alarm.deleteOne({
+					userId: userId,
+					cardId: commentData.cardId,
+					eventType: 'comment'
+				});
 		}
 	} catch (err) {
 		console.log(err);
