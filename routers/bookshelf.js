@@ -205,6 +205,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 			const { contents, createdUser, _id, topic } = await QuestionCard.findOne({
 				_id: booksDetail[i]['questionId']
 			});
+			console.log(topic);
 			const questionUserInfo = await User.findOne({ _id: createdUser });
 			let commentCount = await CommentBoard.find({ cardId: booksDetail[i].answerId });
 			const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] });
@@ -581,6 +582,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 		const questionInfo = await QuestionCard.findOne({ _id: questionId });
 		const userInfo = await User.findOne({ _id: questionInfo.userId });
 		const answerData = await AnswerCard.find({ questionId: questionId, isOpen: true });
+		console.log(questionInfo.topic);
 
 		return res.send({
 			questionId: questionInfo._id,
