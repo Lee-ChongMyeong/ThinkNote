@@ -383,36 +383,46 @@ router.post('/question', authMiddleware, async (req, res) => {
 		if (contents.length < 5) {
 			return res.status(400).send({ msg: '그래도 질문인데 5글자는 넘겨주셔야져!' });
 		}
-		const Today = moment().format('YYYY-MM-DD');
-		// 하루에 1번 질문할 수 있는것 체크
-		const checkToday = await QuestionCard.findOne({
+
+		const CustomQuestion = await QuestionCard.create({
+			topic: sanitize(topic),
+			contents: sanitize(contents),
 			createdUser: user.userId,
-			createdAt: Today
-		})
-			.sort({ date: 1 })
-			.limit(1);
-		if (checkToday === null) {
-			// 이미 있는 질문인지 검사
-			const originContents = await QuestionCard.findOne({ contents: contents });
-			if (!originContents) {
-				const CustomQuestion = await QuestionCard.create({
-					topic: sanitize(topic),
-					contents: sanitize(contents),
-					createdUser: user.userId,
-					createdAt: moment().format('YYYY-MM-DD')
-				});
-				const { nickname } = await User.findOne({ _id: user.userId });
-				return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
-			} else {
-				return res.send({ msg: '이미 존재하는 질문입니다' });
-			}
-		} else {
-			if (Today === checkToday.createdAt) {
-				return res
-					.status(400)
-					.send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' });
-			}
-		}
+			createdAt: moment().format('YYYY-MM-DD')
+		});
+		const { nickname } = await User.findOne({ _id: user.userId });
+		return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+
+		// const Today = moment().format('YYYY-MM-DD');
+		// // 하루에 1번 질문할 수 있는것 체크
+		// const checkToday = await QuestionCard.findOne({
+		// 	createdUser: user.userId,
+		// 	createdAt: Today
+		// })
+		// 	.sort({ date: 1 })
+		// 	.limit(1);
+		// if (checkToday === null) {
+		// 	// 이미 있는 질문인지 검사
+		// 	const originContents = await QuestionCard.findOne({ contents: contents });
+		// 	if (!originContents) {
+		// 		const CustomQuestion = await QuestionCard.create({
+		// 			topic: sanitize(topic),
+		// 			contents: sanitize(contents),
+		// 			createdUser: user.userId,
+		// 			createdAt: moment().format('YYYY-MM-DD')
+		// 		});
+		// 		const { nickname } = await User.findOne({ _id: user.userId });
+		// 		return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+		// 	} else {
+		// 		return res.send({ msg: '이미 존재하는 질문입니다' });
+		// 	}
+		// } else {
+		// 	if (Today === checkToday.createdAt) {
+		// 		return res
+		// 			.status(400)
+		// 			.send({ msg: '오늘은 이미 질문을 남겼어요. 힝 아쉽지만 다음에' });
+		// 	}
+		// }
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
@@ -793,9 +803,7 @@ router.get('/question', authMiddleware, async (req, res) => {
 				questionId: myCustomQuestionCard[i]['_id'],
 				isOpen: true
 			});
-			if (!answerData) {
-				answerData = 0;
-			}
+
 			myQuestion.push({
 				questionId: myCustomQuestionCard[i]['_id'],
 				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
@@ -873,7 +881,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res) => {
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
-		const myQuestion = [];
+		const otherQuestion = [];
 
 		for (let i = 0; i < otherCustomQuestionCard.length; i++) {
 			let answerData = await AnswerCard.find({
@@ -881,7 +889,7 @@ router.get('/other/:id/question', authMiddleware, async (req, res) => {
 				isOpen: true
 			});
 
-			myQuestion.push({
+			otherQuestion.push({
 				questionId: otherCustomQuestionCard[i]['_id'],
 				questionContents: sanitize(otherCustomQuestionCard[i]['contents']),
 				questionTopic: otherCustomQuestionCard[i]['topic'],
@@ -891,8 +899,8 @@ router.get('/other/:id/question', authMiddleware, async (req, res) => {
 			//질문에 몇명답했는지
 		}
 		return res.send({
+			otherQuestion: otherQuestion,
 			otherQuestionCount: allOtherQuestion.length
-			//otherQuestion // 확인필요 !!!!!!!!!!!!!!!!!!
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
