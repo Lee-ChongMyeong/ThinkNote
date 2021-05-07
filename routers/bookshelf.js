@@ -11,8 +11,8 @@ const {
 } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-const moment = require('moment');
 const sanitize = require('sanitize-html');
+const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 const jwt = require('jsonwebtoken');
