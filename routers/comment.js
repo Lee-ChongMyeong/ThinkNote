@@ -13,7 +13,7 @@ router.get('/:cardId', async (req, res) => {
 	let result = { msg: 'success', comments: [] };
 	try {
 		//const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
-		const comments = await CommentBoard.find({ cardId: cardId }).sort({ date: -1 });
+		const comments = await CommentBoard.find({ cardId: cardId }).sort('-createdAt');
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			let temp = {
@@ -22,7 +22,8 @@ router.get('/:cardId', async (req, res) => {
 				tag: comment.tag,
 				userId: comment.userId,
 				nickname: userInfo.nickname,
-				profileImg: userInfo['profileImg']
+				profileImg: userInfo['profileImg'],
+				commentCreatedAt: comment.createdAt
 				// alert(JSON.stringify(myObj))
 			};
 			result['comments'].push(temp);
@@ -46,7 +47,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
-			tag: tag
+			tag: tag,
+			commentCreatedAt: moment().format('YYYY-MM-DDT+')
 		};
 
 		let comment = await CommentBoard.create(result);

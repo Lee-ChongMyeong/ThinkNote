@@ -11,8 +11,8 @@ const {
 } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const router = express.Router();
-const moment = require('moment');
 const sanitize = require('sanitize-html');
+const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 const jwt = require('jsonwebtoken');
@@ -270,8 +270,6 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		const { answerId } = req.params;
 		console.log(answerId);
 		const { authorization } = req.headers;
-		console.log(authorization);
-
 		if (authorization) {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
@@ -780,8 +778,8 @@ router.get('/question', authMiddleware, async (req, res) => {
 		const allMyQuestion = await QuestionCard.find({ createdUser: user.userId });
 		const myCustomQuestionCard = await QuestionCard.find({ createdUser: user.userId })
 			.sort('-createdAt')
-			.skip(page * 2)
-			.limit(2);
+			.skip(page * 15)
+			.limit(15);
 		const myQuestion = [];
 
 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
@@ -828,8 +826,8 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 				}
 			},
 			{ $sort: { answercards: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
 			{
 				$project: {
 					_id: 1,
@@ -867,8 +865,8 @@ router.get('/other/:id/question', authMiddleware, async (req, res) => {
 		const allOtherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherCustomQuestionCard = await QuestionCard.find({ createdUser: id })
 			.sort('-createdAt')
-			.skip(page * 2)
-			.limit(2);
+			.skip(page * 15)
+			.limit(15);
 		const myQuestion = [];
 
 		for (let i = 0; i < otherCustomQuestionCard.length; i++) {
@@ -914,8 +912,8 @@ router.get('/other/like/:id/question', authMiddleware, async (req, res) => {
 				}
 			},
 			{ $sort: { answercards: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
 			{
 				$project: {
 					_id: 1,

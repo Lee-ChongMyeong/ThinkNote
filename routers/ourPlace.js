@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 require('dotenv').config();
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 // 랜덤으로 질문에 답글이 하나 이상 달린 글 출력
 router.get('/cards', async (req, res) => {
@@ -65,7 +68,8 @@ router.get('/cards', async (req, res) => {
 					contents: answer.contents,
 					like: like,
 					likeCount: likeCount.length,
-					commentCount: commentCount.length
+					commentCount: commentCount.length,
+					answerCreated: answer.YYMMDD
 				});
 			}
 			result.push(temp);
