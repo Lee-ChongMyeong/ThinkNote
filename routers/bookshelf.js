@@ -202,7 +202,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 		const booksDiary = [];
 
 		for (let i = 0; i < booksDetail.length; i++) {
-			const { contents, createdUser, _id } = await QuestionCard.findOne({
+			const { contents, createdUser, _id, topic } = await QuestionCard.findOne({
 				_id: booksDetail[i]['questionId']
 			});
 			const questionUserInfo = await User.findOne({ _id: createdUser });
@@ -215,6 +215,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 				questionCreatedUserNickname: questionUserInfo.nickname,
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
 				questionContents: contents,
+				qeustionTopic: topic,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
 				answerUserNickname: user.nickname,
@@ -237,7 +238,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => 
 		const booksDetail = await AnswerCard.find({ userId: id, YYMMDD: YYMMDD });
 		const booksDiary = [];
 		for (let i = 0; i < booksDetail.length; i++) {
-			const { contents, createdUser, _id } = await QuestionCard.findOne({
+			const { contents, createdUser, _id, topic } = await QuestionCard.findOne({
 				_id: booksDetail[i]['questionId']
 			});
 			const questionUserInfo = await User.findOne({ _id: createdUser });
@@ -250,6 +251,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => 
 				questionCreatedUserNickname: questionUserInfo.nickname,
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
 				questionContents: contents,
+				qeustionTopic: topic,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
 				answerUserNickname: '', //수정 필요!!!!!!!!!!!!
@@ -586,6 +588,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 			questionCreatedUserId: userInfo._id,
 			questionCreatedUserNickname: userInfo.nickname,
 			questionCreatedUserProfileImg: userInfo.profileImg,
+			qeustionTopic: questionInfo.topic,
 			answerCount: answerData.length
 		});
 	} catch (err) {
