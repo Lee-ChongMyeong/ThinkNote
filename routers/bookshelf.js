@@ -265,11 +265,20 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => 
 
 // 질문 카드 디테일 확인
 // 날짜 작성 보여주기 // 답변 crud
-router.get('/bookCardDetail/:answerId', authMiddleware, async (req, res) => {
+router.get('/bookCardDetail/:answerId', async (req, res) => {
 	try {
 		const { answerId } = req.params;
 		console.log(answerId);
-		const user = res.locals.user;
+		const { authorization } = req.headers;
+		console.log(authorization);
+
+		if (authorization) {
+			const [tokenType, tokenValue] = authorization.split(' ');
+			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
+			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			var user = await User.findOne({ _id: userId });
+		}
+
 		const bookCardDetail = [];
 		const other = [];
 		let currentLike = false;
