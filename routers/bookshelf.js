@@ -216,7 +216,7 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 				questionCreatedUserNickname: questionUserInfo.nickname,
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
 				questionContents: contents,
-				qeustionTopic: topic,
+				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
 				answerUserNickname: user.nickname,
@@ -590,7 +590,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 			questionCreatedUserId: userInfo._id,
 			questionCreatedUserNickname: userInfo.nickname,
 			questionCreatedUserProfileImg: userInfo.profileImg,
-			qeustionTopic: questionInfo.topic,
+			questionTopic: questionInfo.topic,
 			answerCount: answerData.length
 		});
 	} catch (err) {
