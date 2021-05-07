@@ -269,12 +269,13 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 	try {
 		const { answerId } = req.params;
 		console.log(answerId);
+		let user;
 		const { authorization } = req.headers;
 		if (authorization) {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			var user = await User.findOne({ _id: userId });
+			user = await User.findOne({ _id: userId });
 		}
 
 		const bookCardDetail = [];
