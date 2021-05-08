@@ -641,7 +641,8 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 				// answerId: '$_id'
 			}
@@ -710,7 +711,8 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 			}
 		]);
@@ -768,7 +770,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 				// answerId: '$_id'
 			}
