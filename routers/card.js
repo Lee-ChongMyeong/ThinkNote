@@ -70,7 +70,7 @@ router.post('/', authMiddleware, async (req, res) => {
 				available: question.available,
 				profileImg: sanitize(createdUser.profileImg),
 				answerCount: sanitize(answer.length),
-				otherProfileImg: sanitize(ThreeCards)
+				otherProfileImg: ThreeCards
 			});
 		}
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
@@ -119,7 +119,7 @@ router.get('/daily', async (req, res) => {
 					available: true,
 					profileImg: sanitize(createdUser.profileImg),
 					answerCount: sanitize(answer.length),
-					otherProfileImg: sanitize(ThreeCards)
+					otherProfileImg: ThreeCards
 				});
 			}
 			return res.json({ cards });
@@ -192,7 +192,7 @@ router.get('/daily', async (req, res) => {
 						available: sanitize(question.available),
 						profileImg: sanitize(createdUser.profileImg),
 						answerCount: sanitize(answer.length),
-						otherProfileImg: sanitize(ThreeCards)
+						otherProfileImg: ThreeCards
 					});
 				}
 				return res.json({ cards });
@@ -224,7 +224,7 @@ router.get('/daily', async (req, res) => {
 						available: sanitize(question.available),
 						profileImg: sanitize(createdUser.profileImg),
 						answerCount: sanitize(answer.length),
-						otherProfileImg: sanitize(ThreeCards)
+						otherProfileImg: ThreeCards
 					});
 				}
 				return res.json({ cards });
