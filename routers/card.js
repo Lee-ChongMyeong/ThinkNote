@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-//const sanitizeHtml = require('sanitize-html');
+const sanitize = require('sanitize-html');
 const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
@@ -35,7 +35,7 @@ router.post('/', authMiddleware, async (req, res) => {
 		}
 		const result = await AnswerCard.create({
 			questionId: questionId,
-			contents: contents,
+			contents: sanitize(contents),
 			YYMMDD: moment().format('YYMMDD'),
 			userId: user.userId,
 			isOpen: isOpen
@@ -63,14 +63,14 @@ router.post('/', authMiddleware, async (req, res) => {
 			console.log(ThreeCards);
 			cards.push({
 				cardId: questionInfo._id,
-				topic: questionInfo.topic,
-				contents: questionInfo.contents,
-				createdUser: createdUser.nickname,
+				topic: sanitize(questionInfo.topic),
+				contents: sanitize(questionInfo.contents),
+				createdUser: sanitize(createdUser.nickname),
 				createdUserId: createdUser._id,
 				available: question.available,
-				profileImg: createdUser.profileImg,
-				answerCount: answer.length,
-				otherProfileImg: ThreeCards
+				profileImg: sanitize(createdUser.profileImg),
+				answerCount: sanitize(answer.length),
+				otherProfileImg: sanitize(ThreeCards)
 			});
 		}
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
@@ -112,14 +112,14 @@ router.get('/daily', async (req, res) => {
 				}
 				cards.push({
 					cardId: questionInfo._id,
-					topic: questionInfo.topic,
-					contents: questionInfo.contents,
-					createdUser: createdUser.nickname,
+					topic: sanitize(questionInfo.topic),
+					contents: sanitize(questionInfo.contents),
+					createdUser: sanitize(createdUser.nickname),
 					createdUserId: createdUser._id,
 					available: true,
-					profileImg: createdUser.profileImg,
-					answerCount: answer.length,
-					otherProfileImg: ThreeCards
+					profileImg: sanitize(createdUser.profileImg),
+					answerCount: sanitize(answer.length),
+					otherProfileImg: sanitize(ThreeCards)
 				});
 			}
 			return res.json({ cards });
@@ -185,14 +185,14 @@ router.get('/daily', async (req, res) => {
 
 					cards.push({
 						cardId: questionInfo._id,
-						topic: questionInfo.topic,
-						contents: questionInfo.contents,
-						createdUser: createdUser.nickname,
+						topic: sanitize(questionInfo.topic),
+						contents: sanitize(questionInfo.contents),
+						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
-						available: question.available,
-						profileImg: createdUser.profileImg,
-						answerCount: answer.length,
-						otherProfileImg: ThreeCards
+						available: sanitize(question.available),
+						profileImg: sanitize(createdUser.profileImg),
+						answerCount: sanitize(answer.length),
+						otherProfileImg: sanitize(ThreeCards)
 					});
 				}
 				return res.json({ cards });
@@ -217,14 +217,14 @@ router.get('/daily', async (req, res) => {
 
 					cards.push({
 						cardId: questionInfo._id,
-						topic: questionInfo.topic,
-						contents: questionInfo.contents,
-						createdUser: createdUser.nickname,
+						topic: sanitize(questionInfo.topic),
+						contents: sanitize(questionInfo.contents),
+						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
-						available: question.available,
-						profileImg: createdUser.profileImg,
-						answerCount: answer.length,
-						otherProfileImg: ThreeCards
+						available: sanitize(question.available),
+						profileImg: sanitize(createdUser.profileImg),
+						answerCount: sanitize(answer.length),
+						otherProfileImg: sanitize(ThreeCards)
 					});
 				}
 				return res.json({ cards });
@@ -249,9 +249,9 @@ router.get('/recentAnswer/:cardId', async (req, res) => {
 			let temp = {
 				questionId: recentAnswerData.questionId,
 				answerId: recentAnswerData.answerId,
-				contents: recentAnswerData.contents,
-				profileImg: answerUser.profileImg,
-				nickname: answerUser.nickname,
+				contents: sanitize(recentAnswerData.contents),
+				profileImg: sanitize(answerUser.profileImg),
+				nickname: sanitize(answerUser.nickname),
 				userId: answerUser.userId
 			};
 			answerData.push(temp);
@@ -280,9 +280,9 @@ router.get('/recentAnswer/:userId', async (req, res) => {
 			let temp = {
 				questionId: recentAnswerData.questionId,
 				answerId: recentAnswerData.answerId,
-				contents: recentAnswerData.contents,
-				profileImg: answerUser.profileImg,
-				nickname: answerUser.nickname,
+				contents: sanitize(recentAnswerData.contents),
+				profileImg: sanitize(answerUser.profileImg),
+				nickname: sanitize(answerUser.nickname),
 				userId: answerUser.userId
 			};
 			answerData.push(temp);

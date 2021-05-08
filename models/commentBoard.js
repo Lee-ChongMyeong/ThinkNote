@@ -5,7 +5,7 @@ const commentBoard = new Schema(
 	{
 		commentContents: { type: String, required: true },
 		cardId: { type: String, required: true },
-		userId: { type: String, required: true },
+		userId: { type: String, required: true, index: true },
 		tag: { type: Array }
 	},
 	{ timestamps: true }
