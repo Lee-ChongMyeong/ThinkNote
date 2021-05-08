@@ -659,7 +659,7 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 				answerContents: sanitize(allAnswer[i]['contents']),
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['_createdAt']
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		return res.send({ answer });
@@ -725,7 +725,7 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 				answerContents: sanitize(allAnswer[i]['contents']),
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['_createdAt']
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		return res.json(answer);
@@ -783,7 +783,7 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 				answerContents: allAnswer[i]['contents'],
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['_createdAt']
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		// 유저 정보 넣어주기 이름이랑 값
