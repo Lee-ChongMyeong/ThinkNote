@@ -696,8 +696,8 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
 			},
 			{ $sort: { likes: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 20 },
+			{ $limit: 20 },
 			{
 				$project: {
 					_id: 1,
@@ -750,8 +750,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
 			},
 			{ $sort: { likes: -1 } },
-			{ $skip: page * 2 },
-			{ $limit: 2 },
+			{ $skip: page * 20 },
+			{ $limit: 20 },
 			{
 				$project: {
 					_id: 1,
