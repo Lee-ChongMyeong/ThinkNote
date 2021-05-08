@@ -625,7 +625,8 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
@@ -693,7 +694,8 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
@@ -750,7 +752,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
