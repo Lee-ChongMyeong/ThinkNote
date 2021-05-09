@@ -1,5 +1,5 @@
 const express = require('express');
-const { Server } = require('https');
+const { Server } = require('http');
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 require('./models/mongoose');
