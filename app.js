@@ -26,7 +26,8 @@ const http = Server(app);
 const io = socketIo(http, {
 	cors: {
 		origin: '*',
-		methods: ['GET', 'POST']
+		methods: ['GET', 'POST'],
+		credentials: true
 	}
 });
 
