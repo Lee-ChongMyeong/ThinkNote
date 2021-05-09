@@ -1,5 +1,5 @@
 const express = require('express');
-const { Server } = require('https');
+const { Server } = require('http');
 const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 require('./models/mongoose');
@@ -22,8 +22,8 @@ const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 
-const https = Server(app);
-const io = socketIo(https, {
+const http = Server(app);
+const io = socketIo(http, {
 	cors: {
 		origin: '*',
 		methods: ['GET', 'POST']
@@ -90,6 +90,6 @@ alarm.on('connection', function (socket) {
 
 app.use('/', require('./routers'));
 //listen
-https.listen(process.env.LOVE_PORT, () => {
+http.listen(process.env.LOVE_PORT, () => {
 	console.log(`Listening at http://localhost:${process.env.LOVE_PORT}`);
 });
