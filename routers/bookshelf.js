@@ -659,7 +659,10 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			let currentLike = false;
 			let checkCurrentLike = await Like.findOne({ userId: userId });
-			if (checkCurrentLike) currentLike = true;
+			console.log(checkCurrentLike);
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
 			answer.push({
 				userId: UserInfo._id,
 				userNickname: UserInfo.nickname,
