@@ -17,9 +17,6 @@ moment.tz.setDefault('Asia/Seoul');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// router.use('/other', require('./other.js'));
-// router.use('/moreInfoCard', require('./moreInfoCard'));
-// router.use('/like', require('./like'));
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res) => {
@@ -221,10 +218,10 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 router.get('/bookCardDetail/:answerId', async (req, res) => {
 	try {
 		const { answerId } = req.params;
-		console.log(answerId);
 		let user;
 		const { authorization } = req.headers;
-		if (authorization) {
+		console.log(authorization);
+		if (authorization !== 'Bearer undefined') {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
@@ -232,7 +229,6 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		}
 
 		const bookCardDetail = [];
-		const other = [];
 		let currentLike = false;
 		// 만든 사람 찾기
 		const booksDetail = await AnswerCard.findOne({ _id: answerId });
@@ -277,7 +273,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 			like: currentLike,
 			likeCount: likeCountNum
 		});
-		return res.send({ bookCardDetail, other });
+		return res.send({ bookCardDetail });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
@@ -471,5 +467,38 @@ router.patch('/private', authMiddleware, async (req, res) => {
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
+
+//내가 작성한 답변 모음 (최신순)
+// router.get('/answers', authMiddleware, async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		let { page } = req.query;
+// 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+// 		const allMyAnswer = await AnswerCard.find({ userId: user.userId }).sort('-createdAt').skip(page * 15).limit(15);
+// 		const myQuestion = [];
+
+// 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
+// 			let answerData = await AnswerCard.find({
+// 				questionId: myCustomQuestionCard[i]['_id'],
+// 				isOpen: true
+// 			});
+
+// 			myQuestion.push({
+// 				questionId: myCustomQuestionCard[i]['_id'],
+// 				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
+// 				questionTopic: myCustomQuestionCard[i]['topic'],
+// 				questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
+// 				answerCount: answerData.length
+// 			});
+// 		}
+// 		return res.send({
+// 			myQuestionCount: allMyQuestion.length,
+// 			myQuestion
+// 		});
+// 	} catch (err) {
+// 		return res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
 module.exports = router;

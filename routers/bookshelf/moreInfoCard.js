@@ -21,7 +21,7 @@ router.get('/:questionId', async (req, res) => {
 		console.log(error);
 		console.log('토큰 해독 에러');
 	}
-	console.log('5');
+
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -59,7 +59,6 @@ router.get('/:questionId', async (req, res) => {
 			}
 		]);
 
-		console.log(allAnswer);
 		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
