@@ -26,11 +26,9 @@ router.get(`/test`, async (req, res) => {
 					from: 'answercards',
 					localField: '_id',
 					foreignField: 'questionId',
-					as: 'answercards '
+					as: 'answercards'
 				}
 			},
-			{ $sort: { answercards: -1 } },
-			{ $limit: 30 },
 			{
 				$project: {
 					_id: 1,
@@ -38,7 +36,9 @@ router.get(`/test`, async (req, res) => {
 					createdUser: 1,
 					answerLength: { $size: '$answercards' }
 				}
-			}
+			},
+			{ $sort: { answerLength: -1 } },
+			{ $limit: 30 }
 		]);
 
 		let result = [];

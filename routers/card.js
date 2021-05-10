@@ -188,7 +188,7 @@ router.get('/daily', async (req, res) => {
 						contents: sanitize(questionInfo.contents),
 						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
-						available: sanitize(question.available),
+						available: question.available,
 						profileImg: sanitize(createdUser.profileImg),
 						answerCount: sanitize(answer.length),
 						otherProfileImg: ThreeCards
@@ -220,7 +220,7 @@ router.get('/daily', async (req, res) => {
 						contents: sanitize(questionInfo.contents),
 						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
-						available: sanitize(question.available),
+						available: question.available,
 						profileImg: sanitize(createdUser.profileImg),
 						answerCount: sanitize(answer.length),
 						otherProfileImg: ThreeCards
