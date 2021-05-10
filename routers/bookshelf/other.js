@@ -77,7 +77,7 @@ router.get('/friendList/:id', async (req, res) => {
 });
 
 //다른 사람 커스텀 카드 질문조회 (최신순)
-router.get('/:id/question', authMiddleware, async (req, res) => {
+router.get('/:id/question', async (req, res) => {
 	try {
 		let { page } = req.query;
 		const { id } = req.params;
@@ -114,7 +114,7 @@ router.get('/:id/question', authMiddleware, async (req, res) => {
 });
 
 //다른 사람 커스텀 카드 질문조회 (인기순)
-router.get('/like/:id/question', authMiddleware, async (req, res) => {
+router.get('/like/:id/question', async (req, res) => {
 	try {
 		let { page } = req.query;
 		const { id } = req.params;
@@ -159,6 +159,67 @@ router.get('/like/:id/question', authMiddleware, async (req, res) => {
 			result: result
 		});
 	} catch (err) {
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
+// 다른 사람 작성한 답변 모음 (최신순)
+router.get('/answers/:id', async (req, res) => {
+	try {
+		let { page } = req.query;
+		const { id } = req.params;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+		const allMyAnswer = await AnswerCard.find({ userId: id })
+			.sort('-createdAt')
+			.skip(page * 15)
+			.limit(15);
+
+		return res.send({ allMyAnswer });
+	} catch (err) {
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
+// 다른 사람 작성한 답변 모음 (좋아요순)
+router.get('/answers/:id/like', async (req, res) => {
+	const { id } = req.params;
+	try {
+		let { page } = req.query;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+		const allAnswer = await AnswerCard.aggregate([
+			{ $match: { userId: { $eq: id } } },
+			{
+				$project: {
+					_id: { $toString: '$_id' },
+					questionId: 1,
+					contents: 1,
+					YYMMDD: 1,
+					userId: 1,
+					createdAt: 1
+				}
+			},
+			{
+				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
+			},
+			{ $sort: { likes: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
+			{
+				$project: {
+					_id: 1,
+					contents: 1,
+					YYMMDD: 1,
+					userId: 1,
+					likes: { $size: '$likes' },
+					createdAt: 1
+				}
+			}
+		]);
+		return res.json(allAnswer);
+	} catch (err) {
+		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
 	}
 });

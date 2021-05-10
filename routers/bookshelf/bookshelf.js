@@ -488,8 +488,8 @@ router.get('/answers', authMiddleware, async (req, res) => {
 
 // 내가 작성한 답변 모음 (좋아요순)
 router.get('/answers/like', authMiddleware, async (req, res) => {
-	const user = res.locals.user;
 	try {
+		const user = res.locals.user;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
