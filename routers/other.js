@@ -4,6 +4,23 @@ const authMiddleware = require('../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like } = require('../models');
 const sanitize = require('sanitize-html');
 
+// 다른 사람 책장 월별 확인
+router.get('/books/:YYMM/:id', authMiddleware, async (req, res) => {
+	try {
+		const { YYMM } = req.params;
+		const { id } = req.params;
+		const books = await AnswerCard.aggregate([
+			{ $match: { userId: id, YYMMDD: { $regex: `${YYMM}..` } } },
+			{ $group: { _id: '$YYMMDD', count: { $sum: 1 } } }
+		]).sort({ _id: '-1' });
+		return res.send({
+			books: books
+		});
+	} catch (err) {
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
 // 다른 사람 책장 일별 확인
 router.get('/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => {
 	try {
