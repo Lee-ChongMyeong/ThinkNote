@@ -14,7 +14,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 const passport = require('./auth/passport');
-app.use(passport.initia1lize());
+app.use(passport.initialize());
+
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 const http = Server(app);
 const io = socketIo(http, {
