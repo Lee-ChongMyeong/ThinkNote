@@ -468,6 +468,8 @@ router.patch('/private', authMiddleware, async (req, res) => {
 	}
 });
 
+// 토픽, 질문지
+// 타임스탬프 아시아기준으로
 // 내가 작성한 답변 모음 (최신순)
 router.get('/answers', authMiddleware, async (req, res) => {
 	try {

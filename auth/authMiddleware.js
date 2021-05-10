@@ -4,8 +4,8 @@ require('dotenv').config();
 
 module.exports = (req, res, next) => {
 	try {
-		const { authorization } = req.headers;
-		const [tokenType, tokenValue] = authorization.split(' ');
+		const { authorization1 } = req.headers;
+		const [tokenType, tokenValue] = authorization1.split(' ');
 		if (tokenType !== 'Bearer') {
 			res.json({
 				msg: 'TypeIncorrect'
