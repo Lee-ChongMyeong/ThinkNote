@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../auth/authMiddleware');
-const { AnswerCard, User, QuestionCard, Friend, Like } = require('../models');
+const authMiddleware = require('../../auth/authMiddleware');
+const { AnswerCard, User, QuestionCard, Friend, Like } = require('../../models');
 const sanitize = require('sanitize-html');
 
 // 다른 사람 책장 월별 확인

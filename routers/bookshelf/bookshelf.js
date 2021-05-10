@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard, Search } = require('../models');
-const authMiddleware = require('../auth/authMiddleware');
+const {
+	AnswerCard,
+	User,
+	QuestionCard,
+	Friend,
+	Like,
+	CommentBoard,
+	Search
+} = require('../../models');
+const authMiddleware = require('../../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 const moment = require('moment');
 require('moment-timezone');
@@ -9,9 +17,9 @@ moment.tz.setDefault('Asia/Seoul');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-router.use('/other', require('./other.js'));
-router.use('/moreInfoCard', require('./moreInfoCard'));
-router.use('/like', require('./like'));
+// router.use('/other', require('./other.js'));
+// router.use('/moreInfoCard', require('./moreInfoCard'));
+// router.use('/like', require('./like'));
 // 유저 검색
 // 알파벳 대문자 소문자
 router.post('/searchUser', async (req, res) => {

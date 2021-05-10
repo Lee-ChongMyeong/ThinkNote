@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { AnswerCard, User, Friend, Like, CommentBoard } = require('../models');
-const authMiddleware = require('../auth/authMiddleware');
+const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models');
+const authMiddleware = require('../../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
 const sanitize = require('sanitize-html');
 
@@ -11,6 +11,7 @@ router.get('/:questionId', async (req, res) => {
 	let userId = '';
 	try {
 		const { authorization } = req.headers;
+		console.log(authorization);
 		const [tokenType, tokenValue] = authorization.split(' ');
 		if (tokenType == 'Bearer') {
 			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
@@ -20,7 +21,7 @@ router.get('/:questionId', async (req, res) => {
 		console.log(error);
 		console.log('토큰 해독 에러');
 	}
-
+	console.log('5');
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -181,7 +182,6 @@ router.get('/friend/:questionId', authMiddleware, async (req, res) => {
 });
 
 // 더보기 답변
-// 좋아요순위 나중에이용할것
 router.get('/like/:questionId', async (req, res) => {
 	let userId = '';
 	try {

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { AnswerCard, QuestionCard, Like, Alarm } = require('../models');
-const authMiddleware = require('../auth/authMiddleware');
+const { AnswerCard, QuestionCard, Like, Alarm } = require('../../models');
+const authMiddleware = require('../../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 
 // 답변카드 좋아요 클릭
