@@ -37,10 +37,11 @@ app.use((req, res, next) => {
 	return next();
 });
 // app.set('alarm', alarm)
-const conn = require('./lib/connectSocket');
 alarm.on(
 	'connection',
-	conn
+	function (socket) {
+		require('./lib/connectSocket')(socket, alarm);
+	}
 
 	// function (socket){
 	// 	console.log('New connection');
