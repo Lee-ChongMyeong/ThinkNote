@@ -86,9 +86,9 @@ router.post('/', authMiddleware, async (req, res) => {
 // 질문 랜덤 3개 받기
 router.get('/daily', async (req, res) => {
 	try {
-		const { authorization1 } = req.headers;
+		const { authorization } = req.headers;
 		// 로그인 안했을때
-		if (!authorization1) {
+		if (!authorization) {
 			let admin_id = '608971a172444320da6e8671';
 			const questionCards = await QuestionCard.aggregate([
 				{ $project: { _id: { $toString: '$_id' }, createdUser: 1 } },
@@ -124,7 +124,7 @@ router.get('/daily', async (req, res) => {
 			return res.json({ cards });
 		} else {
 			// 로그인 했을때
-			const [tokenType, tokenValue] = authorization1.split(' ');
+			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
 			const user = await User.findOne({ _id: userId });
