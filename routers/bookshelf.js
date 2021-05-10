@@ -658,8 +658,10 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 			// 질문카드 만든 날짜
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({ userId: userId });
-			console.log(checkCurrentLike);
+			let checkCurrentLike = await Like.findOne({
+				userId: userId,
+				answerId: allAnswer[i]['_id']
+			});
 			if (checkCurrentLike) {
 				currentLike = true;
 			}
@@ -746,8 +748,13 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({ userId: userId });
-			if (checkCurrentLike) currentLike = true;
+			let checkCurrentLike = await Like.findOne({
+				userId: userId,
+				answerId: allAnswer[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
 			answer.push({
 				userId: userInfo._id,
 				userNickname: userInfo.nickname,
@@ -823,8 +830,13 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({ userId: userId });
-			if (checkCurrentLike) currentLike = true;
+			let checkCurrentLike = await Like.findOne({
+				userId: userId,
+				answerId: allAnswer[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
 			answer.push({
 				userId: userInfo._id,
 				userNickname: userInfo.nickname,
