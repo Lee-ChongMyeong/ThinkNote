@@ -646,6 +646,7 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 			}
 		]);
 
+		console.log(allAnswer);
 		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
