@@ -486,4 +486,48 @@ router.get('/answers', authMiddleware, async (req, res) => {
 	}
 });
 
+// 내가 작성한 답변 모음 (좋아요순)
+router.get('/answers/like', authMiddleware, async (req, res) => {
+	const user = res.locals.user;
+	try {
+		let { page } = req.query;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+		const allAnswer = await AnswerCard.aggregate([
+			{ $match: { userId: { $eq: user.userId } } },
+			{
+				$project: {
+					_id: { $toString: '$_id' },
+					questionId: 1,
+					contents: 1,
+					YYMMDD: 1,
+					userId: 1,
+					createdAt: 1
+				}
+			},
+			{
+				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
+			},
+			{ $sort: { likes: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 },
+			{
+				$project: {
+					_id: 1,
+					contents: 1,
+					YYMMDD: 1,
+					userId: 1,
+					likes: { $size: '$likes' },
+					createdAt: 1
+				}
+			}
+		]);
+
+		return res.json(allAnswer);
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
 module.exports = router;

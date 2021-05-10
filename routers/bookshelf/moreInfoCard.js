@@ -180,7 +180,7 @@ router.get('/friend/:questionId', authMiddleware, async (req, res) => {
 	}
 });
 
-// 더보기 답변
+// 더보기 답변 좋아요순
 router.get('/like/:questionId', async (req, res) => {
 	let userId = '';
 	try {

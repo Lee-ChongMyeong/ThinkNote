@@ -24,7 +24,7 @@ router.post('/answerCard', authMiddleware, async (req, res) => {
 		const likeCount = await Like.find({ answerId: answerCardId });
 		const likeCountNum = likeCount.length;
 
-		const alarmSend = require('../lib/sendAlarm');
+		const alarmSend = require('../../lib/sendAlarm');
 		await alarmSend(answer.userId, answerCardId, 'like', user.userId, req.alarm);
 
 		return res.send({ answerCardId, likeCountNum, currentLike: true });
