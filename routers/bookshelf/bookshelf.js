@@ -468,37 +468,22 @@ router.patch('/private', authMiddleware, async (req, res) => {
 	}
 });
 
-//내가 작성한 답변 모음 (최신순)
-// router.get('/answers', authMiddleware, async (req, res) => {
-// 	try {
-// 		const user = res.locals.user;
-// 		let { page } = req.query;
-// 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+// 내가 작성한 답변 모음 (최신순)
+router.get('/answers', authMiddleware, async (req, res) => {
+	try {
+		const user = res.locals.user;
+		let { page } = req.query;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-// 		const allMyAnswer = await AnswerCard.find({ userId: user.userId }).sort('-createdAt').skip(page * 15).limit(15);
-// 		const myQuestion = [];
+		const allMyAnswer = await AnswerCard.find({ userId: user.userId })
+			.sort('-createdAt')
+			.skip(page * 15)
+			.limit(15);
 
-// 		for (let i = 0; i < myCustomQuestionCard.length; i++) {
-// 			let answerData = await AnswerCard.find({
-// 				questionId: myCustomQuestionCard[i]['_id'],
-// 				isOpen: true
-// 			});
-
-// 			myQuestion.push({
-// 				questionId: myCustomQuestionCard[i]['_id'],
-// 				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
-// 				questionTopic: myCustomQuestionCard[i]['topic'],
-// 				questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
-// 				answerCount: answerData.length
-// 			});
-// 		}
-// 		return res.send({
-// 			myQuestionCount: allMyQuestion.length,
-// 			myQuestion
-// 		});
-// 	} catch (err) {
-// 		return res.status(400).json({ msg: 'fail' });
-// 	}
-// });
+		return res.send({ allMyAnswer });
+	} catch (err) {
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
 
 module.exports = router;
