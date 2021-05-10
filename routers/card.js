@@ -74,7 +74,6 @@ router.post('/', authMiddleware, async (req, res) => {
 			});
 		}
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
-
 		res.json({ msg: 'success', cards: cards, result: result });
 		const alarmSend = require('../lib/sendAlarm');
 		await alarmSend(createdUser, questionId, 'answer', user._id, req.alarm);

@@ -252,7 +252,7 @@ router.get('/other/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => 
 				questionCreatedUserNickname: questionUserInfo.nickname,
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
 				questionContents: contents,
-				qeustionTopic: topic,
+				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
 				answerUserNickname: '', //수정 필요!!!!!!!!!!!!
@@ -625,7 +625,8 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
@@ -640,7 +641,8 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 				// answerId: '$_id'
 			}
@@ -650,13 +652,17 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+			// 질문카드 만든 날짜
+			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			answer.push({
 				userId: UserInfo._id,
 				userNickname: UserInfo.nickname,
 				userProfileImg: UserInfo.profileImg,
 				answerId: allAnswer[i]['_id'],
 				answerContents: sanitize(allAnswer[i]['contents']),
-				answerLikes: allAnswer[i]['likes']
+				answerLikes: allAnswer[i]['likes'],
+				commentCount: Comment.length,
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		return res.send({ answer });
@@ -690,7 +696,8 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
@@ -705,13 +712,15 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 			}
 		]);
 
 		const answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
+			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			answer.push({
 				userId: userInfo._id,
@@ -719,7 +728,9 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 				userProfileImg: userInfo.profileImg,
 				answerId: allAnswer[i]['_id'],
 				answerContents: sanitize(allAnswer[i]['contents']),
-				answerLikes: allAnswer[i]['likes']
+				answerLikes: allAnswer[i]['likes'],
+				commentCount: Comment.length,
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		return res.json(answer);
@@ -744,7 +755,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					YYMMDD: 1,
-					userId: 1
+					userId: 1,
+					createdAt: 1
 				}
 			},
 			{
@@ -759,7 +771,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 					contents: 1,
 					YYMMDD: 1,
 					userId: 1,
-					likes: { $size: '$likes' }
+					likes: { $size: '$likes' },
+					createdAt: 1
 				}
 				// answerId: '$_id'
 			}
@@ -768,13 +781,16 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 		let answer = [];
 		for (let i = 0; i < allAnswer.length; i++) {
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			answer.push({
 				userId: userInfo._id,
 				userNickname: userInfo.nickname,
 				userProfileImg: userInfo.profileImg,
 				answerId: allAnswer[i]['_id'],
 				answerContents: allAnswer[i]['contents'],
-				answerLikes: allAnswer[i]['likes']
+				answerLikes: allAnswer[i]['likes'],
+				commentCount: Comment.length,
+				createdAt: allAnswer[i]['createdAt']
 			});
 		}
 		// 유저 정보 넣어주기 이름이랑 값

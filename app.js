@@ -26,7 +26,8 @@ const http = Server(app);
 const io = socketIo(http, {
 	cors: {
 		origin: '*',
-		methods: ['GET', 'POST']
+		methods: ['GET', 'POST'],
+		credentials: true
 	}
 });
 
@@ -79,8 +80,6 @@ alarm.on('connection', function (socket) {
 	});
 
 	socket.on('openAlarm', async function (data) {
-		console.log('======');
-		console.log(data.id);
 		await Alarm.updateMany({ userId: data.id }, { $set: { checked: false } });
 	});
 
