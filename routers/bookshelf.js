@@ -602,6 +602,19 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 // 더보기 답변들
 // 기본 내려주기
 router.get('/moreInfoCard/:questionId', async (req, res) => {
+	let userId = '';
+	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+	} catch (error) {
+		console.log(error);
+		console.log('토큰 해독 에러');
+	}
+
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -644,6 +657,9 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 			const UserInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			// 질문카드 만든 날짜
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({ userId: userId });
+			if (checkCurrentLike) currentLike = true;
 			answer.push({
 				userId: UserInfo._id,
 				userNickname: UserInfo.nickname,
@@ -652,7 +668,8 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 				answerContents: sanitize(allAnswer[i]['contents']),
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['createdAt']
+				createdAt: allAnswer[i]['createdAt'],
+				like: currentLike
 			});
 		}
 		return res.send({ answer });
@@ -664,6 +681,19 @@ router.get('/moreInfoCard/:questionId', async (req, res) => {
 // 더보기 답변들
 // 친구가 쓴 것만 (로그인 안했을 경우는 로그인 필요한 기능이라고 뜨게 말하기)
 router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) => {
+	let userId = '';
+	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+	} catch (error) {
+		console.log(error);
+		console.log('토큰 해독 에러');
+	}
+
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -712,6 +742,9 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 		for (let i = 0; i < allAnswer.length; i++) {
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({ userId: userId });
+			if (checkCurrentLike) currentLike = true;
 			answer.push({
 				userId: userInfo._id,
 				userNickname: userInfo.nickname,
@@ -720,7 +753,8 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 				answerContents: sanitize(allAnswer[i]['contents']),
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['createdAt']
+				createdAt: allAnswer[i]['createdAt'],
+				like: currentLike
 			});
 		}
 		return res.json(answer);
@@ -732,6 +766,19 @@ router.get('/moreInfoCard/friend/:questionId', authMiddleware, async (req, res) 
 // 더보기 답변
 // 좋아요순위 나중에이용할것
 router.get('/moreInfoCard/like/:questionId', async (req, res) => {
+	let userId = '';
+	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+	} catch (error) {
+		console.log(error);
+		console.log('토큰 해독 에러');
+	}
+
 	try {
 		const { questionId } = req.params;
 		let { page } = req.query;
@@ -772,6 +819,9 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 		for (let i = 0; i < allAnswer.length; i++) {
 			const userInfo = await User.findOne({ _id: allAnswer[i]['userId'] });
 			const Comment = await CommentBoard.find({ cardId: allAnswer[i]['_id'] });
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({ userId: userId });
+			if (checkCurrentLike) currentLike = true;
 			answer.push({
 				userId: userInfo._id,
 				userNickname: userInfo.nickname,
@@ -780,7 +830,8 @@ router.get('/moreInfoCard/like/:questionId', async (req, res) => {
 				answerContents: allAnswer[i]['contents'],
 				answerLikes: allAnswer[i]['likes'],
 				commentCount: Comment.length,
-				createdAt: allAnswer[i]['createdAt']
+				createdAt: allAnswer[i]['createdAt'],
+				like: currentLike
 			});
 		}
 		// 유저 정보 넣어주기 이름이랑 값
