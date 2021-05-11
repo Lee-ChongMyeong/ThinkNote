@@ -100,6 +100,8 @@ router.get('/question', authMiddleware, async (req, res) => {
 			{ $limit: 15 },
 			{
 				$project: {
+					topic: 1,
+					createdAt: 1,
 					_id: 1,
 					contents: 1,
 					createdUser: 1,
