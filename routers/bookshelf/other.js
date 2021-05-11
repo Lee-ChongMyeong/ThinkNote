@@ -216,7 +216,7 @@ router.get('/answers/:id', authMiddleware, async (req, res) => {
 			});
 		}
 
-		return res.send({ answerCount, allMyAnswer });
+		return res.send({ answerCount: answerCount.length, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
@@ -288,7 +288,7 @@ router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 				currentLike: currentLike
 			});
 		}
-		return res.send({ answerCount, allMyAnswer });
+		return res.send({ answerCount: answerCount.length, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
