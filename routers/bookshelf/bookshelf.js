@@ -61,12 +61,20 @@ router.post('/searchUserDetail', async (req, res) => {
 			{ _id: id },
 			{ createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 }
 		); // 다른사람 ID
+		// let begintime = Date.now();
+		// const checkSearch = await Search.find({
+		// 	searchUserId: otherUserInfo._id,
+		// 	userId: myUserInfo.userId
+		// });
+		// const checkAllSearch = await Search.find({ userId: myUserInfo.userId });
+		// console.log(Date.now() - begintime);
 
-		const checkSearch = await Search.find({
-			searchUserId: otherUserInfo._id,
-			userId: myUserInfo.userId
-		});
-		const checkAllSearch = await Search.find({ userId: myUserInfo.userId });
+		let begintime = Date.now();
+		const [checkSearch, checkAllSearch] = await Promise.all([
+			Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId }),
+			Search.find({ userId: myUserInfo.userId })
+		]);
+		console.log(Date.now() - begintime);
 
 		if (checkAllSearch.length >= 6) {
 			await Search.deleteOne({ userId: myUserInfo.userId });
@@ -221,7 +229,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		let user;
 		const { authorization } = req.headers;
 		console.log(authorization);
-		if (authorization !== 'Bearer undefined') {
+		if (authorization && authorization !== 'Bearer undefined') {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
 			const { userId } = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);

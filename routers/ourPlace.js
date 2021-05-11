@@ -7,6 +7,7 @@ require('dotenv').config();
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
+const sanitize = require('sanitize-html');
 
 // 랜덤으로 질문에 답글이 하나 이상 달린 글 출력
 router.get('/cards', async (req, res) => {
@@ -38,9 +39,9 @@ router.get('/cards', async (req, res) => {
 			let user = await User.findOne({ _id: question.createdUser });
 			temp['questions'] = {
 				questionId: question._id,
-				contents: question.contents,
+				contents: sanitize(question.contents),
 				topic: question.topic,
-				nicname: user.nickname,
+				nicname: sanitize(user.nickname),
 				answerCount: answerData.length
 			};
 
@@ -63,9 +64,9 @@ router.get('/cards', async (req, res) => {
 				temp['answers'].push({
 					userId: answerUser._id,
 					profileImg: answerUser.profileImg,
-					nickname: answerUser.nickname,
+					nickname: sanitize(answerUser.nickname),
 					answerId: answer._id,
-					contents: answer.contents,
+					contents: sanitize(answer.contents),
 					like: like,
 					likeCount: likeCount.length,
 					commentCount: commentCount.length,
