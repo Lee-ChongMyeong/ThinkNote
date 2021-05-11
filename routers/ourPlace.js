@@ -40,8 +40,6 @@ router.get('/cards', async (req, res) => {
 				await AnswerCard.find({ questionId: question._id, isOpen: true }),
 				await User.findOne({ _id: question.createdUser })
 			]);
-			// let answerData = await AnswerCard.find({ questionId: question._id, isOpen: true });
-			// let user = await User.findOne({ _id: question.createdUser });
 			temp['questions'] = {
 				questionId: question._id,
 				contents: sanitize(question.contents),
@@ -61,9 +59,6 @@ router.get('/cards', async (req, res) => {
 						await CommentBoard.find({ cardId: answer._id }),
 						await Like.find({ answerId: answer._id })
 					]);
-					// let answerUser = await User.findOne({ _id: answer.userId });
-					// let commentCount = await CommentBoard.find({ cardId: answer._id });
-					// let likeCount = await Like.find({ answerId: answer._id });
 					let like = false;
 					if (userId) {
 						let likeCheck = await Like.findOne({
