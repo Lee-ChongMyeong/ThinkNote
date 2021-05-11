@@ -144,8 +144,8 @@ router.get('/auth/user/:id', async (req, res) => {
 		const userInfo = await User.findOne({ _id: id });
 		const otherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherAnswer = await AnswerCard.find({ userId: id });
-		res.json({
-			nickname: userInfo.nickname,
+		return res.json({
+			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
 			introduce: userInfo.introduce,
 			topic: userInfo.preferredTopic,
@@ -194,13 +194,13 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 			booksDiary.push({
 				questionId: _id,
 				questionCreatedUserId: questionUserInfo._id,
-				questionCreatedUserNickname: questionUserInfo.nickname,
+				questionCreatedUserNickname: sanitize(questionUserInfo.nickname),
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
-				questionContents: contents,
+				questionContents: sanitize(contents),
 				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
-				answerContents: booksDetail[i]['contents'],
-				answerUserNickname: user.nickname,
+				answerContents: sanitize(booksDetail[i]['contents']),
+				answerUserNickname: sanitize(user.nickname),
 				isOpen: booksDetail[i]['isOpen'],
 				likeCount: likeCountNum,
 				commentCount: commentCount.length
@@ -234,14 +234,13 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		const { contents, createdUser, topic, _id } = await QuestionCard.findOne({
 			_id: booksDetail.questionId
 		});
-		const questionUserInfo = await User.findOne({ _id: createdUser });
+		const [questionUserInfo, answerUserInfo, likeCount] = await Promise.all([
+			await User.findOne({ _id: createdUser }),
+			await User.findOne({ _id: booksDetail.userId }),
+			await Like.find({ answerId: booksDetail['_id'] })
+		]);
 
-		//답변단 사람 찾기
-		const answerUserInfo = await User.findOne({ _id: booksDetail.userId });
-
-		const likeCount = await Like.find({ answerId: booksDetail['_id'] });
 		const likeCountNum = likeCount.length;
-		// const currentLike = false;
 		if (user) {
 			const checkCurrentLike = await Like.findOne({
 				userId: user.userId,
@@ -259,7 +258,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		bookCardDetail.push({
 			questionId: _id,
 			questionCreatedUserId: questionUserInfo._id,
-			questionCreatedUserNickname: questionUserInfo.nickname,
+			questionCreatedUserNickname: sanitize(questionUserInfo.nickname),
 			profileImg: questionUserInfo.profileImg,
 			questionTopic: topic,
 			questionContents: sanitize(contents),
@@ -305,13 +304,17 @@ router.post('/question', authMiddleware, async (req, res) => {
 			const originContents = await QuestionCard.findOne({ contents: contents });
 			if (!originContents) {
 				const CustomQuestion = await QuestionCard.create({
-					topic: sanitize(topic),
+					topic: topic,
 					contents: sanitize(contents),
 					createdUser: user.userId,
 					createdAt: moment().format('YYYY-MM-DD')
 				});
 				const { nickname } = await User.findOne({ _id: user.userId });
-				return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+				return res.send({
+					CustomQuestion,
+					profileImg: user.profileImg,
+					nickname: sanitize(nickname)
+				});
 			} else {
 				return res.send({ msg: '이미 존재하는 질문입니다' });
 			}
@@ -376,15 +379,17 @@ router.get('/friendList', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		const friendList = await Friend.find({ followingId: user.userId });
-		const friends = [];
-		for (let i = 0; i < friendList.length; i++) {
-			const friendInfo = await User.findOne({ _id: friendList[i]['followerId'] });
-			friends.push({
-				friendId: friendInfo._id,
-				friendNickname: sanitize(friendInfo.nickname),
-				friendProfileImg: friendInfo.profileImg
-			});
-		}
+
+		const friends = await Promise.all(
+			friendList.map(async (friend) => {
+				const friendInfo = await User.findOne({ _id: friend['followerId'] });
+				return {
+					friendId: friendInfo._id,
+					friendNickname: sanitize(friendInfo.nickname),
+					friendProfileImg: friendInfo.profileImg
+				};
+			})
+		);
 		return res.send({ friends });
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
@@ -404,7 +409,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 			questionId: questionInfo._id,
 			questionContents: sanitize(questionInfo.contents),
 			questionCreatedUserId: userInfo._id,
-			questionCreatedUserNickname: userInfo.nickname,
+			questionCreatedUserNickname: sanitize(userInfo.nickname),
 			questionCreatedUserProfileImg: userInfo.profileImg,
 			questionTopic: questionInfo.topic,
 			answerCount: answerData.length
@@ -426,22 +431,21 @@ router.get('/question', authMiddleware, async (req, res) => {
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
-		const myQuestion = [];
-
-		for (let i = 0; i < myCustomQuestionCard.length; i++) {
-			let answerData = await AnswerCard.find({
-				questionId: myCustomQuestionCard[i]['_id'],
-				isOpen: true
-			});
-
-			myQuestion.push({
-				questionId: myCustomQuestionCard[i]['_id'],
-				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
-				questionTopic: myCustomQuestionCard[i]['topic'],
-				questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
-				answerCount: answerData.length
-			});
-		}
+		const myQuestion = await Promise.all(
+			myCustomQuestionCard.map(async (myCard) => {
+				let answerData = await AnswerCard.find({
+					questionId: myCard['_id'],
+					isOpen: true
+				});
+				return {
+					questionId: myCard['_id'],
+					questionContents: sanitize(myCard['contents']),
+					questionTopic: myCard['topic'],
+					questionCreatedAt: myCard['createdAt'],
+					answerCount: answerData.length
+				};
+			})
+		);
 		return res.send({
 			myQuestionCount: allMyQuestion.length,
 			myQuestion
@@ -477,9 +481,6 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 					as: 'answercards'
 				}
 			},
-			{ $sort: { createdAt: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
 			{
 				$project: {
 					topic: 1,
@@ -489,7 +490,10 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 					createdUser: 1,
 					answerLength: { $size: '$answercards' }
 				}
-			}
+			},
+			{ $sort: { answerLength: -1, createdAt: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
 		]);
 
 		let result = [];
@@ -533,40 +537,43 @@ router.get('/answers', authMiddleware, async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		let allMyAnswer = [];
 		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
 
-		for (let i = 0; i < myAnswerInfo.length; i++) {
-			//좋아요 상태확인
-			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({
-				userId: user.userId,
-				answerId: myAnswerInfo[i]['_id']
-			});
-			if (checkCurrentLike) {
-				currentLike = true;
-			}
-
-			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
-			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
-			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
-			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
-			allMyAnswer.push({
-				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
-				questionCreatedUserId: questionCreatedUserInfo._id,
-				questiontopic: questionInfo.topic,
-				questionContents: questionInfo.contents,
-				answerContents: myAnswerInfo[i]['contents'],
-				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
-				likeCount: like.length,
-				commentCount: comment.length,
-				currentLike: currentLike
-			});
-		}
-
+		const allMyAnswer = await Promise.all(
+			myAnswerInfo.map(async (myAnswer) => {
+				//좋아요 상태확인
+				let currentLike = false;
+				let checkCurrentLike = await Like.findOne({
+					userId: user.userId,
+					answerId: myAnswer['_id']
+				});
+				if (checkCurrentLike) {
+					currentLike = true;
+				}
+				const questionInfo = await QuestionCard.findOne({
+					_id: myAnswer['questionId']
+				});
+				const [questionCreatedUserInfo, like, comment] = await Promise.all([
+					User.findOne({ id: questionInfo.userId }),
+					Like.find({ answerId: myAnswer['_id'] }),
+					CommentBoard.find({ cardId: myAnswer['_id'] })
+				]);
+				return {
+					questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
+					questionCreatedUserId: questionCreatedUserInfo._id,
+					questiontopic: questionInfo.topic,
+					questionContents: sanitize(questionInfo.contents),
+					answerContents: sanitize(myAnswer['contents']),
+					answerCreatedAt: myAnswer['YYMMDD'],
+					likeCount: like.length,
+					commentCount: comment.length,
+					currentLike: currentLike
+				};
+			})
+		);
 		return res.send({ allMyAnswer });
 	} catch (err) {
 		console.log(err);
@@ -596,9 +603,6 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 			{
 				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
 			},
-			{ $sort: { likes: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
 			{
 				$project: {
 					questionId: 1,
@@ -609,35 +613,44 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 					likes: { $size: '$likes' },
 					createdAt: 1
 				}
-			}
+			},
+			{ $sort: { likes: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
 		]);
-		let allMyAnswer = [];
-		for (let i = 0; i < myAnswerInfo.length; i++) {
-			//좋아요 상태확인
-			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({
-				userId: user.userId,
-				answerId: myAnswerInfo[i]['_id']
-			});
-			if (checkCurrentLike) {
-				currentLike = true;
-			}
-			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
-			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
-			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
-			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
-			allMyAnswer.push({
-				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
-				questionCreatedUserId: questionCreatedUserInfo._id,
-				questiontopic: questionInfo.topic,
-				questionContents: questionInfo.contents,
-				answerContents: myAnswerInfo[i]['contents'],
-				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
-				likeCount: like.length,
-				commentCount: comment.length,
-				currentLike: currentLike
-			});
-		}
+
+		const allMyAnswer = await Promise.all(
+			myAnswerInfo.map(async (myAnswer) => {
+				//좋아요 상태확인
+				let currentLike = false;
+				let checkCurrentLike = await Like.findOne({
+					userId: user.userId,
+					answerId: myAnswer['_id']
+				});
+				if (checkCurrentLike) {
+					currentLike = true;
+				}
+				const questionInfo = await QuestionCard.findOne({
+					_id: myAnswer['questionId']
+				});
+				const [questionCreatedUserInfo, like, comment] = await Promise.all([
+					User.findOne({ id: questionInfo.userId }),
+					Like.find({ answerId: myAnswer['_id'] }),
+					CommentBoard.find({ cardId: myAnswer['_id'] })
+				]);
+				return {
+					questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
+					questionCreatedUserId: questionCreatedUserInfo._id,
+					questiontopic: questionInfo.topic,
+					questionContents: sanitize(questionInfo.contents),
+					answerContents: sanitize(myAnswer['contents']),
+					answerCreatedAt: myAnswer['YYMMDD'],
+					likeCount: like.length,
+					commentCount: comment.length,
+					currentLike: currentLike
+				};
+			})
+		);
 		return res.json(allMyAnswer);
 	} catch (err) {
 		console.log(err);
