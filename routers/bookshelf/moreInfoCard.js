@@ -4,7 +4,6 @@ const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models')
 const jwt = require('jsonwebtoken');
 const sanitize = require('sanitize-html');
 
-// 인기, 팔로워, 최신
 router.get('/:questionId', async (req, res) => {
 	const { authorization } = req.headers;
 	let userId = '';
