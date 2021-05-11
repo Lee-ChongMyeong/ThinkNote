@@ -69,7 +69,7 @@ router.get('/:questionId', async (req, res) => {
 				.sort({ likes: -1, YYMMDD: -1 })
 				.skip(page * 20)
 				.limit(20);
-		} else {
+		} else if (userId && sort == 'follower') {
 			const followerId = await Friend.find({ followingId: userId });
 			const friendList = [];
 			for (let i = 0; i < followerId.length; i++) {
