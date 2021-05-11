@@ -479,17 +479,23 @@ router.patch('/private', authMiddleware, async (req, res) => {
 // 토픽, 질문지
 // 타임스탬프 아시아기준으로
 // 내가 작성한 답변 모음 (최신순)
-// 토픽, 질문, 답변, 댓글수, 좋아요수, 질문만든 사람 닉네임
+// 토픽, 질문, 답변, 댓글수, 좋아요수, 질문만든 사람 닉네임 // 답변갯수
 router.get('/answers', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const allMyAnswer = await AnswerCard.find({ userId: user.userId })
+		allMyAnswer = [];
+
+		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
+
+		for (let i = 0; i < myAnswerInfo.length; i++) {
+
+		}
 
 		return res.send({ allMyAnswer });
 	} catch (err) {
