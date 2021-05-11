@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const {
@@ -25,7 +26,6 @@ router.post('/searchUser', async (req, res) => {
 		if (!words) {
 			res.send({ userInfo: 'none' });
 		}
-		// ({ userId: { $ne: user.userId }, questionId: questionId })
 		const userInfo = await User.find(
 			{ provider: { $ne: '탈퇴' }, nickname: new RegExp(`${words}`) },
 			{ createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 }
@@ -61,19 +61,11 @@ router.post('/searchUserDetail', async (req, res) => {
 			{ _id: id },
 			{ createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 }
 		); // 다른사람 ID
-		//let begintime = Date.now();
-		const checkSearch = await Search.find({
-			searchUserId: otherUserInfo._id,
-			userId: myUserInfo.userId
-		});
-		const checkAllSearch = await Search.find({ userId: myUserInfo.userId });
-		//console.log(Date.now() - begintime);
-		// let begintime = Date.now();
-		// const [checkSearch, checkAllSearch] = await Promise.all([
-		// 	Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId }),
-		// 	Search.find({ userId: myUserInfo.userId })
-		// ]);
-		// console.log(Date.now() - begintime);
+
+		const [checkSearch, checkAllSearch] = await Promise.all([
+			Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId }),
+			Search.find({ userId: myUserInfo.userId })
+		]);
 
 		if (checkAllSearch.length >= 6) {
 			await Search.deleteOne({ userId: myUserInfo.userId });
