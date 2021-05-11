@@ -537,6 +537,7 @@ router.get('/answers', authMiddleware, async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
+		const answerCount = await AnswerCard.find({ userId: user.userId });
 		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
 			.sort('-createdAt')
 			.skip(page * 15)
@@ -574,7 +575,7 @@ router.get('/answers', authMiddleware, async (req, res) => {
 				};
 			})
 		);
-		return res.send({ allMyAnswer });
+		return res.send({ answerCount, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
@@ -588,6 +589,7 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
+		const answerCount = await AnswerCard.find({ userId: user.userId });
 		const myAnswerInfo = await AnswerCard.aggregate([
 			{ $match: { userId: { $eq: user.userId } } },
 			{
@@ -651,7 +653,7 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 				};
 			})
 		);
-		return res.json(allMyAnswer);
+		return res.json(answerCount, allMyAnswer);
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
