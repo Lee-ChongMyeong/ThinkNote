@@ -471,6 +471,7 @@ router.patch('/private', authMiddleware, async (req, res) => {
 // 토픽, 질문지
 // 타임스탬프 아시아기준으로
 // 내가 작성한 답변 모음 (최신순)
+// 토픽, 질문, 답변, 댓글수, 좋아요수, 질문만든 사람 닉네임
 router.get('/answers', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
