@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { AnswerCard, QuestionCard, Like, Alarm } = require('../../models');
+const { AnswerCard, Like, Alarm } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
-const sanitize = require('sanitize-html');
 
 // 답변카드 좋아요 클릭
 router.post('/answerCard', authMiddleware, async (req, res) => {
@@ -73,65 +72,6 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 		return;
 	} catch (err) {
 		console.log(err);
-		return res.status(400).json({ msg: 'fail' });
-	}
-});
-
-// 내 커스텀 카드 질문조회(답변 많은 순)
-router.get('/question', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		let { page } = req.query;
-		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-
-		const myCustomQuestionCard = await QuestionCard.aggregate([
-			{ $match: { createdUser: { $eq: user.userId } } },
-			{
-				$project: {
-					_id: { $toString: '$_id' },
-					createdAt: 1,
-					topic: 1,
-					contents: 1,
-					createdUser: 1
-				}
-			},
-			{
-				$lookup: {
-					from: 'answercards',
-					localField: '_id',
-					foreignField: 'questionId',
-					as: 'answercards'
-				}
-			},
-			{ $sort: { answercards: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
-			{
-				$project: {
-					topic: 1,
-					createdAt: 1,
-					_id: 1,
-					contents: 1,
-					createdUser: 1,
-					answerLength: { $size: '$answercards' }
-				}
-			}
-		]);
-
-		let result = [];
-		for (let i = 0; i < myCustomQuestionCard.length; i++) {
-			result.push({
-				questionId: myCustomQuestionCard[i]['_id'],
-				questionContents: sanitize(myCustomQuestionCard[i]['contents']),
-				questionTopic: myCustomQuestionCard[i]['topic'],
-				questionCreatedAt: myCustomQuestionCard[i]['createdAt'],
-				answerCount: myCustomQuestionCard[i]['answerLength']
-			});
-		}
-		return res.send({
-			result: result
-		});
-	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
