@@ -35,11 +35,7 @@ router.get(
 	'/naver/oauth',
 	passport.authenticate('naver', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(
-			`http://thinknote.me.s3-website.ap-northeast-2.amazonaws.com/auth/${makeToken(
-				req.user._id
-			)}`
-		);
+		res.redirect(`https://thinknote.us/auth/${makeToken(req.user._id)}`);
 	}
 );
 
@@ -57,11 +53,7 @@ router.get(
 	'/google/oauth',
 	passport.authenticate('google', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(
-			`http://thinknote.me.s3-website.ap-northeast-2.amazonaws.com/auth/${makeToken(
-				req.user._id
-			)}`
-		);
+		res.redirect(`https://thinknote.us/auth/${makeToken(req.user._id)}`);
 	}
 );
 
