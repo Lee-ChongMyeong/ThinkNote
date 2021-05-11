@@ -293,4 +293,40 @@ router.get('/recentAnswer/:userId', async (req, res) => {
 	return res.status(200).json({ msg: 'success', answerData });
 });
 
+// 내 답변 삭제
+router.delete('/myAnswer', authMiddleware, async (req, res) => {
+	try {
+		const user = res.locals.user;
+		const { answerId } = req.body;
+		const checkUser = await AnswerCard.findOne({ _id: answerId });
+		if (checkUser.userId == user.userId) {
+			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
+			return res.status(200).json({ msg: '삭제 성공ㅠㅠ' });
+		} else {
+			return res.status(400).json({ msg: '본인의 글만 삭제할 수 있습니다.' });
+		}
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ msg: 'fail2' });
+	}
+});
+
+// 내 답변 수정
+router.patch('/myAnswer', authMiddleware, async (req, res) => {
+	try {
+		const user = res.locals.user;
+		const { answerId, contents } = req.body;
+		const checkUser = await AnswerCard.findOne({ _id: answerId });
+		if (checkUser.userId == user.userId) {
+			await AnswerCard.updateOne({ _id: answerId }, { $set: { contents } });
+			return res.status(200).json({ msg: '수정 성공!' });
+		} else {
+			return res.status(400).json({ msg: '본인의 글만 수정할 수 있습니다.' });
+		}
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
 module.exports = router;
