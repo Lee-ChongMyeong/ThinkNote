@@ -86,7 +86,15 @@ router.get('/question', authMiddleware, async (req, res) => {
 
 		const myCustomQuestionCard = await QuestionCard.aggregate([
 			{ $match: { createdUser: { $eq: user.userId } } },
-			{ $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+			{
+				$project: {
+					_id: { $toString: '$_id' },
+					createdAt: 1,
+					topic: 1,
+					contents: 1,
+					createdUser: 1
+				}
+			},
 			{
 				$lookup: {
 					from: 'answercards',
