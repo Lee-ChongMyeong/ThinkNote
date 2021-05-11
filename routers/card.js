@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
@@ -42,9 +43,11 @@ router.post('/', authMiddleware, async (req, res) => {
 		for (let question of todayQuestion) {
 			let ThreeCards = [];
 			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-			let createdUser = await User.findOne({ _id: questionInfo.createdUser });
-			let answer = await AnswerCard.find({ questionId: question.questionId });
-			let threeAnswer = await AnswerCard.find({ questionId: question.questionId }).limit(3);
+			const [createdUser, answer, threeAnswer] = await Promise.all([
+				User.findOne({ _id: questionInfo.createdUser }),
+				AnswerCard.find({ questionId: question.questionId }),
+				AnswerCard.find({ questionId: question.questionId }).limit(3)
+			]);
 			for (let answerData of threeAnswer) {
 				let createdUser = await User.findOne({ _id: answerData.userId });
 				ThreeCards.push({
@@ -88,32 +91,37 @@ router.get('/daily', async (req, res) => {
 				{ $match: { createdUser: { $in: [admin_id] } } },
 				{ $sample: { size: 3 } }
 			]);
-			let cards = [];
-			for (let question of questionCards) {
-				let ThreeCards = [];
-				let questionInfo = await QuestionCard.findOne({ _id: question._id });
-				let createdUser = await User.findOne({ _id: question.createdUser });
-				let answer = await AnswerCard.find({ questionId: question._id });
-				let threeAnswer = await AnswerCard.find({ questionId: question._id }).limit(3);
-				for (let answerData of threeAnswer) {
-					let createdUser = await User.findOne({ _id: answerData.userId });
-					ThreeCards.push({
-						otherProfileImg: createdUser.profileImg,
-						otherUserId: createdUser._id
-					});
-				}
-				cards.push({
-					cardId: questionInfo._id,
-					topic: questionInfo.topic,
-					contents: sanitize(questionInfo.contents),
-					createdUser: sanitize(createdUser.nickname),
-					createdUserId: createdUser._id,
-					available: true,
-					profileImg: sanitize(createdUser.profileImg),
-					answerCount: sanitize(answer.length),
-					otherProfileImg: ThreeCards
-				});
-			}
+
+			const cards = await Promise.all(
+				questionCards.map(async (question) => {
+					let ThreeCards = [];
+					let questionInfo = await QuestionCard.findOne({ _id: question._id });
+					const [createdUser, answer, threeAnswer] = await Promise.all([
+						User.findOne({ _id: questionInfo.createdUser }),
+						AnswerCard.find({ questionId: question._id }),
+						AnswerCard.find({ questionId: question._id }).limit(3)
+					]);
+					for (let answerData of threeAnswer) {
+						let createdUser = await User.findOne({ _id: answerData.userId });
+						ThreeCards.push({
+							otherProfileImg: createdUser.profileImg,
+							otherUserId: createdUser._id
+						});
+					}
+					return {
+						cardId: questionInfo._id,
+						topic: questionInfo.topic,
+						contents: sanitize(questionInfo.contents),
+						createdUser: sanitize(createdUser.nickname),
+						createdUserId: createdUser._id,
+						available: true,
+						profileImg: sanitize(createdUser.profileImg),
+						answerCount: sanitize(answer.length),
+						otherProfileImg: ThreeCards
+					};
+				})
+			);
+
 			return res.json({ cards });
 		} else {
 			// 로그인 했을때
@@ -157,68 +165,75 @@ router.get('/daily', async (req, res) => {
 					};
 					await QuestionDaily.create(temp);
 				}
-				let cards = [];
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
-				for (let question of todayQuestion) {
-					let ThreeCards = [];
-					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
-					let answer = await AnswerCard.find({ questionId: question.questionId });
-					let threeAnswer = await AnswerCard.find({
-						questionId: question.questionId
-					}).limit(3);
-					for (let answerData of threeAnswer) {
-						let createdUser = await User.findOne({ _id: answerData.userId });
-						ThreeCards.push({
-							otherProfileImg: createdUser.profileImg,
-							otherUserId: createdUser._id
-						});
-					}
 
-					cards.push({
-						cardId: questionInfo._id,
-						topic: questionInfo.topic,
-						contents: sanitize(questionInfo.contents),
-						createdUser: sanitize(createdUser.nickname),
-						createdUserId: createdUser._id,
-						available: question.available,
-						profileImg: sanitize(createdUser.profileImg),
-						answerCount: sanitize(answer.length),
-						otherProfileImg: ThreeCards
-					});
-				}
+				const cards = await Promise.all(
+					todayQuestion.map(async (question) => {
+						let ThreeCards = [];
+						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+						const [createdUser, answer, threeAnswer] = await Promise.all([
+							User.findOne({ _id: questionInfo.createdUser }),
+							AnswerCard.find({ questionId: question.questionId }),
+							AnswerCard.find({ questionId: question.questionId }).limit(3)
+						]);
+
+						for (let answerData of threeAnswer) {
+							let createdUser = await User.findOne({ _id: answerData.userId });
+							ThreeCards.push({
+								otherProfileImg: createdUser.profileImg,
+								otherUserId: createdUser._id
+							});
+						}
+
+						return {
+							cardId: questionInfo._id,
+							topic: questionInfo.topic,
+							contents: sanitize(questionInfo.contents),
+							createdUser: sanitize(createdUser.nickname),
+							createdUserId: createdUser._id,
+							available: question.available,
+							profileImg: sanitize(createdUser.profileImg),
+							answerCount: sanitize(answer.length),
+							otherProfileImg: ThreeCards
+						};
+					})
+				);
 				return res.json({ cards });
 			} else {
 				// 재방문인경우
-				let cards = [];
-
 				const todayQuestion = await QuestionDaily.find({ userId: userId, YYMMDD: today });
 
-				for (let question of todayQuestion) {
-					let ThreeCards = [];
-					let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-					let createdUser = await User.findOne({ _id: questionInfo.createdUser });
-					let answer = await AnswerCard.find({ questionId: question.questionId });
-					let threeAnswer = await AnswerCard.find({
-						questionId: question.questionId
-					}).limit(3);
-					for (let answerData of threeAnswer) {
-						let createdUser = await User.findOne({ _id: answerData.userId });
-						ThreeCards.push({ otherProfileImg: createdUser.profileImg });
-					}
+				const cards = await Promise.all(
+					todayQuestion.map(async (question) => {
+						let ThreeCards = [];
+						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+						const [createdUser, answer, threeAnswer] = await Promise.all([
+							User.findOne({ _id: questionInfo.createdUser }),
+							AnswerCard.find({ questionId: question.questionId }),
+							AnswerCard.find({ questionId: question.questionId }).limit(3)
+						]);
 
-					cards.push({
-						cardId: questionInfo._id,
-						topic: questionInfo.topic,
-						contents: sanitize(questionInfo.contents),
-						createdUser: sanitize(createdUser.nickname),
-						createdUserId: createdUser._id,
-						available: question.available,
-						profileImg: sanitize(createdUser.profileImg),
-						answerCount: sanitize(answer.length),
-						otherProfileImg: ThreeCards
-					});
-				}
+						for (let answerData of threeAnswer) {
+							let createdUser = await User.findOne({ _id: answerData.userId });
+							ThreeCards.push({
+								otherProfileImg: createdUser.profileImg,
+								otherUserId: createdUser._id
+							});
+						}
+
+						return {
+							cardId: questionInfo._id,
+							topic: questionInfo.topic,
+							contents: sanitize(questionInfo.contents),
+							createdUser: sanitize(createdUser.nickname),
+							createdUserId: createdUser._id,
+							available: question.available,
+							profileImg: sanitize(createdUser.profileImg),
+							answerCount: sanitize(answer.length),
+							otherProfileImg: ThreeCards
+						};
+					})
+				);
 				return res.json({ cards });
 			}
 		}
