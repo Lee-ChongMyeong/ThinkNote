@@ -205,6 +205,7 @@ router.get('/daily', async (req, res) => {
 					todayQuestion.map(async (question) => {
 						let ThreeCards = [];
 						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+						console.log('1');
 						console.log(questionInfo);
 						const [createdUser, answer, threeAnswer] = await Promise.all([
 							User.findOne({ _id: questionInfo.createdUser }),
