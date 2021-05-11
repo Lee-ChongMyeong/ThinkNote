@@ -287,11 +287,11 @@ router.get('/recentAnswer/:userId', async (req, res) => {
 });
 
 // 내 답변 삭제
-router.delete('/myAnswer', authMiddleware, async (req, res) => {
+router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 	try {
 		console.log('1');
 		const user = res.locals.user;
-		const { answerId } = req.body;
+		const { answerId } = req.params;
 		console.log(answerId);
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
