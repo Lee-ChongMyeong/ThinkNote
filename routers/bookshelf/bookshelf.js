@@ -146,7 +146,7 @@ router.get('/auth/user/:id', async (req, res) => {
 		const otherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherAnswer = await AnswerCard.find({ userId: id });
 		return res.json({
-			nickname: userInfo.nickname,
+			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
 			introduce: userInfo.introduce,
 			topic: userInfo.preferredTopic,
@@ -195,13 +195,13 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 			booksDiary.push({
 				questionId: _id,
 				questionCreatedUserId: questionUserInfo._id,
-				questionCreatedUserNickname: questionUserInfo.nickname,
+				questionCreatedUserNickname: sanitize(questionUserInfo.nickname),
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
-				questionContents: contents,
+				questionContents: sanitize(contents),
 				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
-				answerContents: booksDetail[i]['contents'],
-				answerUserNickname: user.nickname,
+				answerContents: sanitize(booksDetail[i]['contents']),
+				answerUserNickname: sanitize(user.nickname),
 				isOpen: booksDetail[i]['isOpen'],
 				likeCount: likeCountNum,
 				commentCount: commentCount.length
@@ -259,7 +259,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		bookCardDetail.push({
 			questionId: _id,
 			questionCreatedUserId: questionUserInfo._id,
-			questionCreatedUserNickname: questionUserInfo.nickname,
+			questionCreatedUserNickname: sanitize(questionUserInfo.nickname),
 			profileImg: questionUserInfo.profileImg,
 			questionTopic: topic,
 			questionContents: sanitize(contents),
@@ -311,7 +311,11 @@ router.post('/question', authMiddleware, async (req, res) => {
 					createdAt: moment().format('YYYY-MM-DD')
 				});
 				const { nickname } = await User.findOne({ _id: user.userId });
-				return res.send({ CustomQuestion, profileImg: user.profileImg, nickname });
+				return res.send({
+					CustomQuestion,
+					profileImg: user.profileImg,
+					nickname: sanitize(nickname)
+				});
 			} else {
 				return res.send({ msg: '이미 존재하는 질문입니다' });
 			}
@@ -406,7 +410,7 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 			questionId: questionInfo._id,
 			questionContents: sanitize(questionInfo.contents),
 			questionCreatedUserId: userInfo._id,
-			questionCreatedUserNickname: userInfo.nickname,
+			questionCreatedUserNickname: sanitize(userInfo.nickname),
 			questionCreatedUserProfileImg: userInfo.profileImg,
 			questionTopic: questionInfo.topic,
 			answerCount: answerData.length
@@ -478,9 +482,6 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 					as: 'answercards'
 				}
 			},
-			{ $sort: { createdAt: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
 			{
 				$project: {
 					topic: 1,
@@ -490,7 +491,10 @@ router.get('/like/question', authMiddleware, async (req, res) => {
 					createdUser: 1,
 					answerLength: { $size: '$answercards' }
 				}
-			}
+			},
+			{ $sort: { answerLength: -1, createdAt: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
 		]);
 
 		let result = [];
@@ -559,11 +563,11 @@ router.get('/answers', authMiddleware, async (req, res) => {
 					CommentBoard.find({ cardId: myAnswer['_id'] })
 				]);
 				return {
-					questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+					questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
 					questionCreatedUserId: questionCreatedUserInfo._id,
 					questiontopic: questionInfo.topic,
-					questionContents: questionInfo.contents,
-					answerContents: myAnswer['contents'],
+					questionContents: sanitize(questionInfo.contents),
+					answerContents: sanitize(myAnswer['contents']),
 					answerCreatedAt: myAnswer['YYMMDD'],
 					likeCount: like.length,
 					commentCount: comment.length,
@@ -636,11 +640,11 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 					CommentBoard.find({ cardId: myAnswer['_id'] })
 				]);
 				return {
-					questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+					questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
 					questionCreatedUserId: questionCreatedUserInfo._id,
 					questiontopic: questionInfo.topic,
-					questionContents: questionInfo.contents,
-					answerContents: myAnswer['contents'],
+					questionContents: sanitize(questionInfo.contents),
+					answerContents: sanitize(myAnswer['contents']),
 					answerCreatedAt: myAnswer['YYMMDD'],
 					likeCount: like.length,
 					commentCount: comment.length,
