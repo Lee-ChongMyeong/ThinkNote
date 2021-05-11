@@ -323,10 +323,10 @@ router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 router.patch('/myAnswer', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
-		const { answerId, contents } = req.body;
+		const { answerId, contents, isOpen } = req.body;
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
-			await AnswerCard.updateOne({ _id: answerId }, { $set: { contents } });
+			await AnswerCard.updateOne({ _id: answerId }, { $set: { contents, isOpen } });
 			return res.status(200).json({ msg: '수정 성공!' });
 		} else {
 			return res.status(400).json({ msg: '본인의 글만 수정할 수 있습니다.' });
