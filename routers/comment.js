@@ -47,7 +47,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
 			tag: tag,
-			commentCreatedAt: moment().format('YYYY-MM-DDT+')
+			commentCreatedAt: moment().format('YYYY-MM-DDT+'),
+			date: Date.now()
 		};
 
 		let comment = await CommentBoard.create(result);

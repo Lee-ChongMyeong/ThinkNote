@@ -68,7 +68,6 @@ router.post('/searchUserDetail', async (req, res) => {
 		});
 		const checkAllSearch = await Search.find({ userId: myUserInfo.userId });
 		//console.log(Date.now() - begintime);
-
 		// let begintime = Date.now();
 		// const [checkSearch, checkAllSearch] = await Promise.all([
 		// 	Search.find({ searchUserId: otherUserInfo._id, userId: myUserInfo.userId }),
@@ -183,7 +182,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res) => {
 	}
 });
 
-// 내 책장 일별 확인
+//내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
@@ -480,28 +479,28 @@ router.patch('/private', authMiddleware, async (req, res) => {
 // 타임스탬프 아시아기준으로
 // 내가 작성한 답변 모음 (최신순)
 // 토픽, 질문, 답변, 댓글수, 좋아요수, 질문만든 사람 닉네임 // 답변갯수
-router.get('/answers', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		let { page } = req.query;
-		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+// router.get('/answers', authMiddleware, async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		let { page } = req.query;
+// 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		allMyAnswer = [];
+// 		allMyAnswer = [];
 
-		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
-			.sort('-createdAt')
-			.skip(page * 15)
-			.limit(15);
+// 		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
+// 			.sort('-createdAt')
+// 			.skip(page * 15)
+// 			.limit(15);
 
-		for (let i = 0; i < myAnswerInfo.length; i++) {
+// 		for (let i = 0; i < myAnswerInfo.length; i++) {
 
-		}
+// 		}
 
-		return res.send({ allMyAnswer });
-	} catch (err) {
-		return res.status(400).json({ msg: 'fail' });
-	}
-});
+// 		return res.send({ allMyAnswer });
+// 	} catch (err) {
+// 		return res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
 // 내가 작성한 답변 모음 (좋아요순)
 router.get('/answers/like', authMiddleware, async (req, res) => {
