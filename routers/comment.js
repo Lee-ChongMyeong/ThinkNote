@@ -58,10 +58,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 
 		const alarmSend = require('../lib/sendAlarm');
 		// 태그 있을때
-		console.log(tag);
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				console.log(tag[i][1]);
 				await alarmSend(tag[i][1], cardId, 'tag', user.userId, req.alarm);
 			}
 		}
