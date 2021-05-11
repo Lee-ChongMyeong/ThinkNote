@@ -55,8 +55,6 @@ router.post('/', authMiddleware, async (req, res) => {
 					otherUserId: createdUser._id
 				});
 			}
-
-			console.log(ThreeCards);
 			cards.push({
 				cardId: questionInfo._id,
 				topic: questionInfo.topic,
@@ -207,6 +205,7 @@ router.get('/daily', async (req, res) => {
 					todayQuestion.map(async (question) => {
 						let ThreeCards = [];
 						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+						console.log(questionInfo);
 						const [createdUser, answer, threeAnswer] = await Promise.all([
 							User.findOne({ _id: questionInfo.createdUser }),
 							AnswerCard.find({ questionId: question.questionId }),
@@ -220,7 +219,7 @@ router.get('/daily', async (req, res) => {
 								otherUserId: createdUser._id
 							});
 						}
-
+						console.log('3');
 						return {
 							cardId: questionInfo._id,
 							topic: questionInfo.topic,
