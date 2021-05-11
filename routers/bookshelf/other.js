@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../../auth/authMiddleware');
-const { AnswerCard, User, QuestionCard, Friend, Like } = require('../../models');
+const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
 const sanitize = require('sanitize-html');
 
 // 다른 사람 책장 월별 확인
@@ -163,32 +163,62 @@ router.get('/like/:id/question', async (req, res) => {
 	}
 });
 
-// 다른 사람 작성한 답변 모음 (최신순)
-router.get('/answers/:id', async (req, res) => {
+// 다른 사람이 작성한 답변 모음 (최신순)
+router.get('/answers/:id', authMiddleware, async (req, res) => {
 	try {
-		let { page } = req.query;
 		const { id } = req.params;
+		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const allMyAnswer = await AnswerCard.find({ userId: id })
+		let allMyAnswer = [];
+		const myAnswerInfo = await AnswerCard.find({ userId: id })
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
 
+		for (let i = 0; i < myAnswerInfo.length; i++) {
+			//좋아요 상태확인
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({
+				userId: id,
+				answerId: myAnswerInfo[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
+
+			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
+			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
+			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
+			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
+			allMyAnswer.push({
+				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserId: questionCreatedUserInfo._id,
+				questiontopic: questionInfo.topic,
+				questionContents: questionInfo.contents,
+				answerContents: myAnswerInfo[i]['contents'],
+				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
+				likeCount: like.length,
+				commentCount: comment.length,
+				currentLike: currentLike
+			});
+		}
+
 		return res.send({ allMyAnswer });
 	} catch (err) {
+		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
 
-// 다른 사람 작성한 답변 모음 (좋아요순)
-router.get('/answers/:id/like', async (req, res) => {
-	const { id } = req.params;
+// 다른 사람이 작성한 답변 모음 (좋아요순)
+router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 	try {
+		const { id } = req.params;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const allAnswer = await AnswerCard.aggregate([
+		const myAnswerInfo = await AnswerCard.aggregate([
 			{ $match: { userId: { $eq: id } } },
 			{
 				$project: {
@@ -208,6 +238,7 @@ router.get('/answers/:id/like', async (req, res) => {
 			{ $limit: 15 },
 			{
 				$project: {
+					questionId: 1,
 					_id: 1,
 					contents: 1,
 					YYMMDD: 1,
@@ -217,7 +248,34 @@ router.get('/answers/:id/like', async (req, res) => {
 				}
 			}
 		]);
-		return res.json(allAnswer);
+		let allMyAnswer = [];
+		for (let i = 0; i < myAnswerInfo.length; i++) {
+			//좋아요 상태확인
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({
+				userId: id,
+				answerId: myAnswerInfo[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
+			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
+			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
+			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
+			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
+			allMyAnswer.push({
+				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserId: questionCreatedUserInfo._id,
+				questiontopic: questionInfo.topic,
+				questionContents: questionInfo.contents,
+				answerContents: myAnswerInfo[i]['contents'],
+				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
+				likeCount: like.length,
+				commentCount: comment.length,
+				currentLike: currentLike
+			});
+		}
+		return res.json(allMyAnswer);
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });

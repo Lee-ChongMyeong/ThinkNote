@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const { QuestionCard, AnswerCard, User, Like, CommentBoard } = require('../models');
 const express = require('express');
 const jwt = require('jsonwebtoken');
@@ -21,7 +22,7 @@ router.get('/cards', async (req, res) => {
 		}
 	} catch (error) {
 		console.log(error);
-		console.log('토큰 해독 에러');
+		console.log('토큰 해독 에러 또는 토큰 없음');
 	}
 	try {
 		const result = [];
@@ -35,8 +36,10 @@ router.get('/cards', async (req, res) => {
 		for (let randomAnswer of randomAnswers) {
 			const temp = {};
 			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
-			let answerData = await AnswerCard.find({ questionId: question._id, isOpen: true });
-			let user = await User.findOne({ _id: question.createdUser });
+			let [answerData, user] = await Promise.all([
+				await AnswerCard.find({ questionId: question._id, isOpen: true }),
+				await User.findOne({ _id: question.createdUser })
+			]);
 			temp['questions'] = {
 				questionId: question._id,
 				contents: sanitize(question.contents),
@@ -49,30 +52,37 @@ router.get('/cards', async (req, res) => {
 			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(
 				4
 			);
-			temp['answers'] = [];
-			for (let answer of answers) {
-				let answerUser = await User.findOne({ _id: answer.userId });
-				let commentCount = await CommentBoard.find({ cardId: answer._id });
-				let like = false;
-				const likeCount = await Like.find({ answerId: answer._id });
-				if (userId) {
-					let likeCheck = await Like.findOne({ userId: userId, answerId: answer._id });
-					if (likeCheck) {
-						like = true;
+			temp['answers'] = await Promise.all(
+				answers.map(async (answer) => {
+					let [answerUser, commentCount, likeCount] = await Promise.all([
+						await User.findOne({ _id: answer.userId }),
+						await CommentBoard.find({ cardId: answer._id }),
+						await Like.find({ answerId: answer._id })
+					]);
+					let like = false;
+					if (userId) {
+						let likeCheck = await Like.findOne({
+							userId: userId,
+							answerId: answer._id
+						});
+						if (likeCheck) {
+							like = true;
+						}
 					}
-				}
-				temp['answers'].push({
-					userId: answerUser._id,
-					profileImg: answerUser.profileImg,
-					nickname: sanitize(answerUser.nickname),
-					answerId: answer._id,
-					contents: sanitize(answer.contents),
-					like: like,
-					likeCount: likeCount.length,
-					commentCount: commentCount.length,
-					answerCreated: answer.YYMMDD
-				});
-			}
+					return {
+						userId: answerUser._id,
+						profileImg: answerUser.profileImg,
+						nickname: sanitize(answerUser.nickname),
+						answerId: answer._id,
+						contents: sanitize(answer.contents),
+						like: like,
+						likeCount: likeCount.length,
+						commentCount: commentCount.length,
+						answerCreated: answer.YYMMDD
+					};
+				})
+			);
+
 			result.push(temp);
 		}
 		res.json({ result: result });
