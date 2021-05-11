@@ -15,11 +15,6 @@ router.post('/', authMiddleware, async (req, res) => {
 	const user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
-		// console.log('userid', user.userId)
-		// 글자제한
-		// if (contents.length < 4) {
-		//    return res.json({ msg: 'typenumber error' })
-		// }
 		const daily = await QuestionDaily.updateOne(
 			{
 				questionId: questionId,
@@ -28,8 +23,6 @@ router.post('/', authMiddleware, async (req, res) => {
 			},
 			{ $set: { available: false } }
 		);
-		// console.log('daily', daily);
-		// console.log(moment(Date.now()).format('YYMMDD'))
 		if (daily['questionId'] == req.body['questionId']) {
 			return res.status(400).json({ msg: 'fail1' });
 		}
