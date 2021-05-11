@@ -63,7 +63,7 @@ router.post('/', authMiddleware, async (req, res) => {
 			console.log(ThreeCards);
 			cards.push({
 				cardId: questionInfo._id,
-				topic: sanitize(questionInfo.topic),
+				topic: questionInfo.topic,
 				contents: sanitize(questionInfo.contents),
 				createdUser: sanitize(createdUser.nickname),
 				createdUserId: createdUser._id,
@@ -111,7 +111,7 @@ router.get('/daily', async (req, res) => {
 				}
 				cards.push({
 					cardId: questionInfo._id,
-					topic: sanitize(questionInfo.topic),
+					topic: questionInfo.topic,
 					contents: sanitize(questionInfo.contents),
 					createdUser: sanitize(createdUser.nickname),
 					createdUserId: createdUser._id,
@@ -184,7 +184,7 @@ router.get('/daily', async (req, res) => {
 
 					cards.push({
 						cardId: questionInfo._id,
-						topic: sanitize(questionInfo.topic),
+						topic: questionInfo.topic,
 						contents: sanitize(questionInfo.contents),
 						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
@@ -216,7 +216,7 @@ router.get('/daily', async (req, res) => {
 
 					cards.push({
 						cardId: questionInfo._id,
-						topic: sanitize(questionInfo.topic),
+						topic: questionInfo.topic,
 						contents: sanitize(questionInfo.contents),
 						createdUser: sanitize(createdUser.nickname),
 						createdUserId: createdUser._id,
