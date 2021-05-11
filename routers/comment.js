@@ -47,7 +47,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
 			tag: tag,
-			commentCreatedAt: moment().format('YYYY-MM-DDT+')
+			commentCreatedAt: moment().format('YYYY-MM-DDT+'),
+			date: Date.now()
 		};
 
 		let comment = await CommentBoard.create(result);
@@ -75,11 +76,9 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 router.delete('/:commentId', authMiddleware, async (req, res) => {
 	let result = { msg: 'success' };
 	try {
-		console.log(1);
 		const user = res.locals.user;
 		const commentId = req.params.commentId;
 		const commentData = await CommentBoard.findOne({ _id: commentId, userId: user.id });
-		console.log(commentData);
 		const answerCardData = await AnswerCard.findOne({ _id: commentData.cardId });
 		const userId = answerCardData.userId;
 		const answerId = answerCardData._id;

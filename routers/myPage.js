@@ -91,7 +91,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		user.socialId = `${currentSocialId}` + `-${number}`;
 		await user.save();
 
-		// 누군가 팔로잉 그 부분도 다 삭제
+		//누군가 팔로잉 그 부분도 다 삭제
 		await AnswerCard.deleteMany({ userId: user.userId });
 		await CommentBoard.deleteMany({ userId: user.userId });
 		await Like.deleteMany({ userId: user.userId });

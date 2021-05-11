@@ -26,7 +26,6 @@ router.post('/searchUser', async (req, res) => {
 		if (!words) {
 			res.send({ userInfo: 'none' });
 		}
-		// ({ userId: { $ne: user.userId }, questionId: questionId })
 		const userInfo = await User.find(
 			{ provider: { $ne: '탈퇴' }, nickname: new RegExp(`${words}`) },
 			{ createdAt: 0, updatedAt: 0, provider: 0, socialId: 0 }
@@ -175,7 +174,7 @@ router.get('/books/:YYMM', authMiddleware, async (req, res) => {
 	}
 });
 
-// 내 책장 일별 확인
+//내 책장 일별 확인
 router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
