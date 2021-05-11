@@ -288,7 +288,7 @@ router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 				currentLike: currentLike
 			});
 		}
-		return res.json(answerCount, allMyAnswer);
+		return res.send({ answerCount, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
