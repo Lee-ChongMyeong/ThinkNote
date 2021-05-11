@@ -122,7 +122,15 @@ router.get('/like/:id/question', async (req, res) => {
 
 		const otherCustomQuestionCard = await QuestionCard.aggregate([
 			{ $match: { createdUser: { $eq: id } } },
-			{ $project: { _id: { $toString: '$_id' }, topic: 1, contents: 1, createdUser: 1 } },
+			{
+				$project: {
+					_id: { $toString: '$_id' },
+					topic: 1,
+					contents: 1,
+					createdUser: 1,
+					createdAt: 1
+				}
+			},
 			{
 				$lookup: {
 					from: 'answercards',
@@ -136,6 +144,8 @@ router.get('/like/:id/question', async (req, res) => {
 			{ $limit: 15 },
 			{
 				$project: {
+					topic: 1,
+					createdAt: 1,
 					_id: 1,
 					contents: 1,
 					createdUser: 1,
