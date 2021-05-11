@@ -302,10 +302,10 @@ router.get('/recentAnswer/:userId', async (req, res) => {
 });
 
 // 내 답변 삭제
-router.delete('/myAnswer', authMiddleware, async (req, res) => {
+router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
-		const { answerId } = req.body;
+		const { answerId } = req.params;
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
 			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
