@@ -205,8 +205,7 @@ router.get('/daily', async (req, res) => {
 					todayQuestion.map(async (question) => {
 						let ThreeCards = [];
 						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-						console.log('1');
-						console.log(questionInfo);
+						//createdUser가 Null이 뜨는 버그가 있는데, questiondaily를 싹다 비우니까 다시 정상작동됨
 						const [createdUser, answer, threeAnswer] = await Promise.all([
 							User.findOne({ _id: questionInfo.createdUser }),
 							AnswerCard.find({ questionId: question.questionId }),
@@ -220,7 +219,6 @@ router.get('/daily', async (req, res) => {
 								otherUserId: createdUser._id
 							});
 						}
-						console.log('3');
 						return {
 							cardId: questionInfo._id,
 							topic: questionInfo.topic,
