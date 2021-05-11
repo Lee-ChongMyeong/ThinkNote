@@ -289,17 +289,13 @@ router.get('/recentAnswer/:userId', async (req, res) => {
 // 내 답변 삭제
 router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 	try {
-		console.log('1');
 		const user = res.locals.user;
 		const { answerId } = req.params;
-		console.log(answerId);
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
-			console.log('2');
 			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
 			return res.status(200).json({ msg: '삭제 성공ㅠㅠ' });
 		} else {
-			console.log('3');
 			return res.status(400).json({ msg: '본인의 글만 삭제할 수 있습니다.' });
 		}
 	} catch (err) {
