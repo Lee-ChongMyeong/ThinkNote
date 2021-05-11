@@ -476,29 +476,50 @@ router.patch('/private', authMiddleware, async (req, res) => {
 	}
 });
 
-// 토픽, 질문지
-// 타임스탬프 아시아기준으로
 // 내가 작성한 답변 모음 (최신순)
-// 토픽, 질문, 답변, 댓글수, 좋아요수, 질문만든 사람 닉네임 // 답변갯수
 router.get('/answers', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		allMyAnswer = [];
-
+		let allMyAnswer = [];
 		const myAnswerInfo = await AnswerCard.find({ userId: user.userId })
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
 
 		for (let i = 0; i < myAnswerInfo.length; i++) {
+			//좋아요 상태확인
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({
+				userId: user.userId,
+				answerId: myAnswerInfo[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
 
+			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
+			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
+			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
+			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
+			allMyAnswer.push({
+				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserId: questionCreatedUserInfo._id,
+				questiontopic: questionInfo.topic,
+				questionContents: questionInfo.contents,
+				answerContents: myAnswerInfo[i]['contents'],
+				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
+				likeCount: like.length,
+				commentCount: comment.length,
+				currentLike: currentLike
+			});
 		}
 
 		return res.send({ allMyAnswer });
 	} catch (err) {
+		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
@@ -510,7 +531,7 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const allAnswer = await AnswerCard.aggregate([
+		const myAnswerInfo = await AnswerCard.aggregate([
 			{ $match: { userId: { $eq: user.userId } } },
 			{
 				$project: {
@@ -530,6 +551,7 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 			{ $limit: 15 },
 			{
 				$project: {
+					questionId: 1,
 					_id: 1,
 					contents: 1,
 					YYMMDD: 1,
@@ -539,8 +561,34 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 				}
 			}
 		]);
-
-		return res.json(allAnswer);
+		let allMyAnswer = [];
+		for (let i = 0; i < myAnswerInfo.length; i++) {
+			//좋아요 상태확인
+			let currentLike = false;
+			let checkCurrentLike = await Like.findOne({
+				userId: user.userId,
+				answerId: myAnswerInfo[i]['_id']
+			});
+			if (checkCurrentLike) {
+				currentLike = true;
+			}
+			const questionInfo = await QuestionCard.findOne({ _id: myAnswerInfo[i]['questionId'] });
+			const questionCreatedUserInfo = await User.findOne({ id: questionInfo.userId });
+			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
+			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
+			allMyAnswer.push({
+				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserId: questionCreatedUserInfo._id,
+				questiontopic: questionInfo.topic,
+				questionContents: questionInfo.contents,
+				answerContents: myAnswerInfo[i]['contents'],
+				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
+				likeCount: like.length,
+				commentCount: comment.length,
+				currentLike: currentLike
+			});
+		}
+		return res.json(allMyAnswer);
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
