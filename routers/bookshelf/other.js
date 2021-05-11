@@ -26,7 +26,7 @@ router.get('/bookDetail/:YYMMDD/:id', async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
 		const { id } = req.params;
-		const booksDetail = await AnswerCard.find({ userId: id, YYMMDD: YYMMDD });
+		const booksDetail = await AnswerCard.find({ userId: id, YYMMDD: YYMMDD, isOpen: true });
 		const booksDiary = [];
 		for (let i = 0; i < booksDetail.length; i++) {
 			const { contents, createdUser, _id, topic } = await QuestionCard.findOne({
@@ -183,7 +183,7 @@ router.get('/answers/:id', authMiddleware, async (req, res) => {
 		let allMyAnswer = [];
 
 		const answerCount = await AnswerCard.find({ userId: id });
-		const myAnswerInfo = await AnswerCard.find({ userId: id })
+		const myAnswerInfo = await AnswerCard.find({ userId: id, isOpen: true })
 			.sort('-createdAt')
 			.skip(page * 15)
 			.limit(15);
@@ -230,7 +230,7 @@ router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const answerCount = await AnswerCard.find({ userId: id });
+		const answerCount = await AnswerCard.find({ userId: id, isOpen: true });
 		const myAnswerInfo = await AnswerCard.aggregate([
 			{ $match: { userId: { $eq: id } } },
 			{
