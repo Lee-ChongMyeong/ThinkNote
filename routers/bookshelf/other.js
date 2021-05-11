@@ -5,7 +5,7 @@ const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('
 const sanitize = require('sanitize-html');
 
 // 다른 사람 책장 월별 확인
-router.get('/books/:YYMM/:id', authMiddleware, async (req, res) => {
+router.get('/books/:YYMM/:id', async (req, res) => {
 	try {
 		const { YYMM } = req.params;
 		const { id } = req.params;
@@ -22,7 +22,7 @@ router.get('/books/:YYMM/:id', authMiddleware, async (req, res) => {
 });
 
 // 다른 사람 책장 일별 확인
-router.get('/bookDetail/:YYMMDD/:id', authMiddleware, async (req, res) => {
+router.get('/bookDetail/:YYMMDD/:id', async (req, res) => {
 	try {
 		const { YYMMDD } = req.params;
 		const { id } = req.params;
