@@ -9,7 +9,8 @@ const {
 	Friend,
 	Like,
 	User,
-	CommentBoard
+	CommentBoard,
+	Alarm
 } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
@@ -317,6 +318,7 @@ router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
 			await CommentBoard.deleteMany({ cardId: answerId });
 			await Like.deleteMany({ answerId: answerId });
+			await Alarm.deleteMany({ cardId: answerId });
 			return res.status(200).json({ msg: '삭제 성공ㅠㅠ' });
 		} else {
 			return res.status(400).json({ msg: '본인의 글만 삭제할 수 있습니다.' });
