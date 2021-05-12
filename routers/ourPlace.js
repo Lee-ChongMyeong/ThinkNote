@@ -35,7 +35,9 @@ router.get('/cards', async (req, res) => {
 		]);
 		for (let randomAnswer of randomAnswers) {
 			const temp = {};
+			console.log(randomAnswer.questionId);
 			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
+			console.log(question);
 			let [answerData, user] = await Promise.all([
 				await AnswerCard.find({ questionId: question._id, isOpen: true }),
 				await User.findOne({ _id: question.createdUser })
