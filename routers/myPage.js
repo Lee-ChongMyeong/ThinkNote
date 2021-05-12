@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
-const { User, AnswerCard, Like, CommentBoard, Friend, QuestionDaily } = require('../models');
+const { User, AnswerCard, Like, CommentBoard, Friend, QuestionDaily, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 const s3 = require('../lib/s3.js');
@@ -98,6 +98,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await QuestionDaily.deleteMany({ userId: user.userId });
 		await Friend.deleteMany({ followingId: user.userId });
 		await Friend.deleteMany({ followerId: user.userId });
+		await Alarm.deleteMany({ userId: user.userId });
 
 		return res.json({ msg: '탈퇴 완료' });
 	} catch (err) {
