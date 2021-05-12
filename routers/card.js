@@ -2,7 +2,15 @@
 const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
-const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
+const {
+	QuestionCard,
+	AnswerCard,
+	QuestionDaily,
+	Friend,
+	Like,
+	User,
+	CommentBoard
+} = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
@@ -307,6 +315,8 @@ router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
 			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
+			await CommentBoard.deleteMany({ cardId: answerId });
+			await Like.deleteMany({ answerId: answerId });
 			return res.status(200).json({ msg: '삭제 성공ㅠㅠ' });
 		} else {
 			return res.status(400).json({ msg: '본인의 글만 삭제할 수 있습니다.' });
