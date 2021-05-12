@@ -264,6 +264,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 			answerContents: sanitize(booksDetail.contents),
 			answerUserId: answerUserInfo._id,
 			answerUserProfileImg: answerUserInfo.profileImg,
+			answerCreatedAt: booksDetail.YYMMDD,
 			nickname: sanitize(answerUserInfo.nickname),
 			isOpen: booksDetail.isOpen,
 			like: currentLike,
