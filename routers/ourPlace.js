@@ -36,12 +36,10 @@ router.get('/cards', async (req, res) => {
 		for (let randomAnswer of randomAnswers) {
 			const temp = {};
 			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
-			// let [answerData, user] = await Promise.all([
-			// 	await AnswerCard.find({ questionId: question._id, isOpen: true }),
-			// 	await User.findOne({ _id: question.createdUser })
-			// ]);
-			let answerData = await AnswerCard.find({ questionId: question._id, isOpen: true });
-			let user = await User.findOne({ _id: question.createdUser });
+			let [answerData, user] = await Promise.all([
+				await AnswerCard.find({ questionId: question._id, isOpen: true }),
+				await User.findOne({ _id: question.createdUser })
+			]);
 			temp['questions'] = {
 				questionId: question._id,
 				contents: sanitize(question.contents),
