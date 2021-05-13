@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-constant-condition */
 const express = require('express');
@@ -101,14 +102,16 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await user.save();
 
 		//누군가 팔로잉 그 부분도 다 삭제
-		await AnswerCard.deleteMany({ userId: user.userId });
-		await CommentBoard.deleteMany({ userId: user.userId });
-		await Like.deleteMany({ userId: user.userId });
-		await QuestionDaily.deleteMany({ userId: user.userId });
-		await Friend.deleteMany({ followingId: user.userId });
-		await Friend.deleteMany({ followerId: user.userId });
-		await Alarm.deleteMany({ userId: user.userId });
-		await Search.deleteMany({ userId: user.userId });
+		await Promise.all([
+			AnswerCard.deleteMany({ userId: user.userId }),
+			CommentBoard.deleteMany({ userId: user.userId }),
+			Like.deleteMany({ userId: user.userId }),
+			QuestionDaily.deleteMany({ userId: user.userId }),
+			Friend.deleteMany({ followingId: user.userId }),
+			Friend.deleteMany({ followerId: user.userId }),
+			Alarm.deleteMany({ userId: user.userId }),
+			Search.deleteMany({ userId: user.userId })
+		]);
 
 		return res.json({ msg: '탈퇴 완료' });
 	} catch (err) {
