@@ -39,8 +39,8 @@ router.get('/cards', async (req, res) => {
 			let question = await QuestionCard.findOne({ _id: randomAnswer.questionId });
 			console.log(question);
 			let [answerData, user] = await Promise.all([
-				await AnswerCard.find({ questionId: question._id, isOpen: true }),
-				await User.findOne({ _id: question.createdUser })
+				AnswerCard.find({ questionId: question._id, isOpen: true }),
+				User.findOne({ _id: question.createdUser })
 			]);
 			temp['questions'] = {
 				questionId: question._id,
@@ -57,9 +57,9 @@ router.get('/cards', async (req, res) => {
 			temp['answers'] = await Promise.all(
 				answers.map(async (answer) => {
 					let [answerUser, commentCount, likeCount] = await Promise.all([
-						await User.findOne({ _id: answer.userId }),
-						await CommentBoard.find({ cardId: answer._id }),
-						await Like.find({ answerId: answer._id })
+						User.findOne({ _id: answer.userId }),
+						CommentBoard.find({ cardId: answer._id }),
+						Like.find({ answerId: answer._id })
 					]);
 					let like = false;
 					if (userId) {
