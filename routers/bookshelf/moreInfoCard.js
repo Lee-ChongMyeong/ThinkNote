@@ -72,7 +72,7 @@ router.get('/:questionId', async (req, res) => {
 				]);
 				let currentLike = false;
 				let checkCurrentLike = await Like.findOne({
-					userId: res.userId,
+					userId: userId,
 					answerId: answer['_id']
 				});
 				if (checkCurrentLike) {
