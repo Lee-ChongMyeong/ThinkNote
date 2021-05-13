@@ -7,7 +7,6 @@ const authMiddleware = require('../../auth/authMiddleware');
 router.post('/answerCard', authMiddleware, async (req, res) => {
 	try {
 		const { answerCardId } = req.body;
-		console.log(answerCardId);
 		const user = res.locals.user;
 		const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
 		const answer = await AnswerCard.findOne({ _id: answerCardId });

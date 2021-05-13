@@ -12,7 +12,6 @@ router.get('/:cardId', async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
 	try {
-		//const comments = await CommentBoard.find({ cardId: cardId }).populate({path:"user"});
 		const comments = await CommentBoard.find({ cardId: cardId }).sort('-createdAt');
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
@@ -24,7 +23,6 @@ router.get('/:cardId', async (req, res) => {
 				nickname: userInfo.nickname,
 				profileImg: userInfo['profileImg'],
 				commentCreatedAt: comment.createdAt
-				// alert(JSON.stringify(myObj))
 			};
 			result['comments'].push(temp);
 		}
@@ -58,10 +56,8 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 
 		const alarmSend = require('../lib/sendAlarm');
 		// 태그 있을때
-		console.log(tag);
 		if (tag) {
 			for (let i = 0; i < tag.length; i++) {
-				console.log(tag[i][1]);
 				await alarmSend(tag[i][1], cardId, 'tag', user.userId, req.alarm);
 			}
 		}

@@ -2,7 +2,16 @@
 const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
-const { QuestionCard, AnswerCard, QuestionDaily, Friend, User } = require('../models');
+const {
+	QuestionCard,
+	AnswerCard,
+	QuestionDaily,
+	Friend,
+	Like,
+	User,
+	CommentBoard,
+	Alarm
+} = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
@@ -55,8 +64,6 @@ router.post('/', authMiddleware, async (req, res) => {
 					otherUserId: createdUser._id
 				});
 			}
-
-			console.log(ThreeCards);
 			cards.push({
 				cardId: questionInfo._id,
 				topic: questionInfo.topic,
@@ -207,6 +214,7 @@ router.get('/daily', async (req, res) => {
 					todayQuestion.map(async (question) => {
 						let ThreeCards = [];
 						let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+						//createdUser가 Null이 뜨는 버그가 있는데, questiondaily를 싹다 비우니까 다시 정상작동됨
 						const [createdUser, answer, threeAnswer] = await Promise.all([
 							User.findOne({ _id: questionInfo.createdUser }),
 							AnswerCard.find({ questionId: question.questionId }),
@@ -220,7 +228,6 @@ router.get('/daily', async (req, res) => {
 								otherUserId: createdUser._id
 							});
 						}
-
 						return {
 							cardId: questionInfo._id,
 							topic: questionInfo.topic,
@@ -309,6 +316,9 @@ router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
 			await AnswerCard.deleteOne({ userId: user.userId, _id: answerId });
+			await CommentBoard.deleteMany({ cardId: answerId });
+			await Like.deleteMany({ answerId: answerId });
+			await Alarm.deleteMany({ cardId: answerId });
 			return res.status(200).json({ msg: '삭제 성공ㅠㅠ' });
 		} else {
 			return res.status(400).json({ msg: '본인의 글만 삭제할 수 있습니다.' });
@@ -323,10 +333,10 @@ router.delete('/myAnswer/:answerId', authMiddleware, async (req, res) => {
 router.patch('/myAnswer', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
-		const { answerId, contents } = req.body;
+		const { answerId, contents, isOpen } = req.body;
 		const checkUser = await AnswerCard.findOne({ _id: answerId });
 		if (checkUser.userId == user.userId) {
-			await AnswerCard.updateOne({ _id: answerId }, { $set: { contents } });
+			await AnswerCard.updateOne({ _id: answerId }, { $set: { contents, isOpen } });
 			return res.status(200).json({ msg: '수정 성공!' });
 		} else {
 			return res.status(400).json({ msg: '본인의 글만 수정할 수 있습니다.' });

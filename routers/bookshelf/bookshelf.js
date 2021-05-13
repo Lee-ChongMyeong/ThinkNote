@@ -186,7 +186,6 @@ router.get('/bookDetail/:YYMMDD', authMiddleware, async (req, res) => {
 			const { contents, createdUser, _id, topic } = await QuestionCard.findOne({
 				_id: booksDetail[i]['questionId']
 			});
-			console.log(topic);
 			const questionUserInfo = await User.findOne({ _id: createdUser });
 			let commentCount = await CommentBoard.find({ cardId: booksDetail[i].answerId });
 			const likeCount = await Like.find({ answerId: booksDetail[i]['_id'] });
@@ -219,7 +218,6 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		const { answerId } = req.params;
 		let user;
 		const { authorization } = req.headers;
-		console.log(authorization);
 		if (authorization && authorization !== 'Bearer undefined') {
 			const [tokenType, tokenValue] = authorization.split(' ');
 			if (tokenType !== 'Bearer') return res.json({ msg: 'fail' });
@@ -266,6 +264,7 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 			answerContents: sanitize(booksDetail.contents),
 			answerUserId: answerUserInfo._id,
 			answerUserProfileImg: answerUserInfo.profileImg,
+			answerCreatedAt: booksDetail.YYMMDD,
 			nickname: sanitize(answerUserInfo.nickname),
 			isOpen: booksDetail.isOpen,
 			like: currentLike,
@@ -403,7 +402,6 @@ router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
 		const questionInfo = await QuestionCard.findOne({ _id: questionId });
 		const userInfo = await User.findOne({ _id: questionInfo.userId });
 		const answerData = await AnswerCard.find({ questionId: questionId, isOpen: true });
-		console.log(questionInfo.topic);
 
 		return res.send({
 			questionId: questionInfo._id,
@@ -575,7 +573,7 @@ router.get('/answers', authMiddleware, async (req, res) => {
 				};
 			})
 		);
-		return res.send({ answerCount, allMyAnswer });
+		return res.send({ answerCount: answerCount.length, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
@@ -653,7 +651,7 @@ router.get('/answers/like', authMiddleware, async (req, res) => {
 				};
 			})
 		);
-		return res.json(answerCount, allMyAnswer);
+		return res.send({ answerCount: answerCount.length, allMyAnswer });
 	} catch (err) {
 		console.log(err);
 		return res.status(400).json({ msg: 'fail' });
