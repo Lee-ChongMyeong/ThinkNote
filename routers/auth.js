@@ -44,7 +44,7 @@ router.get(
 	'/kakao/oauth',
 	passport.authenticate('kakao', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(`http://localhost:3000/auth/${makeToken(req.user._id)}`);
+		res.redirect(`https://thinknote.us/auth/${makeToken(req.user._id)}`);
 	}
 );
 
