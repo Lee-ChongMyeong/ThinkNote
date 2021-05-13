@@ -3,7 +3,16 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
-const { User, AnswerCard, Like, CommentBoard, Friend, QuestionDaily, Alarm, Search } = require('../models');
+const {
+	User,
+	AnswerCard,
+	Like,
+	CommentBoard,
+	Friend,
+	QuestionDaily,
+	Alarm,
+	Search
+} = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const sanitize = require('sanitize-html');
 const s3 = require('../lib/s3.js');
