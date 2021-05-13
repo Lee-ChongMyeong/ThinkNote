@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const express = require('express');
 const router = express.Router();
 const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models');
@@ -22,93 +23,53 @@ router.get('/:questionId', async (req, res) => {
 		let { questionId } = req.params;
 		let { page, sort } = req.query; // 최신(new), 인기(favor), 팔로워(follower)
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-		let allAnswer = [];
 
+		const baseQuery = AnswerCard.aggregate()
+			.match({ questionId: { $eq: questionId } })
+			.project({
+				_id: { $toString: '$_id' },
+				contents: 1,
+				YYMMDD: 1,
+				userId: 1,
+				createdAt: 1
+			})
+			.lookup({ from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' })
+			.project({
+				_id: 1,
+				contents: 1,
+				YYMMDD: 1,
+				userId: 1,
+				likes: { $size: '$likes' },
+				createdAt: 1
+			});
+		let allAnswer = [];
 		if (sort == 'new') {
-			allAnswer = await AnswerCard.aggregate()
-				.match({ questionId: { $eq: questionId } })
-				.project({
-					_id: { $toString: '$_id' },
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					createdAt: 1
-				})
-				.lookup({ from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' })
-				.project({
-					_id: 1,
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					likes: { $size: '$likes' },
-					createdAt: 1
-				})
+			allAnswer = await baseQuery
 				.sort({ YYMMDD: -1 })
 				.skip(page * 20)
 				.limit(20);
 		} else if (sort == 'favor') {
-			allAnswer = await AnswerCard.aggregate()
-				.match({ questionId: { $eq: questionId } })
-				.project({
-					_id: { $toString: '$_id' },
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					createdAt: 1
-				})
-				.lookup({ from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' })
-				.project({
-					_id: 1,
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					likes: { $size: '$likes' },
-					createdAt: 1
-				})
+			allAnswer = await baseQuery
 				.sort({ likes: -1, YYMMDD: -1 })
 				.skip(page * 20)
 				.limit(20);
 		} else if (userId && sort == 'follower') {
-			const followerId = await Friend.find({ followingId: userId });
-			const friendList = [];
-			for (let i = 0; i < followerId.length; i++) {
-				friendList.push(followerId[i]['followerId']);
-			}
-
-			allAnswer = await AnswerCard.aggregate()
-				.match({ questionId: { $eq: questionId } })
-				.project({
-					_id: { $toString: '$_id' },
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					createdAt: 1
-				})
-				.lookup({
-					from: 'likes',
-					localField: '_id',
-					foreignField: 'answerId',
-					as: 'likes'
-				})
-				.project({
-					_id: 1,
-					contents: 1,
-					YYMMDD: 1,
-					userId: 1,
-					likes: { $size: '$likes' },
-					createdAt: 1
-				})
+			const friendList = await Friend.find({ followingId: userId }).then((followers) =>
+				followers.map((follower) => follower.followerId)
+			);
+			allAnswer = await baseQuery
 				.match({ userId: { $in: friendList } })
 				.sort({ YYMMDD: -1 })
 				.skip(page * 20)
 				.limit(20);
 		}
 
-		// eslint-disable-next-line no-undef
 		const result = await Promise.all(
 			allAnswer.map(async (answer) => {
-				const UserInfo = await User.findOne({ _id: answer['userId'] });
-				const Comment = await CommentBoard.find({ cardId: answer['_id'] });
+				const [UserInfo, Comment] = await Promise.all([
+					User.findOne({ _id: answer['userId'] }),
+					CommentBoard.find({ cardId: answer['_id'] })
+				]);
 				let currentLike = false;
 				let checkCurrentLike = await Like.findOne({
 					userId: res.userId,
@@ -136,5 +97,4 @@ router.get('/:questionId', async (req, res) => {
 		return res.status(400).json({ msg: 'fail' });
 	}
 });
-
 module.exports = router;
