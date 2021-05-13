@@ -96,7 +96,7 @@ router.get('/daily', async (req, res) => {
 		const { authorization } = req.headers;
 		// 로그인 안했을때
 		if (!authorization) {
-			let admin_id = '608971a172444320da6e8671';
+			let admin_id = '609d27882fe142016da7a7a9';
 			const questionCards = await QuestionCard.aggregate([
 				{ $project: { _id: { $toString: '$_id' }, createdUser: 1 } },
 				{ $match: { createdUser: { $in: [admin_id] } } },
@@ -148,7 +148,7 @@ router.get('/daily', async (req, res) => {
 			let standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 7).format('YYMMDD');
 			if (userDaily.length == 0) {
 				// 오늘 카드를 안받은 경우
-				let admin_id = '608971a172444320da6e8671';
+				let admin_id = '609d27882fe142016da7a7a9';
 				const friends_result = await Friend.aggregate([
 					{ $match: { followingId: userId } },
 					{ $project: { followerId: 1 } }
