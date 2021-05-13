@@ -50,35 +50,34 @@ router.post('/', authMiddleware, async (req, res) => {
 			userId: user.userId,
 			YYMMDD: moment(Date.now()).format('YYMMDD')
 		});
-		let [cards] = await Promise.all(
-			todayQuestion.map(async (question) => {
-				let ThreeCards = [];
-				let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
-				const [createdUser, answer, threeAnswer] = await Promise.all([
-					User.findOne({ _id: questionInfo.createdUser }),
-					AnswerCard.find({ questionId: question.questionId }),
-					AnswerCard.find({ questionId: question.questionId }).limit(3)
-				]);
-				for (let answerData of threeAnswer) {
-					let createdUser = await User.findOne({ _id: answerData.userId });
-					ThreeCards.push({
-						otherProfileImg: createdUser.profileImg,
-						otherUserId: createdUser._id
-					});
-				}
-				return {
-					cardId: questionInfo._id,
-					topic: questionInfo.topic,
-					contents: sanitize(questionInfo.contents),
-					createdUser: sanitize(createdUser.nickname),
-					createdUserId: createdUser._id,
-					available: question.available,
-					profileImg: sanitize(createdUser.profileImg),
-					answerCount: sanitize(answer.length),
-					otherProfileImg: ThreeCards
-				};
-			})
-		);
+		let cards = [];
+		for (let question of todayQuestion) {
+			let ThreeCards = [];
+			let questionInfo = await QuestionCard.findOne({ _id: question.questionId });
+			const [createdUser, answer, threeAnswer] = await Promise.all([
+				User.findOne({ _id: questionInfo.createdUser }),
+				AnswerCard.find({ questionId: question.questionId }),
+				AnswerCard.find({ questionId: question.questionId }).limit(3)
+			]);
+			for (let answerData of threeAnswer) {
+				let createdUser = await User.findOne({ _id: answerData.userId });
+				ThreeCards.push({
+					otherProfileImg: createdUser.profileImg,
+					otherUserId: createdUser._id
+				});
+			}
+			cards.push({
+				cardId: questionInfo._id,
+				topic: questionInfo.topic,
+				contents: sanitize(questionInfo.contents),
+				createdUser: sanitize(createdUser.nickname),
+				createdUserId: createdUser._id,
+				available: question.available,
+				profileImg: sanitize(createdUser.profileImg),
+				answerCount: sanitize(answer.length),
+				otherProfileImg: ThreeCards
+			});
+		}
 
 		const { createdUser } = await QuestionCard.findOne({ _id: questionId });
 		res.json({ msg: 'success', cards: cards, result: result });
