@@ -149,7 +149,7 @@ router.get('/like/:id/question', async (req, res) => {
 					answerLength: { $size: '$answercards' }
 				}
 			},
-			{ $sort: { answercards: -1 } },
+			{ $sort: { answerLength: -1, createdAt: -1 } },
 			{ $skip: page * 15 },
 			{ $limit: 15 }
 		]);
