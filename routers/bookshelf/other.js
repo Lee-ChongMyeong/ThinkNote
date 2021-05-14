@@ -139,9 +139,6 @@ router.get('/like/:id/question', async (req, res) => {
 					as: 'answercards'
 				}
 			},
-			{ $sort: { answercards: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
 			{
 				$project: {
 					topic: 1,
@@ -151,7 +148,10 @@ router.get('/like/:id/question', async (req, res) => {
 					createdUser: 1,
 					answerLength: { $size: '$answercards' }
 				}
-			}
+			},
+			{ $sort: { answercards: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
 		]);
 
 		let result = [];
