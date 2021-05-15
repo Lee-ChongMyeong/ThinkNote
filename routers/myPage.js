@@ -51,8 +51,10 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 			return res.status(400).json({ msg: 'please check nickname length' });
 
 		console.log('b');
-		if (data.introduce.length <= 50)
+		if (data.introduce.length <= 50) {
+			console.log('asfl;asfl;asflasf;lasf;lasf;laf;s');
 			return res.status(400).json({ msg: 'please check introduce length' });
+		}
 
 		console.log('c');
 		// 프로필 이미지가 들어온 경우
