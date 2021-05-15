@@ -2,14 +2,16 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const commentBoard = new Schema({
-	commentContents: { type: String, required: true },
-	cardId: { type: String, required: true },
-	userId: { type: String, required: true, index: true },
-	tag: { type: Array },
-	date: { type: String, default: Date.now() },
-	createdAt: { type: Date }
-});
+const commentBoard = new Schema(
+	{
+		commentContents: { type: String, required: true },
+		cardId: { type: String, required: true },
+		userId: { type: String, required: true, index: true },
+		tag: { type: Array },
+		date: { type: String, default: Date.now() }
+	},
+	{ timestamps: true }
+);
 
 commentBoard.virtual('commentId').get(function () {
 	return this._id.toHexString();
