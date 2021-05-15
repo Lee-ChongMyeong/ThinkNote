@@ -38,6 +38,7 @@ const deleteImg = (fileName) => {
 router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req, res) => {
 	try {
 		const user = res.locals.user;
+		console.log(user);
 		const data = req.body;
 		// 사용 불가능한 닉네임
 		console.log('5');
