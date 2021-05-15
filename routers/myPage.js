@@ -70,7 +70,8 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 			nickname: user.nickname,
 			introduce: user.introduce,
 			profileImg: user.profileImg,
-			topic: user.preferredTopic
+			topic: user.preferredTopic,
+			first: false
 		});
 	} catch (err) {
 		console.log(err);
