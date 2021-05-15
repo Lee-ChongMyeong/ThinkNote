@@ -12,6 +12,8 @@ const kakaoStrategy = new KakaoStrategy(
 		callbackURL: 'http://lkj99.shop/auth/kakao/oauth'
 	},
 	function (accessToken, refreshToken, profile, done) {
+		console.log('하이하이 카카오');
+		console.log(accessToken, profile);
 		try {
 			User.findOne(
 				{

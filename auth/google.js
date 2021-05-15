@@ -12,6 +12,8 @@ const googleStrategy = new GoogleStrategy(
 		callbackURL: 'http://lkj99.shop/auth/google/oauth'
 	},
 	function (accessToken, refreshToken, profile, done) {
+		console.log('하이하이');
+		console.log(profile);
 		try {
 			User.findOne(
 				{
