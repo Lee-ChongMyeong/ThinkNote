@@ -23,7 +23,8 @@ const user = new Schema(
 				myself: false
 			}
 		},
-		provider: { type: String }
+		provider: { type: String },
+		first: { type: Boolean, default: true }
 	},
 	{ timestamps: true }
 );

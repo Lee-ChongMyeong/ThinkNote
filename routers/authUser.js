@@ -14,7 +14,8 @@ router.get('/', authMiddleware, async (req, res) => {
 		introduce: user.introduce,
 		topic: user.preferredTopic,
 		myCustomQuestionCount: myQuestion.length,
-		myAnswerCount: myAnswer.length
+		myAnswerCount: myAnswer.length,
+		first: user.first
 	});
 });
 
