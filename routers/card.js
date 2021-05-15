@@ -25,7 +25,7 @@ router.post('/', authMiddleware, async (req, res) => {
 	const user = res.locals.user;
 	try {
 		const { questionId, contents, isOpen } = req.body;
-		if (contents <= 250) {
+		if (contents <= 1000) {
 			return res.status(400).json({ msg: 'check contents length' });
 		}
 		const daily = await QuestionDaily.updateOne(
