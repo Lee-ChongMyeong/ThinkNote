@@ -22,7 +22,7 @@ router.get('/:cardId', async (req, res) => {
 				userId: comment.userId,
 				nickname: userInfo.nickname,
 				profileImg: userInfo['profileImg'],
-				commentCreatedAt: moment(comment.date).format('YY-MM-DD HH:mm:ss')
+				commentCreatedAt: moment(comment.createdAt).format('YY-MM-DD HH:mm:ss')
 			};
 			result['comments'].push(temp);
 		}
