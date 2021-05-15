@@ -40,6 +40,9 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 	const { userId } = await AnswerCard.findOne({ _id: cardId });
 
 	try {
+		if (req.body.commentContents <= 100) {
+			return res.status(400).json({ msg: 'check comment length' });
+		}
 		let result = {
 			cardId: cardId,
 			commentContents: sanitize(req.body.commentContents),
