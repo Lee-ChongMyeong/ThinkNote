@@ -8,7 +8,7 @@ const commentBoard = new Schema(
 		cardId: { type: String, required: true },
 		userId: { type: String, required: true, index: true },
 		tag: { type: Array },
-		date: { type: String, default: Date.now() }
+		date: { type: Date, required: true }
 	},
 	{ timestamps: true }
 );
