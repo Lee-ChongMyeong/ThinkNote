@@ -41,6 +41,7 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		const data = req.body;
 		// 사용 불가능한 닉네임
 		console.log('5');
+		console.log(data);
 		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
 			return res.status(400).json({ msg: 'unavailable_nickname' });
 		if (2 > data.nickname.length || 12 < data.nickname.length)
