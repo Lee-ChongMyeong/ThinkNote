@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../../auth/authMiddleware');
+// const authMiddleware = require('../../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
 const sanitize = require('sanitize-html');
 
@@ -174,7 +174,7 @@ router.get('/like/:id/question', async (req, res) => {
 });
 
 // 다른 사람이 작성한 답변 모음 (최신순)
-router.get('/answers/:id', authMiddleware, async (req, res) => {
+router.get('/answers/:id', async (req, res) => {
 	try {
 		const { id } = req.params;
 		let { page } = req.query;
@@ -224,7 +224,7 @@ router.get('/answers/:id', authMiddleware, async (req, res) => {
 });
 
 // 다른 사람이 작성한 답변 모음 (좋아요순)
-router.get('/answers/:id/like', authMiddleware, async (req, res) => {
+router.get('/answers/:id/like', async (req, res) => {
 	try {
 		const { id } = req.params;
 		let { page } = req.query;
