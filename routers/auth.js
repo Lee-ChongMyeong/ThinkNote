@@ -44,8 +44,6 @@ router.get(
 	'/kakao/oauth',
 	passport.authenticate('kakao', { failureRedirect: '/auth' }),
 	(req, res) => {
-		console.log('하이이이이');
-		console.log(req);
 		res.redirect(`https://thinknote.us/auth/${makeToken(req.user._id)}`);
 	}
 );
