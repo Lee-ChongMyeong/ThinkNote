@@ -23,7 +23,6 @@ require('dotenv').config();
 //질문에 대한 답변 쓰기
 router.post('/', authMiddleware, async (req, res) => {
 	const user = res.locals.user;
-	console.log(user);
 	try {
 		const { questionId, contents, isOpen } = req.body;
 		const daily = await QuestionDaily.updateOne(

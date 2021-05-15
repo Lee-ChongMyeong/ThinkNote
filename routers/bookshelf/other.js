@@ -246,9 +246,6 @@ router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 			{
 				$lookup: { from: 'likes', localField: '_id', foreignField: 'answerId', as: 'likes' }
 			},
-			{ $sort: { likes: -1 } },
-			{ $skip: page * 15 },
-			{ $limit: 15 },
 			{
 				$project: {
 					questionId: 1,
@@ -259,7 +256,10 @@ router.get('/answers/:id/like', authMiddleware, async (req, res) => {
 					likes: { $size: '$likes' },
 					createdAt: 1
 				}
-			}
+			},
+			{ $sort: { likes: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
 		]);
 		let allMyAnswer = [];
 		for (let i = 0; i < myAnswerInfo.length; i++) {
