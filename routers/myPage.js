@@ -38,25 +38,18 @@ const deleteImg = (fileName) => {
 router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req, res) => {
 	try {
 		const user = res.locals.user;
-		console.log(user);
 		const data = req.body;
 		// 사용 불가능한 닉네임
-		console.log('5');
-		console.log(data);
 		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
 			return res.status(400).json({ msg: 'unavailable_nickname' });
 
-		console.log('a');
 		if (2 > data.nickname.length || 12 < data.nickname.length)
 			return res.status(400).json({ msg: 'please check nickname length' });
 
-		console.log('b');
-		if (data.introduce.length <= 50) {
-			console.log('asfl;asfl;asflasf;lasf;lasf;laf;s');
+		if (data.introduce.length >= 50) {
 			return res.status(400).json({ msg: 'please check introduce length' });
 		}
 
-		console.log('c');
 		// 프로필 이미지가 들어온 경우
 		if (data.defaultImg == 'true') {
 			deleteImg(user.profileImg);
@@ -69,9 +62,7 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		user.nickname = sanitize(data.nickname);
 		user.introduce = sanitize(data.introduce);
 		user.preferredTopic = JSON.parse(data.topic);
-		console.log('4');
 		user.first = false;
-		console.log('3');
 
 		await user.save();
 		res.json({
