@@ -58,7 +58,7 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		user.nickname = sanitize(data.nickname);
 		user.introduce = sanitize(data.introduce);
 		user.preferredTopic = JSON.parse(data.topic);
-		user.frist = false;
+		user.first = false;
 
 		await user.save();
 		res.json({
