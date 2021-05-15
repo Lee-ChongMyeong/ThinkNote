@@ -44,10 +44,16 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		console.log(data);
 		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
 			return res.status(400).json({ msg: 'unavailable_nickname' });
+
+		console.log('a');
 		if (2 > data.nickname.length || 12 < data.nickname.length)
 			return res.status(400).json({ msg: 'please check nickname length' });
+
+		console.log('b');
 		if (data.introduce.length <= 50)
 			return res.status(400).json({ msg: 'please check introduce length' });
+
+		console.log('c');
 		// 프로필 이미지가 들어온 경우
 		if (data.defaultImg == 'true') {
 			deleteImg(user.profileImg);
