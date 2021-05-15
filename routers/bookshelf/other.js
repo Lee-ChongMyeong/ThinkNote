@@ -257,7 +257,7 @@ router.get('/answers/:id/like', async (req, res) => {
 					createdAt: 1
 				}
 			},
-			{ $sort: { likes: -1 } },
+			{ $sort: { likes: -1, createdAt: -1 } },
 			{ $skip: page * 15 },
 			{ $limit: 15 }
 		]);
