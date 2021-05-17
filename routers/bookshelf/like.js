@@ -54,9 +54,9 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			cardId: answerCardId,
 			eventType: 'like'
 		});
-
-		if (alarmInfo.length == 0) {
-			return res.send({ answerCardId, likeCountNum: 0, currentLike: false });
+		// sork so 내게시물에요서 게시물 좋아요1개,
+		if (!alarmInfo) {
+			return res.send({ answerCardId, likeCountNum, currentLike: false });
 		}
 
 		if (
