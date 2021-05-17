@@ -118,7 +118,9 @@ router.get('/searchUser', async (req, res) => {
 			const users = await Search.find({ userId: userId })
 				.where('YYMMDD')
 				.gt(standardTime)
-				.limit(5);
+				.limit(5)
+				.sort('-createdAt');
+
 			for (let userData of users) {
 				const userInfo = await User.findOne({ _id: userData.searchUserId });
 				let temp = {
