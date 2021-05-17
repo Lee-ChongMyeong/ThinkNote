@@ -67,7 +67,7 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			});
 		}
 		// elif (!alarmInfo) { return }
-		else {
+		else if (alarmInfo && alarmInfo['userList'].indexof(user._id) > -1) {
 			alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
 			await alarmInfo.save();
 		}
