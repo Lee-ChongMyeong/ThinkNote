@@ -54,7 +54,12 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			cardId: answerCardId,
 			eventType: 'like'
 		});
-		if (alarmInfo['userList'].length == 1 && -1 != alarmInfo['userList'].indexOf(user._id)) {
+
+		if (
+			alarmInfo &&
+			alarmInfo['userList'].length == 1 &&
+			-1 != alarmInfo['userList'].indexOf(user._id)
+		) {
 			await Alarm.deleteOne({
 				userId: answer.userId,
 				cardId: answerCardId,
