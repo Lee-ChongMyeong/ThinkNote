@@ -55,6 +55,10 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			eventType: 'like'
 		});
 
+		if (alarmInfo.length == 0) {
+			return res.send({ answerCardId, likeCountNum: 0, currentLike: false });
+		}
+
 		if (
 			alarmInfo &&
 			alarmInfo['userList'].length == 1 &&
@@ -67,7 +71,7 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			});
 		}
 		// elif (!alarmInfo) { return }
-		else if (alarmInfo && alarmInfo['userList'].indexof(user._id) > -1) {
+		else {
 			alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
 			await alarmInfo.save();
 		}
