@@ -15,6 +15,7 @@ const {
 	Search
 } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
+Sanitize.clean(CGI.unescapeHTML(your_string));
 const sanitize = require('sanitize-html');
 const s3 = require('../lib/s3.js');
 const randomNickname = require('../lib/nickname');

@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 const express = require('express');
+Sanitize.clean(CGI.unescapeHTML(your_string));
 const router = express.Router();
 const {
 	AnswerCard,

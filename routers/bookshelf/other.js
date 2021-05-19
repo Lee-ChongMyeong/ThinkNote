@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 // const authMiddleware = require('../../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
+// eslint-disable-next-line no-undef
+Sanitize.clean(CGI.unescapeHTML(your_string));
 const sanitize = require('sanitize-html');
 
 // 다른 사람 책장 월별 확인
