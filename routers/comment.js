@@ -47,7 +47,7 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 		}
 		let result = {
 			cardId: cardId,
-			commentContents: sanitizedDescription(req.body.commentContents),
+			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
 			tag: tag,
 			commentCreatedAt: moment().format('YYYY-MM-DDT+'),
