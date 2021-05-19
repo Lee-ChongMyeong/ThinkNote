@@ -7,7 +7,7 @@ const authMiddleware = require('../auth/authMiddleware');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
-const sanitizedDescription = sanitize({ allowedTags: ['<', '>'] });
+const sanitizedDescription = sanitize({ allowedTags: ['&lt', '&gt'] });
 
 // 댓글 리스트
 router.get('/:cardId', async (req, res) => {
@@ -19,7 +19,7 @@ router.get('/:cardId', async (req, res) => {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			let temp = {
 				commentId: comment.commentId,
-				commentContents: sanitize(comment.commentContents),
+				commentContents: sanitizedDescription(comment.commentContents),
 				tag: comment.tag,
 				userId: comment.userId,
 				nickname: userInfo.nickname,
@@ -47,7 +47,7 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 		}
 		let result = {
 			cardId: cardId,
-			commentContents: sanitizedDescription(req.body.commentContents),
+			commentContents: sanitize(req.body.commentContents),
 			userId: sanitize(user.id),
 			tag: tag,
 			commentCreatedAt: moment().format('YYYY-MM-DDT+'),
