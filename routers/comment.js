@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 // eslint-disable-next-line no-undef
-Sanitize.clean(CGI.unescapeHTML(your_string));
 const sanitize = require('sanitize-html');
 const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');

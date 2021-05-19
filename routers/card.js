@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const sanitize = require('sanitize-html');
-Sanitize.clean(CGI.unescapeHTML(your_string));
 const {
 	QuestionCard,
 	AnswerCard,

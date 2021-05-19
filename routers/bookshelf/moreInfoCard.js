@@ -4,7 +4,6 @@ const router = express.Router();
 const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models');
 const jwt = require('jsonwebtoken');
 const sanitize = require('sanitize-html');
-Sanitize.clean(CGI.unescapeHTML(your_string));
 
 router.get('/:questionId', async (req, res) => {
 	const { authorization } = req.headers;
