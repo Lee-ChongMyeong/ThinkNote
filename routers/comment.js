@@ -7,7 +7,7 @@ const authMiddleware = require('../auth/authMiddleware');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
-const sanitizedDescription = sanitize({ allowedTags: ['&gt', '&lt'] });
+const sanitizedDescription = sanitize({ allowedTags: ['<', '>'] });
 
 // 댓글 리스트
 router.get('/:cardId', async (req, res) => {
@@ -47,7 +47,7 @@ router.post('/:cardId', authMiddleware, async (req, res) => {
 		}
 		let result = {
 			cardId: cardId,
-			commentContents: sanitize(req.body.commentContents),
+			commentContents: sanitizedDescription(req.body.commentContents),
 			userId: sanitize(user.id),
 			tag: tag,
 			commentCreatedAt: moment().format('YYYY-MM-DDT+'),
