@@ -54,7 +54,16 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 			cardId: answerCardId,
 			eventType: 'like'
 		});
-		if (alarmInfo['userList'].length == 1 && -1 != alarmInfo['userList'].indexOf(user._id)) {
+		// sork so 내게시물에요서 게시물 좋아요1개,
+		if (!alarmInfo) {
+			return res.send({ answerCardId, likeCountNum, currentLike: false });
+		}
+
+		if (
+			alarmInfo &&
+			alarmInfo['userList'].length == 1 &&
+			-1 != alarmInfo['userList'].indexOf(user._id)
+		) {
 			await Alarm.deleteOne({
 				userId: answer.userId,
 				cardId: answerCardId,
