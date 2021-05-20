@@ -356,10 +356,10 @@ router.post('/addfriend', authMiddleware, async (req, res) => {
 });
 
 // 친구해제ㅠㅠ
-router.delete('/friend', authMiddleware, async (req, res) => {
+router.delete('/friend/:friendId', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
-		const { friendId } = req.body;
+		const { friendId } = req.params;
 		const checkFriend = await Friend.findOne({
 			followingId: user.userId,
 			followerId: friendId
