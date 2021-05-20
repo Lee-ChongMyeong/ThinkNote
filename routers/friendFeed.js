@@ -19,14 +19,11 @@ router.get('/', authMiddleware, async (req, res) => {
 	let result = { msg: 'success', friendFeed: [] };
 	// eslint-disable-next-line no-empty
 	try {
-<<<<<<< HEAD
-=======
 		const user = res.locals.user;
 		const myFriend = await Friend.findOne({
 			followingId: user.userId
 		});
-        console.log(myFriend);
->>>>>>> 4deeeae2e035938cb77a3844efe32903c0a50107
+		console.log(myFriend);
 	} catch (err) {
 		result['msg'] = 'fail';
 	}
