@@ -22,7 +22,7 @@ router.get('/:cardId', async (req, res) => {
 				commentContents: sanitize(comment.commentContents),
 				tag: comment.tag,
 				userId: comment.userId,
-				nickname: userInfo.nickname,
+				nickname: sanitize(userInfo.nickname),
 				profileImg: userInfo['profileImg'],
 				commentCreatedAt: moment(comment.createdAt).add(9, 'hours')
 			};
