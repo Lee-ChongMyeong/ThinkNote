@@ -58,7 +58,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
 		for (let i = 0; i < friendCards.length; i++) {
 			let questionInfo = await QuestionCard.findOne({ _id: friendCards[i]['questionId'] });
-			friendCards[i]['questionContents'] = questionInfo.contents;
+			friendCards[i]['questionTitle'] = questionInfo.contents;
 		}
 
 		return res.json({ msg: 'success', friendCards });

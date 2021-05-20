@@ -133,8 +133,8 @@ router.post('/like/:commentId', authMiddleware, async (req, res) => {
 		const likeCount = await CommentLike.find({ commentId: commentId });
 		const likeCountNum = likeCount.length;
 
-		// const alarmSend = require('../../lib/sendAlarm');
-		// await alarmSend(answer.userId, answerCardId, 'like', user.userId, req.alarm);
+		const alarmSend = require('../lib/sendAlarm');
+		await alarmSend(answer.userId, commentId, 'commentLike', user.userId, req.alarm);
 
 		return res.send({ commentId, likeCountNum, currentLike: true });
 	} catch (err) {
@@ -163,32 +163,32 @@ router.patch('/like/:commentId', authMiddleware, async (req, res) => {
 		const likeCount = await CommentLike.find({ commentId: commentId });
 		const likeCountNum = likeCount.length;
 
-		// let alarmInfo = await Alarm.findOne({
-		// 	userId: answer.userId,
-		// 	cardId: answerCardId,
-		// 	eventType: 'like'
-		// });
-		// sork so 내게시물에요서 게시물 좋아요1개,
-		// if (!alarmInfo) {
-		// 	return res.send({ answerCardId, likeCountNum, currentLike: false });
-		// }
+		let alarmInfo = await Alarm.findOne({
+			userId: answer.userId,
+			commentId: commentId,
+			eventType: 'commentLike'
+		});
+		//sork so 내게시물에요서 게시물 좋아요1개,
+		if (!alarmInfo) {
+			return res.send({ commentId, likeCountNum, currentLike: false });
+		}
 
-		// if (
-		// 	alarmInfo &&
-		// 	alarmInfo['userList'].length == 1 &&
-		// 	-1 != alarmInfo['userList'].indexOf(user._id)
-		// ) {
-		// 	await Alarm.deleteOne({
-		// 		userId: answer.userId,
-		// 		cardId: answerCardId,
-		// 		eventType: 'like'
-		// 	});
-		// }
-		// // elif (!alarmInfo) { return }
-		// else {
-		// 	alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
-		// 	await alarmInfo.save();
-		// }
+		if (
+			alarmInfo &&
+			alarmInfo['userList'].length == 1 &&
+			-1 != alarmInfo['userList'].indexOf(user._id)
+		) {
+			await Alarm.deleteOne({
+				userId: answer.userId,
+				cardId: commentId,
+				eventType: 'commentLike'
+			});
+		}
+		// elif (!alarmInfo) { return }
+		else {
+			alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
+			await alarmInfo.save();
+		}
 
 		res.send({ commentId, likeCountNum, currentLike: false });
 		return;
