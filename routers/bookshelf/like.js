@@ -110,7 +110,7 @@ router.get('/list/:answerId', async (req, res) => {
 			},
 			{
 				$project: {
-					_id: { $arrayElemAt: ['$likeUserInfo._id', 0] },
+					userId: { $arrayElemAt: ['$likeUserInfo._id', 0] },
 					nickname: { $arrayElemAt: ['$likeUserInfo.nickname', 0] },
 					profileImg: { $arrayElemAt: ['$likeUserInfo.profileImg', 0] }
 				}
