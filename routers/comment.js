@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // eslint-disable-next-line no-undef
-const sanitize = require('sanitize-html');
+const sanitize = require('../lib/sanitizeHtml');
 const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const moment = require('moment');

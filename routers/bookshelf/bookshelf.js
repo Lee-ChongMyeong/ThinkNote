@@ -11,7 +11,7 @@ const {
 	Search
 } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
-const sanitize = require('sanitize-html');
+const sanitize = require('../../lib/sanitizeHtml');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');

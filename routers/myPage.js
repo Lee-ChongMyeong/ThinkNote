@@ -15,7 +15,7 @@ const {
 	Search
 } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
-const sanitize = require('sanitize-html');
+const sanitize = require('../lib/sanitizeHtml');
 const s3 = require('../lib/s3.js');
 const randomNickname = require('../lib/nickname');
 require('dotenv').config();

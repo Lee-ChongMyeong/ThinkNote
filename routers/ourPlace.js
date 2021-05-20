@@ -8,7 +8,7 @@ require('dotenv').config();
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
-const sanitize = require('sanitize-html');
+const sanitize = require('../lib/sanitizeHtml');
 
 // 랜덤으로 질문에 답글이 하나 이상 달린 글 출력
 router.get('/cards', async (req, res) => {

@@ -3,7 +3,7 @@ const router = express.Router();
 // const authMiddleware = require('../../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
 // eslint-disable-next-line no-undef
-const sanitize = require('sanitize-html');
+const sanitize = require('../../lib/sanitizeHtml');
 
 // 다른 사람 책장 월별 확인
 router.get('/books/:YYMM/:id', async (req, res) => {
