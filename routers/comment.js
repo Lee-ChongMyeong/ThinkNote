@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 const express = require('express');
 const router = express.Router();
 // eslint-disable-next-line no-undef
 const sanitize = require('../lib/sanitizeHtml');
-const { CommentBoard, User, AnswerCard, Alarm } = require('../models');
+const { CommentBoard, User, AnswerCard, Alarm, CommentLike } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const moment = require('moment');
 require('moment-timezone');
@@ -109,6 +110,92 @@ router.delete('/:commentId', authMiddleware, async (req, res) => {
 		result['msg'] = 'fail';
 	}
 	res.json(result);
+});
+
+// 댓글 좋아요 클릭
+router.post('/like/:commentId', authMiddleware, async (req, res) => {
+	try {
+		const commentId = req.params.commentId;
+		const user = res.locals.user;
+
+		const currentLike = await CommentLike.findOne({
+			userId: user.userId,
+			commentId: commentId
+		});
+		const answer = await CommentBoard.findOne({ _id: commentId });
+		if (currentLike) {
+			return res.send('좋아요 누른 상태');
+		}
+		await CommentLike.create({
+			commentId: commentId,
+			userId: user.userId
+		});
+		const likeCount = await CommentLike.find({ commentId: commentId });
+		const likeCountNum = likeCount.length;
+
+		// const alarmSend = require('../../lib/sendAlarm');
+		// await alarmSend(answer.userId, answerCardId, 'like', user.userId, req.alarm);
+
+		return res.send({ commentId, likeCountNum, currentLike: true });
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
+
+// 답변카드 좋아요 취소 클릭
+router.patch('/like/:commentId', authMiddleware, async (req, res) => {
+	try {
+		const commentId = req.params.commentId;
+		const user = res.locals.user;
+
+		const currentLike = await CommentLike.findOne({
+			userId: user.userId,
+			commentId: commentId
+		});
+		if (!currentLike) {
+			return res.send('좋아요 취소 상태');
+		}
+
+		await CommentLike.deleteOne({ commentId: commentId, userId: user.userId });
+		let answer = await CommentBoard.findOne({ _id: commentId });
+
+		const likeCount = await CommentLike.find({ commentId: commentId });
+		const likeCountNum = likeCount.length;
+
+		// let alarmInfo = await Alarm.findOne({
+		// 	userId: answer.userId,
+		// 	cardId: answerCardId,
+		// 	eventType: 'like'
+		// });
+		// sork so 내게시물에요서 게시물 좋아요1개,
+		// if (!alarmInfo) {
+		// 	return res.send({ answerCardId, likeCountNum, currentLike: false });
+		// }
+
+		// if (
+		// 	alarmInfo &&
+		// 	alarmInfo['userList'].length == 1 &&
+		// 	-1 != alarmInfo['userList'].indexOf(user._id)
+		// ) {
+		// 	await Alarm.deleteOne({
+		// 		userId: answer.userId,
+		// 		cardId: answerCardId,
+		// 		eventType: 'like'
+		// 	});
+		// }
+		// // elif (!alarmInfo) { return }
+		// else {
+		// 	alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
+		// 	await alarmInfo.save();
+		// }
+
+		res.send({ commentId, likeCountNum, currentLike: false });
+		return;
+	} catch (err) {
+		console.log(err);
+		return res.status(400).json({ msg: 'fail' });
+	}
 });
 
 module.exports = router;

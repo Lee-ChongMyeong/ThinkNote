@@ -7,6 +7,7 @@ const QuestionDaily = require('./questionDaily');
 const CommentBoard = require('./commentBoard');
 const Alarm = require('./alarm');
 const Search = require('./search');
+const CommentLike = require('./commentLike');
 
 const DB = {
 	User,
@@ -17,7 +18,8 @@ const DB = {
 	QuestionDaily,
 	CommentBoard,
 	Alarm,
-	Search
+	Search,
+	CommentLike
 };
 
 module.exports = DB;

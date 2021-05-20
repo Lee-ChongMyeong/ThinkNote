@@ -10,10 +10,10 @@ moment.tz.setDefault('Asia/Seoul');
 
 // 친구 피드 받기
 router.get('/', authMiddleware, async (req, res) => {
+	let result = { msg: 'success', totalFeed: [] };
 	try {
 		const user = res.locals.user;
 		let friendlist = [];
-		console.log(user.userId);
 		const myFriend = await Friend.aggregate([
 			{ $match: { followingId: user.userId } },
 			{ $project: { followerId: 1 } }
@@ -22,7 +22,6 @@ router.get('/', authMiddleware, async (req, res) => {
 		for (let friend of myFriend) {
 			friendlist.push(friend.followerId);
 		}
-		console.log(friendlist);
 
 		const friendCards = await AnswerCard.aggregate([
 			{ $match: { userId: { $in: friendlist } } },
@@ -31,7 +30,6 @@ router.get('/', authMiddleware, async (req, res) => {
 					_id: 1,
 					questionId: 1,
 					contents: 1,
-					YYMMDD: 1,
 					createdAt: 1,
 					userId: { $toObjectId: '$userId' }
 				}
@@ -49,14 +47,20 @@ router.get('/', authMiddleware, async (req, res) => {
 					_id: 1,
 					questionId: 1,
 					contents: 1,
-					YYMMDD: 1,
+					createdAt: 1,
 					nickname: { $arrayElemAt: ['$users.nickname', 0] },
 					profileImg: { $arrayElemAt: ['$users.profileImg', 0] }
 				}
 			},
 			{ $sort: { createdAt: -1 } },
-			{ $limit: 5 }
+			{ $limit: 10 }
 		]);
+
+		for (let i = 0; i < friendCards.length; i++) {
+			let questionInfo = await QuestionCard.findOne({ _id: friendCards[i]['questionId'] });
+			friendCards[i]['questionContents'] = questionInfo.contents;
+		}
+
 		return res.json({ msg: 'success', friendCards });
 	} catch (err) {
 		return res.json({ msg: 'fail' });
