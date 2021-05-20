@@ -40,7 +40,7 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 
 		const currentLike = await Like.findOne({ userId: user.userId, answerId: answerCardId });
 		if (!currentLike) {
-			return res.send('좋아요가 안되어있는데 어떻게 좋아요를 취소합니까 아시겠어여?');
+			return res.send('fail');
 		}
 
 		await Like.deleteOne({ answerId: answerCardId, userId: user.userId });
