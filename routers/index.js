@@ -17,6 +17,4 @@ router.use('/serviceInfo', require('./serviceInfo'));
 
 router.use('/friendFeed', require('./friendFeed'));
 
-router.use('/topic', require('./topic'));
-
 module.exports = router;
