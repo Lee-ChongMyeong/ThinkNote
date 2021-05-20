@@ -4,6 +4,7 @@ const router = express.Router();
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
 // eslint-disable-next-line no-undef
 const sanitize = require('../../lib/sanitizeHtml');
+const jwt = require('jsonwebtoken');
 
 // 다른 사람 책장 월별 확인
 router.get('/books/:YYMM/:id', async (req, res) => {
@@ -177,6 +178,14 @@ router.get('/like/:id/question', async (req, res) => {
 // 다른 사람이 작성한 답변 모음 (최신순)
 router.get('/answers/:id', async (req, res) => {
 	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		let userId = '';
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+
 		const { id } = req.params;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -193,7 +202,7 @@ router.get('/answers/:id', async (req, res) => {
 			//좋아요 상태확인
 			let currentLike = false;
 			let checkCurrentLike = await Like.findOne({
-				userId: id,
+				userId: userId,
 				answerId: myAnswerInfo[i]['_id']
 			});
 			if (checkCurrentLike) {
@@ -232,6 +241,14 @@ router.get('/answers/:id/like', async (req, res) => {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		let userId = '';
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+
 		const answerCount = await AnswerCard.find({ userId: id, isOpen: true });
 		const myAnswerInfo = await AnswerCard.aggregate([
 			{ $match: { userId: { $eq: id } } },
@@ -268,7 +285,7 @@ router.get('/answers/:id/like', async (req, res) => {
 			//좋아요 상태확인
 			let currentLike = false;
 			let checkCurrentLike = await Like.findOne({
-				userId: id,
+				userId: userId,
 				answerId: myAnswerInfo[i]['_id']
 			});
 			if (checkCurrentLike) {

@@ -356,10 +356,10 @@ router.post('/addfriend', authMiddleware, async (req, res) => {
 });
 
 // 친구해제ㅠㅠ
-router.delete('/friend', authMiddleware, async (req, res) => {
+router.delete('/friend/:friendId', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
-		const { friendId } = req.body;
+		const { friendId } = req.params;
 		const checkFriend = await Friend.findOne({
 			followingId: user.userId,
 			followerId: friendId
@@ -367,7 +367,7 @@ router.delete('/friend', authMiddleware, async (req, res) => {
 		if (!checkFriend) {
 			return res.send('친구가 아닙니다.');
 		}
-		await Friend.deleteOne({ followingId: user.userId, followerId: friendId });
+		await Friend.findOneAndDelete({ followingId: user.userId, followerId: friendId });
 		return res.json({ msg: '친구삭제 성공' });
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });

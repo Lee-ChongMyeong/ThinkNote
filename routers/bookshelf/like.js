@@ -84,4 +84,12 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 	}
 });
 
+router.get('/likeList', async (req, res) => {
+	try {
+
+	} catch (err) {
+
+	}
+});
+
 module.exports = router;
