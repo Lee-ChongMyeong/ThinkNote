@@ -85,43 +85,44 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 });
 
 // 좋아요 목록 확인
-router.get('/likeList/:answerId', async (req, res) => {
+router.get('/list/:answerId', async (req, res) => {
 	try {
+		let { page } = req.query;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+		const { answerId } = req.params;
+
 		const likeList = await Like.aggregate([
-			{
-				$match: {
-					answerId: { $in: [`${topicName}`] }
-				}
-			},
+			{ $match: { answerId: { $eq: answerId } } },
 			{
 				$project: {
 					_id: 1,
-					createdUser: { $toObjectId: '$createdUser' },
-					contents: 1,
+					userId: { $toObjectId: '$userId' }
 				}
 			},
 			{
 				$lookup: {
 					from: 'users',
-					localField: 'createdUser',
+					localField: 'userId',
 					foreignField: '_id',
-					as: 'createdUserInfo'
+					as: 'likeUserInfo'
 				}
 			},
 			{
 				$project: {
-					_id: 1,
-					topic: 1,
-					contents: 1,
-					createdUserInfo: 1
+					_id: { $arrayElemAt: ['$likeUserInfo._id', 0] },
+					nickname: { $arrayElemAt: ['$likeUserInfo.nickname', 0] },
+					profileImg: { $arrayElemAt: ['$likeUserInfo.profileImg', 0] }
 				}
 			},
-			{ $sort: { createdAt: -1 } },
 			{ $skip: page * 15 },
 			{ $limit: 15 }
 		]);
+		console.log(likeList);
+		return res.send({ likeList });
 	} catch (err) {
-
+		console.log(err);
+		return res.send('fail');
 	}
 });
 
