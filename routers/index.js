@@ -19,4 +19,6 @@ router.use('/friendFeed', require('./friendFeed'));
 
 router.use('/friends', require('./friendsList'));
 
+router.use('/topic', require('./topic'));
+
 module.exports = router;
