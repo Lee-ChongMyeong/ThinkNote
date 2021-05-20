@@ -351,7 +351,7 @@ router.post('/addfriend', authMiddleware, async (req, res) => {
 		});
 
 		const alarmSend = require('../../lib/sendAlarm');
-		await alarmSend(friendId, user.userId, 'answer', user.userId, req.alarm);
+		await alarmSend(friendId, user.userId, 'follow', user.userId, req.alarm);
 
 		return res.status(200).json({ msg: '친구추가 성공' });
 	} catch (err) {
