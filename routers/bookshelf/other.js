@@ -43,11 +43,11 @@ router.get('/bookDetail/:YYMMDD/:id', async (req, res) => {
 				questionCreatedUserId: questionUserInfo._id,
 				questionCreatedUserNickname: questionUserInfo.nickname,
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
-				questionContents: contents,
+				questionContents: sanitize(contents),
 				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
 				answerContents: booksDetail[i]['contents'],
-				answerUserNickname: '', //수정 필요!!!!!!!!!!!!
+				//answerUserNickname: '', //수정 필요!!!!!!!!!!!!
 				isOpen: booksDetail[i]['isOpen'],
 				likeCount: likeCountNum
 			});
