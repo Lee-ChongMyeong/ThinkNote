@@ -3,20 +3,8 @@ const router = express.Router();
 const { QuestionCard, AnswerCard, User } = require('../models');
 
 router.get('/:topicName', async (req, res) => {
-    let topicName = req.params.topicName;
-    if (topicName === 'love') {
-        topicName = '사랑';
-    } else if (topicName === 'relationship') {
-        topicName = '관계';
-    } else if (topicName === 'friendship') {
-        topicName = '우정';
-    } else if (topicName === 'worth') {
-        topicName = '가치';
-    } else if (topicName === 'dream') {
-        topicName = '꿈';
-    } else if (topicName === 'myself') {
-        topicName = '나';
-    }
+
+    let topicName = decodeURIComponent(req.params.topicName);
 
     let { page } = req.query;
     page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;

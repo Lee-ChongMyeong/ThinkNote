@@ -84,9 +84,42 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 	}
 });
 
-router.get('/likeList', async (req, res) => {
+// 좋아요 목록 확인
+router.get('/likeList/:answerId', async (req, res) => {
 	try {
-
+		const likeList = await Like.aggregate([
+			{
+				$match: {
+					answerId: { $in: [`${topicName}`] }
+				}
+			},
+			{
+				$project: {
+					_id: 1,
+					createdUser: { $toObjectId: '$createdUser' },
+					contents: 1,
+				}
+			},
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'createdUser',
+					foreignField: '_id',
+					as: 'createdUserInfo'
+				}
+			},
+			{
+				$project: {
+					_id: 1,
+					topic: 1,
+					contents: 1,
+					createdUserInfo: 1
+				}
+			},
+			{ $sort: { createdAt: -1 } },
+			{ $skip: page * 15 },
+			{ $limit: 15 }
+		]);
 	} catch (err) {
 
 	}
