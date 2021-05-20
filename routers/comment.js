@@ -13,7 +13,7 @@ router.get('/:cardId', async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
 	try {
-		const comments = await CommentBoard.find({ cardId: cardId }).sort('-createdAt');
+		const comments = await CommentBoard.find({ cardId: cardId }).sort('createdAt');
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			let temp = {
