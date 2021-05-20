@@ -367,7 +367,7 @@ router.delete('/friend', authMiddleware, async (req, res) => {
 		if (!checkFriend) {
 			return res.send('친구가 아닙니다.');
 		}
-		await Friend.deleteOne({ followingId: user.userId, followerId: friendId });
+		await Friend.findOneAndDelete({ followingId: user.userId, followerId: friendId });
 		return res.json({ msg: '친구삭제 성공' });
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
