@@ -15,10 +15,8 @@ router.use('/comment', require('./comment'));
 
 router.use('/serviceInfo', require('./serviceInfo'));
 
-//router.use('/friendFeed', require('./friendFeed'));
+router.use('/friendFeed', require('./friendFeed'));
 
 router.use('/friends', require('./friendsList'));
-
-router.use('/topic', require('./topic'));
 
 module.exports = router;
