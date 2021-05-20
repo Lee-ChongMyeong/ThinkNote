@@ -41,13 +41,13 @@ router.get('/bookDetail/:YYMMDD/:id', async (req, res) => {
 			booksDiary.push({
 				questionId: _id,
 				questionCreatedUserId: questionUserInfo._id,
-				questionCreatedUserNickname: questionUserInfo.nickname,
+				questionCreatedUserNickname: sanitize(questionUserInfo.nickname),
 				questionCreatedUserProfileImg: questionUserInfo.profileImg,
-				questionContents: contents,
+				questionContents: sanitize(contents),
 				questionTopic: topic,
 				answerId: booksDetail[i]['_id'],
-				answerContents: booksDetail[i]['contents'],
-				answerUserNickname: '', //수정 필요!!!!!!!!!!!!
+				answerContents: sanitize(booksDetail[i]['contents']),
+				//answerUserNickname: '', //수정 필요!!!!!!!!!!!!
 				isOpen: booksDetail[i]['isOpen'],
 				likeCount: likeCountNum
 			});
@@ -214,12 +214,12 @@ router.get('/answers/:id', async (req, res) => {
 			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
 			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
 			allMyAnswer.push({
-				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
 				questionCreatedUserId: questionCreatedUserInfo._id,
 				questiontopic: questionInfo.topic,
-				questionContents: questionInfo.contents,
+				questionContents: sanitize(questionInfo.contents),
 				answerId: myAnswerInfo[i]['_id'],
-				answerContents: myAnswerInfo[i]['contents'],
+				answerContents: sanitize(myAnswerInfo[i]['contents']),
 				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
 				likeCount: like.length,
 				commentCount: comment.length,
@@ -296,12 +296,12 @@ router.get('/answers/:id/like', async (req, res) => {
 			const like = await Like.find({ answerId: myAnswerInfo[i]['_id'] });
 			const comment = await CommentBoard.find({ cardId: myAnswerInfo[i]['_id'] });
 			allMyAnswer.push({
-				questionCreatedUserNickname: questionCreatedUserInfo.nickname,
+				questionCreatedUserNickname: sanitize(questionCreatedUserInfo.nickname),
 				questionCreatedUserId: questionCreatedUserInfo._id,
 				questiontopic: questionInfo.topic,
-				questionContents: questionInfo.contents,
+				questionContents: sanitize(questionInfo.contents),
 				answerId: myAnswerInfo[i]['_id'],
-				answerContents: myAnswerInfo[i]['contents'],
+				answerContents: sanitize(myAnswerInfo[i]['contents']),
 				answerCreatedAt: myAnswerInfo[i]['YYMMDD'],
 				likeCount: like.length,
 				commentCount: comment.length,
