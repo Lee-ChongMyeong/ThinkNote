@@ -342,6 +342,11 @@ router.post('/addfriend', authMiddleware, async (req, res) => {
 			followingId: user.userId,
 			followerId: friendId
 		});
+
+		if (friendId == user.userId) {
+			return res.status(400).send('fail');
+		}
+
 		if (checkFriend) {
 			return res.send('이미 친구입니다.');
 		}
