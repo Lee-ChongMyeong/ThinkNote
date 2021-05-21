@@ -11,7 +11,6 @@ moment.tz.setDefault('Asia/Seoul');
 
 // 친구 피드 받기
 router.get('/', authMiddleware, async (req, res) => {
-	let result = { msg: 'success', totalFeed: [] };
 	try {
 		const user = res.locals.user;
 		let lastId = req.query['lastId'];
@@ -75,9 +74,18 @@ router.get('/', authMiddleware, async (req, res) => {
 			let questionInfo = await QuestionCard.findOne({ _id: friendCards[i]['questionId'] });
 			let commentInfo = await CommentBoard.find({ cardId: friendCards[i]['_id'] });
 			let likeInfo = await Like.find({ answerId: friendCards[i]['_id'] });
+			let like = false;
+			let likeCheck = await Like.findOne({
+				userId: user._id,
+				answerId: friendCards[i]['_id']
+			});
+			if (likeCheck) {
+				like = true;
+			}
 			friendCards[i]['questionTitle'] = questionInfo.contents;
 			friendCards[i]['commentCount'] = commentInfo.length;
 			friendCards[i]['likeCount'] = likeInfo.length;
+			friendCards[i]['like'] = like;
 		}
 		if (friendCards.length < 10) {
 			return res.json({ msg: 'end', friendCards });
