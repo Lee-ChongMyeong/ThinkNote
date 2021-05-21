@@ -8,7 +8,8 @@ const {
 	Friend,
 	Like,
 	CommentBoard,
-	Search
+	Search,
+	Alarm
 } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
 const sanitize = require('../../lib/sanitizeHtml');
@@ -373,6 +374,11 @@ router.delete('/friend/:friendId', authMiddleware, async (req, res) => {
 			return res.send('친구가 아닙니다.');
 		}
 		await Friend.findOneAndDelete({ followingId: user.userId, followerId: friendId });
+		await Alarm.findOneAndDelete({
+			userId: friendId,
+			cardId: user.userId,
+			eventType: 'follow'
+		});
 		return res.json({ msg: '친구삭제 성공' });
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
