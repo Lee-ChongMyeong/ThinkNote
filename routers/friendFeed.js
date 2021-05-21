@@ -75,8 +75,13 @@ router.get('/', authMiddleware, async (req, res) => {
 
 		for (let i = 0; i < friendCards.length; i++) {
 			let questionInfo = await QuestionCard.findOne({ _id: friendCards[i]['questionId'] });
+			let commentInfo = await CommentBoard.find({ cardId: friendCards[i]['_id'] });
+			let likeInfo = await Like.find({ answerId: friendCards[i]['_id'] });
 			friendCards[i]['questionTitle'] = questionInfo.contents;
+			friendCards[i]['commentCount'] = commentInfo.length;
+			friendCards[i]['likeCount'] = likeInfo.length;
 		}
+
 		return res.json({ msg: 'success', friendCards });
 	} catch (err) {
 		return res.json({ msg: 'fail' });
