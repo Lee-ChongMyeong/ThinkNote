@@ -1,18 +1,33 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 const express = require('express');
 const router = express.Router();
 // eslint-disable-next-line no-undef
 const sanitize = require('../lib/sanitizeHtml');
-const { CommentBoard, User, AnswerCard, Alarm, CommentLike } = require('../models');
+const jwt = require('jsonwebtoken');
+const { CommentBoard, User, AnswerCard, Alarm, CommentLike, Like } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
+require('dotenv').config();
 
 // 댓글 리스트
 router.get('/:cardId', async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
+	let userId = '';
+	try {
+		const { authorization } = req.headers;
+		const [tokenType, tokenValue] = authorization.split(' ');
+		if (tokenType == 'Bearer') {
+			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
+			userId = payload.userId;
+		}
+	} catch (error) {
+		console.log(error);
+		console.log('토큰 해독 에러 또는 토큰 없음');
+	}
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
@@ -23,6 +38,17 @@ router.get('/:cardId', async (req, res) => {
 			.limit(15);
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
+			const commentLikeInfo = await CommentLike.find({ commentId: comment.commentId });
+			let like = false;
+			if (userId) {
+				let likeCheck = await Like.findOne({
+					userId: userId,
+					answerId: comment.cardId
+				});
+				if (likeCheck) {
+					like = true;
+				}
+			}
 			let temp = {
 				commentId: comment.commentId,
 				commentContents: sanitize(comment.commentContents),
@@ -30,7 +56,9 @@ router.get('/:cardId', async (req, res) => {
 				userId: comment.userId,
 				nickname: sanitize(userInfo.nickname),
 				profileImg: userInfo['profileImg'],
-				commentCreatedAt: moment(comment.createdAt).add(9, 'hours')
+				commentCreatedAt: moment(comment.createdAt).add(9, 'hours'),
+				commentLikeCount: commentLikeInfo.length,
+				like: like
 			};
 			result['comments'].push(temp);
 		}
@@ -174,7 +202,6 @@ router.patch('/like/:commentId', authMiddleware, async (req, res) => {
 			commentId: commentId,
 			eventType: 'commentLike'
 		});
-		//sork so 내게시물에요서 게시물 좋아요1개,
 		if (!alarmInfo) {
 			return res.send({ commentId, likeCountNum, currentLike: false });
 		}
@@ -189,9 +216,7 @@ router.patch('/like/:commentId', authMiddleware, async (req, res) => {
 				cardId: commentId,
 				eventType: 'commentLike'
 			});
-		}
-		// elif (!alarmInfo) { return }
-		else {
+		} else {
 			alarmInfo['userList'].splice(alarmInfo['userList'].indexOf(user._id), 1);
 			await alarmInfo.save();
 		}
