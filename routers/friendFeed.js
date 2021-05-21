@@ -15,7 +15,6 @@ router.get('/', authMiddleware, async (req, res) => {
 	try {
 		const user = res.locals.user;
 		let lastId = req.query['lastId'];
-		console.log('lastId', lastId);
 
 		// const myFriend = await Friend.aggregate([
 		// 	{ $match: { followingId: user.userId } },
@@ -29,7 +28,6 @@ router.get('/', authMiddleware, async (req, res) => {
 		const friendList = await Friend.find({ followingId: user.userId }).then((followers) =>
 			followers.map((follower) => follower.followerId)
 		);
-		console.log(friendList);
 
 		const basicQuery = AnswerCard.aggregate([
 			{ $match: { userId: { $in: friendList } } },
@@ -81,7 +79,9 @@ router.get('/', authMiddleware, async (req, res) => {
 			friendCards[i]['commentCount'] = commentInfo.length;
 			friendCards[i]['likeCount'] = likeInfo.length;
 		}
-
+		if (friendCards.length < 10) {
+			return res.json({ msg: 'end', friendCards });
+		}
 		return res.json({ msg: 'success', friendCards });
 	} catch (err) {
 		return res.json({ msg: 'fail' });
