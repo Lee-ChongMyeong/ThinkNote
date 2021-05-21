@@ -147,13 +147,18 @@ router.get('/auth/user/:id', async (req, res) => {
 		const userInfo = await User.findOne({ _id: id });
 		const otherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherAnswer = await AnswerCard.find({ userId: id });
+		const following = await Friend.find({ followingId: id });
+		const follower = await Friend.find({ followerId: id });
+
 		return res.json({
 			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
 			introduce: userInfo.introduce,
 			topic: userInfo.preferredTopic,
 			otherCustomQuestionCount: otherQuestion.length,
-			otherAnswerCount: otherAnswer.length
+			otherAnswerCount: otherAnswer.length,
+			followingCount: following.length,
+			followerCount: follower.length
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
@@ -392,26 +397,26 @@ router.delete('/friend/:friendId', authMiddleware, async (req, res) => {
 
 // 내 친구 목록 확인
 // 무한 스크롤 추가 하기
-// router.get('/friendList', authMiddleware, async (req, res) => {
-// 	try {
-// 		const user = res.locals.user;
-// 		const friendList = await Friend.find({ followingId: user.userId });
+router.get('/friendList', authMiddleware, async (req, res) => {
+	try {
+		const user = res.locals.user;
+		const friendList = await Friend.find({ followingId: user.userId });
 
-// 		const friends = await Promise.all(
-// 			friendList.map(async (friend) => {
-// 				const friendInfo = await User.findOne({ _id: friend['followerId'] });
-// 				return {
-// 					friendId: friendInfo._id,
-// 					friendNickname: sanitize(friendInfo.nickname),
-// 					friendProfileImg: friendInfo.profileImg
-// 				};
-// 			})
-// 		);
-// 		return res.send({ friends });
-// 	} catch (err) {
-// 		return res.status(400).json({ msg: 'fail' });
-// 	}
-// });
+		const friends = await Promise.all(
+			friendList.map(async (friend) => {
+				const friendInfo = await User.findOne({ _id: friend['followerId'] });
+				return {
+					friendId: friendInfo._id,
+					friendNickname: sanitize(friendInfo.nickname),
+					friendProfileImg: friendInfo.profileImg
+				};
+			})
+		);
+		return res.send({ friends });
+	} catch (err) {
+		return res.status(400).json({ msg: 'fail' });
+	}
+});
 
 //더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
