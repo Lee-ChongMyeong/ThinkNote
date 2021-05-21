@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { AnswerCard, Like, Alarm } = require('../../models');
+const { AnswerCard, Like, Alarm, User, Friend } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
+const authAddtional = require('../../auth/authAddtional');
+const sanitize = require('../../lib/sanitizeHtml');
 
 // 답변카드 좋아요 클릭
 router.post('/answerCard', authMiddleware, async (req, res) => {
@@ -85,44 +87,45 @@ router.patch('/answerCard', authMiddleware, async (req, res) => {
 });
 
 // 좋아요 목록 확인
-router.get('/list/:answerId', async (req, res) => {
+router.get('/list/:answerId', authAddtional, async (req, res) => {
 	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
-
+		const loginUser = res.locals.user;
+		const print_count = 7;
 		const { answerId } = req.params;
 
-		const likeList = await Like.aggregate([
-			{ $match: { answerId: { $eq: answerId } } },
-			{
-				$project: {
-					_id: 1,
-					userId: { $toObjectId: '$userId' }
+		const friends = await Like.aggregate()
+			.match({ answerId })
+			.sort({ _id: -1 })
+			.skip(print_count * page)
+			.limit(print_count);
+
+		// eslint-disable-next-line no-undef
+		const likeList = await Promise.all(
+			friends.map(async (user) => {
+				const userInfo = await User.findOne({ _id: user['userId'] });
+				let isFollowing = false;
+				// 내가 팔로잉한 사용자인지 체크
+				if (loginUser) {
+					const isFollow = await Friend.findOne({
+						followingId: loginUser._id,
+						followerId: userInfo._id
+					});
+					if (isFollow) isFollowing = true;
 				}
-			},
-			{
-				$lookup: {
-					from: 'users',
-					localField: 'userId',
-					foreignField: '_id',
-					as: 'likeUserInfo'
-				}
-			},
-			{
-				$project: {
-					userId: { $arrayElemAt: ['$likeUserInfo._id', 0] },
-					nickname: { $arrayElemAt: ['$likeUserInfo.nickname', 0] },
-					profileImg: { $arrayElemAt: ['$likeUserInfo.profileImg', 0] }
-				}
-			},
-			{ $skip: page * 15 },
-			{ $limit: 15 }
-		]);
-		console.log(likeList);
+				return {
+					userId: userInfo._id,
+					nickname: sanitize(userInfo.nickname),
+					profileImg: userInfo.profileImg,
+					isFollowing: isFollowing
+				};
+			})
+		);
 		return res.send({ likeList });
 	} catch (err) {
 		console.log(err);
-		return res.send('fail');
+		return res.status(400).json({ msg: 'fail' });
 	}
 });
 
