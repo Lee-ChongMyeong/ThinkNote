@@ -34,7 +34,8 @@ router.get('/:topicName', async (req, res) => {
 					_id: 1,
 					topic: 1,
 					contents: 1,
-					createdUserInfo: 1
+					createdUserInfo: 1,
+					createdAt: 1
 				}
 			},
 			{ $sort: { createdAt: -1 } },
