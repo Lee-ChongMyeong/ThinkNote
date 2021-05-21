@@ -392,26 +392,26 @@ router.delete('/friend/:friendId', authMiddleware, async (req, res) => {
 
 // 내 친구 목록 확인
 // 무한 스크롤 추가 하기
-router.get('/friendList', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		const friendList = await Friend.find({ followingId: user.userId });
+// router.get('/friendList', authMiddleware, async (req, res) => {
+// 	try {
+// 		const user = res.locals.user;
+// 		const friendList = await Friend.find({ followingId: user.userId });
 
-		const friends = await Promise.all(
-			friendList.map(async (friend) => {
-				const friendInfo = await User.findOne({ _id: friend['followerId'] });
-				return {
-					friendId: friendInfo._id,
-					friendNickname: sanitize(friendInfo.nickname),
-					friendProfileImg: friendInfo.profileImg
-				};
-			})
-		);
-		return res.send({ friends });
-	} catch (err) {
-		return res.status(400).json({ msg: 'fail' });
-	}
-});
+// 		const friends = await Promise.all(
+// 			friendList.map(async (friend) => {
+// 				const friendInfo = await User.findOne({ _id: friend['followerId'] });
+// 				return {
+// 					friendId: friendInfo._id,
+// 					friendNickname: sanitize(friendInfo.nickname),
+// 					friendProfileImg: friendInfo.profileImg
+// 				};
+// 			})
+// 		);
+// 		return res.send({ friends });
+// 	} catch (err) {
+// 		return res.status(400).json({ msg: 'fail' });
+// 	}
+// });
 
 //더보기 질문 타이틀
 router.get('/moreInfoCardTitle/:questionId', async (req, res) => {
