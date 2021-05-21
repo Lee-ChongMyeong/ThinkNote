@@ -147,13 +147,18 @@ router.get('/auth/user/:id', async (req, res) => {
 		const userInfo = await User.findOne({ _id: id });
 		const otherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherAnswer = await AnswerCard.find({ userId: id });
+		const following = await Friend.find({ followingId: id });
+		const follower = await Friend.find({ followerId: id });
+
 		return res.json({
 			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
 			introduce: userInfo.introduce,
 			topic: userInfo.preferredTopic,
 			otherCustomQuestionCount: otherQuestion.length,
-			otherAnswerCount: otherAnswer.length
+			otherAnswerCount: otherAnswer.length,
+			followingCount: following.length,
+			followerCount: follower.length
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
