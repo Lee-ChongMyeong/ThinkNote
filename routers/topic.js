@@ -18,7 +18,8 @@ router.get('/:topicName', async (req, res) => {
 				$project: {
 					_id: 1,
 					createdUser: { $toObjectId: '$createdUser' },
-					contents: 1
+					contents: 1,
+					createdAt: 1
 				}
 			},
 			{
