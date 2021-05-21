@@ -14,7 +14,13 @@ router.get('/:cardId', async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
 	try {
-		const comments = await CommentBoard.find({ cardId: cardId }).sort('createdAt');
+		let { page } = req.query;
+		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
+
+		const comments = await CommentBoard.find({ cardId: cardId })
+			.sort('createdAt')
+			.skip(page * 15)
+			.limit(15);
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			let temp = {
