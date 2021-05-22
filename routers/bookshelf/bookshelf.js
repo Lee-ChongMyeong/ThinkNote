@@ -159,9 +159,7 @@ router.get('/auth/user/:id', authAddtional, async (req, res) => {
 			const checkToday = await QuestionCard.findOne({
 				createdUser: user.userId,
 				createdAt: Today
-			})
-				.sort({ date: 1 })
-				.limit(1);
+			});
 			if (checkToday === null) {
 				createdQuestion = true;
 			} else {
@@ -322,9 +320,8 @@ router.post('/question', authMiddleware, async (req, res) => {
 		const checkToday = await QuestionCard.findOne({
 			createdUser: user.userId,
 			createdAt: Today
-		})
-			.sort({ date: 1 })
-			.limit(1);
+		});
+
 		if (checkToday === null) {
 			// 이미 있는 질문인지 검사
 			const originContents = await QuestionCard.findOne({ contents: contents });
