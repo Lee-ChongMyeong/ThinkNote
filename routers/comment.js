@@ -39,14 +39,14 @@ router.get('/:cardId', async (req, res) => {
 		for (let comment of comments) {
 			const userInfo = await User.findOne({ _id: comment.userId });
 			const commentLikeInfo = await CommentLike.find({ commentId: comment.commentId });
-			let like = false;
+			let currentLike = false;
 			if (userId) {
-				let likeCheck = await Like.findOne({
+				let likeCheck = await CommentLike.findOne({
 					userId: userId,
-					answerId: comment.cardId
+					commentId: comment.commentId
 				});
 				if (likeCheck) {
-					like = true;
+					currentLike = true;
 				}
 			}
 			let temp = {
@@ -58,7 +58,7 @@ router.get('/:cardId', async (req, res) => {
 				profileImg: userInfo['profileImg'],
 				commentCreatedAt: moment(comment.createdAt).add(9, 'hours'),
 				commentLikeCount: commentLikeInfo.length,
-				like: like
+				currentLike : currentLike
 			};
 			result['comments'].push(temp);
 		}
