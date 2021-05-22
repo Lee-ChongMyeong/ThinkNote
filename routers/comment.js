@@ -58,7 +58,7 @@ router.get('/:cardId', async (req, res) => {
 				profileImg: userInfo['profileImg'],
 				commentCreatedAt: moment(comment.createdAt).add(9, 'hours'),
 				commentLikeCount: commentLikeInfo.length,
-				currentLike : currentLike
+				currentLike: currentLike
 			};
 			result['comments'].push(temp);
 		}
@@ -168,7 +168,7 @@ router.post('/like/:commentId', authMiddleware, async (req, res) => {
 		const likeCountNum = likeCount.length;
 
 		const alarmSend = require('../lib/sendAlarm');
-		await alarmSend(answer.userId, commentId, 'commentLike', user.userId, req.alarm);
+		await alarmSend(answer.userId, answer.cardId, 'commentLike', user.userId, req.alarm);
 
 		return res.send({ commentId, likeCountNum, currentLike: true });
 	} catch (err) {
