@@ -257,13 +257,15 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 		const { contents, createdUser, topic, _id } = await QuestionCard.findOne({
 			_id: booksDetail.questionId
 		});
-		const [questionUserInfo, answerUserInfo, likeCount] = await Promise.all([
+		const [questionUserInfo, answerUserInfo, likeCount, commentCount] = await Promise.all([
 			await User.findOne({ _id: createdUser }),
 			await User.findOne({ _id: booksDetail.userId }),
-			await Like.find({ answerId: booksDetail['_id'] })
+			await Like.find({ answerId: booksDetail['_id'] }),
+			await CommentBoard.find({ cardId: booksDetail['_id'] })
 		]);
 
 		const likeCountNum = likeCount.length;
+		const commentCountNum = commentCount.length;
 		if (user) {
 			const checkCurrentLike = await Like.findOne({
 				userId: user.userId,
@@ -293,7 +295,8 @@ router.get('/bookCardDetail/:answerId', async (req, res) => {
 			nickname: sanitize(answerUserInfo.nickname),
 			isOpen: booksDetail.isOpen,
 			like: currentLike,
-			likeCount: likeCountNum
+			likeCount: likeCountNum,
+			commentCount: commentCountNum
 		});
 		return res.send({ bookCardDetail });
 	} catch (err) {
