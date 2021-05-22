@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { QuestionCard, AnswerCard } = require('../models');
 
+// 토픽 보여주기 (최신 정렬 순)
 router.get('/:topicName', async (req, res) => {
 	try {
 		let topicName = decodeURIComponent(req.params.topicName);
@@ -64,5 +65,7 @@ router.get('/:topicName', async (req, res) => {
 		return res.send('fail');
 	}
 });
+
+// 토픽 보여주기 (답변 많이 받은 순)
 
 module.exports = router;

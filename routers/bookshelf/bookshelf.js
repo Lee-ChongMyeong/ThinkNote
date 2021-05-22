@@ -12,6 +12,7 @@ const {
 	Alarm
 } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
+const authAddtional = require('../../auth/authAddtional');
 const sanitize = require('../../lib/sanitizeHtml');
 const moment = require('moment');
 require('moment-timezone');
@@ -141,7 +142,7 @@ router.get('/searchUser', async (req, res) => {
 
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지
-router.get('/auth/user/:id', async (req, res) => {
+router.get('/auth/user/:id', authAddtional, async (req, res) => {
 	try {
 		const { id } = req.params;
 		const userInfo = await User.findOne({ _id: id });
@@ -150,6 +151,23 @@ router.get('/auth/user/:id', async (req, res) => {
 		const following = await Friend.find({ followingId: id });
 		const follower = await Friend.find({ followerId: id });
 
+		let createdQuestion = true;
+		const user = res.locals.user;
+		if (user) {
+			const Today = moment().format('YYYY-MM-DD');
+			// 하루에 1번 질문할 수 있는것 체크
+			const checkToday = await QuestionCard.findOne({
+				createdUser: user.userId,
+				createdAt: Today
+			})
+				.sort({ date: 1 })
+				.limit(1);
+			if (checkToday === null) {
+				createdQuestion = true;
+			} else {
+				createdQuestion = false;
+			}
+		}
 		return res.json({
 			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
@@ -158,7 +176,8 @@ router.get('/auth/user/:id', async (req, res) => {
 			otherCustomQuestionCount: otherQuestion.length,
 			otherAnswerCount: otherAnswer.length,
 			followingCount: following.length,
-			followerCount: follower.length
+			followerCount: follower.length,
+			createdQuestion: createdQuestion
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
