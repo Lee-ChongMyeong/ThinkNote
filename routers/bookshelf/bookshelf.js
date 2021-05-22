@@ -12,6 +12,7 @@ const {
 	Alarm
 } = require('../../models');
 const authMiddleware = require('../../auth/authMiddleware');
+const authAddtional = require('../../auth/authAddtional');
 const sanitize = require('../../lib/sanitizeHtml');
 const moment = require('moment');
 require('moment-timezone');
@@ -141,19 +142,40 @@ router.get('/searchUser', async (req, res) => {
 
 // 다른 사람 책장 & 페이지 들어갈 때 정보 확인
 // 친구인지 아닌지
-router.get('/auth/user/:id', async (req, res) => {
+router.get('/auth/user/:id', authAddtional, async (req, res) => {
 	try {
 		const { id } = req.params;
 		const userInfo = await User.findOne({ _id: id });
 		const otherQuestion = await QuestionCard.find({ createdUser: id });
 		const otherAnswer = await AnswerCard.find({ userId: id });
+		const following = await Friend.find({ followingId: id });
+		const follower = await Friend.find({ followerId: id });
+
+		let createdQuestion = true;
+		const user = res.locals.user;
+		if (user) {
+			const Today = moment().format('YYYY-MM-DD');
+			// 하루에 1번 질문할 수 있는것 체크
+			const checkToday = await QuestionCard.findOne({
+				createdUser: user.userId,
+				createdAt: Today
+			});
+			if (checkToday === null) {
+				createdQuestion = true;
+			} else {
+				createdQuestion = false;
+			}
+		}
 		return res.json({
 			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
 			introduce: userInfo.introduce,
 			topic: userInfo.preferredTopic,
 			otherCustomQuestionCount: otherQuestion.length,
-			otherAnswerCount: otherAnswer.length
+			otherAnswerCount: otherAnswer.length,
+			followingCount: following.length,
+			followerCount: follower.length,
+			createdQuestion: createdQuestion
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
@@ -298,9 +320,8 @@ router.post('/question', authMiddleware, async (req, res) => {
 		const checkToday = await QuestionCard.findOne({
 			createdUser: user.userId,
 			createdAt: Today
-		})
-			.sort({ date: 1 })
-			.limit(1);
+		});
+
 		if (checkToday === null) {
 			// 이미 있는 질문인지 검사
 			const originContents = await QuestionCard.findOne({ contents: contents });
