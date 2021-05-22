@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { QuestionCard, AnswerCard, User } = require('../models');
-const moment = require('moment');
-require('moment-timezone');
-moment.tz.setDefault('Asia/Seoul');
+// const moment = require('moment');
+// require('moment-timezone');
+// moment.tz.setDefault('Asia/Seoul');
 
 // 토픽 보여주기 (최신 정렬 순)
 router.get('/:topicName', async (req, res) => {
@@ -57,7 +57,7 @@ router.get('/:topicName', async (req, res) => {
 				createdUserId: topicQuestion[i]['createdUserInfo'][0]['_id'],
 				createdUserNickname: topicQuestion[i]['createdUserInfo'][0]['nickname'],
 				createdUserProfileImg: topicQuestion[i]['createdUserInfo'][0]['profileImg'],
-				createdAt: moment(topicQuestion[i]['createdUserInfo'][0]['createdAt']).add(9, 'hours'),
+				createdAt: topicQuestion[i]['createdUserInfo'][0]['createdAt'],
 				answerCount: answerCount.length
 			});
 		}
@@ -123,7 +123,7 @@ router.get('/like/:topicName', async (req, res) => {
 				createdUserId: createdUserInfo['_id'],
 				createdUserNickname: createdUserInfo['nickname'],
 				createdUserProfileImg: createdUserInfo['profileImg'],
-				createdAt: moment(topicQuestion[i]['createdAt']).add(9, 'hours'),
+				createdAt: topicQuestion[i]['createdAt'],
 				answerCount: answerCount.length
 			});
 		}
