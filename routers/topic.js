@@ -57,7 +57,7 @@ router.get('/:topicName', async (req, res) => {
 				createdUserId: topicQuestion[i]['createdUserInfo'][0]['_id'],
 				createdUserNickname: topicQuestion[i]['createdUserInfo'][0]['nickname'],
 				createdUserProfileImg: topicQuestion[i]['createdUserInfo'][0]['profileImg'],
-				createdAt: topicQuestion[i]['createdUserInfo'][0]['createdAt'],
+				createdAt: topicQuestion[i]['createdAt'],
 				answerCount: answerCount.length
 			});
 		}
