@@ -36,6 +36,7 @@ router.get('/', authMiddleware, async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					createdAt: 1,
+					YYMMDD: 1,
 					userId: { $toObjectId: '$userId' }
 				}
 			},
@@ -53,6 +54,7 @@ router.get('/', authMiddleware, async (req, res) => {
 					questionId: 1,
 					contents: 1,
 					createdAt: 1,
+					YYMMDD: 1,
 					userId: { $arrayElemAt: ['$users._id', 0] },
 					nickname: { $arrayElemAt: ['$users.nickname', 0] },
 					profileImg: { $arrayElemAt: ['$users.profileImg', 0] }
