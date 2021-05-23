@@ -166,6 +166,17 @@ router.get('/auth/user/:id', authAddtional, async (req, res) => {
 				createdQuestion = false;
 			}
 		}
+
+		let isFollowing = false;
+		// 내가 팔로잉한 사용자인지 체크
+		if (user) {
+			const isFollow = await Friend.findOne({
+				followingId: user.userId,
+				followerId: id
+			});
+			if (isFollow) isFollowing = true;
+		}
+
 		return res.json({
 			nickname: sanitize(userInfo.nickname),
 			profileImg: userInfo.profileImg,
@@ -175,7 +186,8 @@ router.get('/auth/user/:id', authAddtional, async (req, res) => {
 			otherAnswerCount: otherAnswer.length,
 			followingCount: following.length,
 			followerCount: follower.length,
-			createdQuestion: createdQuestion
+			createdQuestion: createdQuestion,
+			isFollowing: isFollowing
 		});
 	} catch (err) {
 		return res.status(400).json({ msg: 'fail' });
