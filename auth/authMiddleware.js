@@ -16,6 +16,7 @@ module.exports = (req, res, next) => {
 		User.findById(userId)
 			.exec()
 			.then((user) => {
+				if (user.provider === '') return res.json({ msg: 'quited user' });
 				res.locals.user = user;
 				next();
 			});
