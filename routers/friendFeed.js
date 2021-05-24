@@ -88,6 +88,7 @@ router.get('/', authMiddleware, async (req, res) => {
 			friendCards[i]['commentCount'] = commentInfo.length;
 			friendCards[i]['likeCount'] = likeInfo.length;
 			friendCards[i]['like'] = like;
+			friendCards[i]['createdAt'] = moment(friendCards[i]['createdAt']).add(9, 'hours');
 		}
 		if (friendCards.length < 10) {
 			return res.json({ msg: 'end', friendCards });
