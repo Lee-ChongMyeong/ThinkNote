@@ -44,7 +44,11 @@
     "passport-kakao": "^1.0.1",
     "passport-naver": "^1.0.6",
     "sanitize-html": "^2.3.3",
+<<<<<<< HEAD
+    "sharp": "^0.28.3",
+=======
     "sharp": "^0.25.4",
+>>>>>>> cdec5b430c269114d250cc7f2976dcbd439b56e4
     "socket.io": "^4.0.1"
   },
   "devDependencies": {
