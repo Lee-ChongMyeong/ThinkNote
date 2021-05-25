@@ -55,7 +55,7 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 			deleteImg(user.profileImg);
 			user.profileImg =
 				'https://blog.kakaocdn.net/dn/cyOIpg/btqx7JTDRTq/1fs7MnKMK7nSbrM9QTIbE1/img.jpg';
-		} else if (req.file.transforms.length > 0) {
+		} else if (req.file.transforms && req.file.transforms.length > 0) {
 			deleteImg(user.profileImg);
 			user.profileImg = req.file.transforms[0].location;
 		}
