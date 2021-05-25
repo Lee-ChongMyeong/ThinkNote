@@ -37,11 +37,14 @@
     "mongoose-random": "^0.1.1",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
+    "multer-s3-transform": "^2.10.3",
+    "multer-sharp-s3": "^0.2.1",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-kakao": "^1.0.1",
     "passport-naver": "^1.0.6",
     "sanitize-html": "^2.3.3",
+    "sharp": "^0.28.3",
     "socket.io": "^4.0.1"
   },
   "devDependencies": {

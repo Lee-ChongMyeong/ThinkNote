@@ -168,7 +168,7 @@ router.get('/daily', async (req, res) => {
 					{ $match: { _id: { $nin: notIncludedCardsId } } },
 					{ $match: { createdUser: { $in: friendsCardsId } } },
 					{ $sample: { size: 3 } }
-				]); // 7일 이전, 친구 커스텀
+				]); // 14일 이전, 친구 커스텀
 				for (let card of questionCards) {
 					const temp = {
 						userId: userId,
