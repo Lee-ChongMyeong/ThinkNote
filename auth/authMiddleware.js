@@ -16,11 +16,19 @@ module.exports = (req, res, next) => {
 		User.findById(userId)
 			.exec()
 			.then((user) => {
-				if (user.provider === '탈퇴') return res.status(403).json({ msg: 'quited user' });
+				if (user.provider === '탈퇴') {
+					return res.status(403).json({ msg: 'quited user' });
+				}
 				res.locals.user = user;
 				next();
+			})
+			.catch(() => {
+				res.json({
+					msg: 'not_login'
+				});
 			});
 	} catch (error) {
+		console.log(error);
 		res.json({
 			msg: 'not_login'
 		});
