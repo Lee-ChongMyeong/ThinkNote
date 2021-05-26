@@ -17,7 +17,6 @@ const {
 const authMiddleware = require('../auth/authMiddleware');
 const sanitize = require('../lib/sanitizeHtml');
 const s3 = require('../lib/s3.js');
-const randomNickname = require('../lib/nickname');
 require('dotenv').config();
 
 // s3에서 이미지 삭제
@@ -42,7 +41,9 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		// 사용 불가능한 닉네임
 		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
 			return res.status(400).json({ msg: 'unavailable_nickname' });
-
+		if (user.first == true && (await User.findOne({ nickname: data.nickname }))) {
+			return res.status(400).json({ msg: 'new user, unavailable_nickname' });
+		}
 		if (2 > data.nickname.length || 12 < data.nickname.length)
 			return res.status(400).json({ msg: 'please check nickname length' });
 
@@ -75,23 +76,6 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		});
 	} catch (err) {
 		console.log(err);
-		res.status(400).json({ msg: 'fail' });
-	}
-});
-
-router.get('/profile/random-nickname', authMiddleware, async (req, res) => {
-	try {
-		const user = res.locals.user;
-		let nickname = await randomNickname();
-		while (true) {
-			// 닉네임 중복 방지
-			if (await User.findOne({ nickname: nickname })) nickname = await randomNickname();
-			else break;
-		}
-		user.nickname = nickname;
-		res.json({ nickname: user.nickname });
-	} catch {
-		console.log('에러');
 		res.status(400).json({ msg: 'fail' });
 	}
 });
