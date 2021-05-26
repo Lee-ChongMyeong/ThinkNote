@@ -29,7 +29,7 @@ router.get('/cards', async (req, res) => {
 		const randomAnswers = await AnswerCard.aggregate([
 			{ $match: { isOpen: { $eq: true } } },
 			{ $group: { _id: '$questionId', count: { $sum: 1 } } },
-			{ $match: { count: { $gte: 2 } } },
+			{ $match: { count: { $gte: 3 } } },
 			{ $sample: { size: 2 } },
 			{ $project: { questionId: '$_id', count: 1, _id: 0 } }
 		]);
