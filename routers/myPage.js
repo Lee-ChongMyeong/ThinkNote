@@ -42,7 +42,7 @@ router.patch('/profile', authMiddleware, multer.single('profileImg'), async (req
 		if (data.nickname != user.nickname && (await User.findOne({ nickname: data.nickname })))
 			return res.status(400).json({ msg: 'unavailable_nickname' });
 		if (user.first == true && (await User.findOne({ nickname: data.nickname }))) {
-			return res.status(400).json({ msg: 'new user, unavailable_nickname' });
+			return res.status(400).json({ msg: 'unavailable_nickname' });
 		}
 		if (2 > data.nickname.length || 12 < data.nickname.length)
 			return res.status(400).json({ msg: 'please check nickname length' });
