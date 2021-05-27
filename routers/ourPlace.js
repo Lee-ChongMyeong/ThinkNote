@@ -51,9 +51,9 @@ router.get('/cards', async (req, res) => {
 			};
 
 			// 자신을 제외한 공개된 답변들만 출력
-			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true }).limit(
-				4
-			);
+			let answers = await AnswerCard.find({ questionId: question._id, isOpen: true })
+				.sort('-YYMMDD')
+				.limit(4);
 			temp['answers'] = await Promise.all(
 				answers.map(async (answer) => {
 					let [answerUser, commentCount, likeCount] = await Promise.all([
