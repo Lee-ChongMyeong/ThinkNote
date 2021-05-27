@@ -1,5 +1,8 @@
 # ThinkNote
 
+![1621841583230](https://user-images.githubusercontent.com/79817676/119801459-b1eaaf80-bf18-11eb-8236-bc57738e9c7a.jpeg)
+
+
 ## 목차
 1. [프로젝트 소개](#프로젝트-소개)
 2. [개발환경](#기능정보)
