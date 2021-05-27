@@ -36,7 +36,7 @@
   - Back-end(Node.js): 강태진, 조상균, 이총명
   - Designer(UI/UX): 성지원
 
-## 개발환경
+## 🔌 개발환경
 - Server: AWS EC2(Ubuntu 20.04 LTS)
 - Framework: Express(Node.js)
 - Database: MongoDB
