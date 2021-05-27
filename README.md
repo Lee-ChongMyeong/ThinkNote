@@ -83,7 +83,7 @@
 
 
 ## API 설계
-https://www.notion.so/API-1c038a55a290414596167012c37fb277
+- https://www.notion.so/API-1c038a55a290414596167012c37fb277
 
 
 ## 힘들었던 점 및 개선
