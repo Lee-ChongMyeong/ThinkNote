@@ -8,7 +8,7 @@
 5. [API 설계](#API-설계)
 6. [힘들었던 점 및 개선](#힘들었던-점-및-개선)
 7. [상세 설명 페이지](#상세-설명-페이지)
-8. [Frond-End(React) 코드](#Frond-End(React)-코드) 
+8. [Frond-End(React) 코드](#front-endreact-코드)
 
 ## 프로젝트 소개
 
