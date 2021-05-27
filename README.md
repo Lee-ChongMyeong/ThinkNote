@@ -97,7 +97,7 @@
  nginx를 프록시서버로 앞단에 놓고 node.js를 뒤쪽에 놓음으로써 오버플로우 취약점에 의한 공격을 어느정도 방지하였습니다. 또한 익명의 사용자의 직접적인 Web Server로의 접근을 차단하고 간접적으로 한 단계를 더 거침으로써 보안적인 부분을 처리 할 수 있습니다. 
 
 2. cors policy
-
+cors 미들웨어를 npm을 통해 설치하고 app.use(cors());로 설정하여 모든 cross-origin 요청에 대해 응답하도록 했습니다.
 
 ## 상세 설명 페이지
 - https://www.notion.so/e70b704cf035444b805dd95942f6e8ce?v=5f571d40bfa84721a648aab6808d234f
