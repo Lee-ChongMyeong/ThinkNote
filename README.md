@@ -100,6 +100,7 @@
 
 
 ## 상세 설명 페이지
+https://www.notion.so/e70b704cf035444b805dd95942f6e8ce?v=5f571d40bfa84721a648aab6808d234f
 
 ## Front-End(React) 코드 
-
+https://github.com/DabinLim/mind_bookshelf
