@@ -1,4 +1,4 @@
-# ThinkNote
+# 생각낙서 프로젝트
 
 ![20210527_182435](https://user-images.githubusercontent.com/79817676/119802018-27568000-bf19-11eb-8b24-3190a67fceea.png)
 ![20210527_182525](https://user-images.githubusercontent.com/79817676/119802007-232a6280-bf19-11eb-970a-fb25c63940f3.png)
