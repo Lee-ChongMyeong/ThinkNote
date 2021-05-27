@@ -1,5 +1,10 @@
 # ThinkNote
 
+![20210527_182525](https://user-images.githubusercontent.com/79817676/119802007-232a6280-bf19-11eb-970a-fb25c63940f3.png)
+![20210527_182612](https://user-images.githubusercontent.com/79817676/119802015-258cbc80-bf19-11eb-81b7-a2dbe03b2f8a.png)
+![20210527_182435](https://user-images.githubusercontent.com/79817676/119802018-27568000-bf19-11eb-8b24-3190a67fceea.png)
+![20210527_182558](https://user-images.githubusercontent.com/79817676/119802027-29204380-bf19-11eb-8369-86c68dcfcccc.png)
+![20210527_182642](https://user-images.githubusercontent.com/79817676/119802045-2c1b3400-bf19-11eb-9520-a77e707d8ffc.png)
 
 
 ## 목차
