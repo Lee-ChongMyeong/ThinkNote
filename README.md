@@ -97,6 +97,8 @@
 |댓글 리스트|GET|/comment/:cardId?page=number| comments:[{ commentId, commentContents, userId, tag, nickname, commentLikeCOunt, commentLike, profileImg }] |
 |댓글 작성|POST|/commentId/:cardId| |
 
+- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277
+
 ## 힘들었던 점 및 개선 사항
 #### 인앱링크 탈출 (ftp 서버)
 - 인앱 브라우저에서는 구글 및 소셜 로그인이 잘 안되는 경우가 있었습니다. 또한 프로필 사진 변경 간 사진 업로드가 안되는 경우도 있었습니다.  그래서 안드로이드 같은 경우, 주소에 intent와 app 패키지 이름을 통해 인앱을 빠져나갈 수 있었고 아이폰 같은 경우 주소의 시작이 ftp:// 인 경우, 기본 브라우저로 열리게 되는데, 그때문에 ftp 서버를 추가할 필요가 있었습니다. vsftpd를 사용하여 ftp 서버를 구축하였고 리다이렉션하는 파일을 만들어 인앱을 감지하면, ftp:// 로 인앱을 빠져나오고 기본 브라우저가 리다이렉션하는 파일을 불러와서 원래주소로 리다이렉션하게 되도록 하였습니다.
