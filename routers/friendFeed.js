@@ -15,15 +15,6 @@ router.get('/', authMiddleware, async (req, res) => {
 		const user = res.locals.user;
 		let lastId = req.query['lastId'];
 
-		// const myFriend = await Friend.aggregate([
-		// 	{ $match: { followingId: user.userId } },
-		// 	{ $project: { followerId: 1 } }
-		// ]);
-
-		// for (let friend of myFriend) {
-		// 	friendlist.push(friend.followerId);
-		// }
-
 		const friendList = await Friend.find({ followingId: user.userId }).then((followers) =>
 			followers.map((follower) => follower.followerId)
 		);

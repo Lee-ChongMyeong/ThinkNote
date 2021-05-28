@@ -1,7 +1,6 @@
 /* eslint-disable no-constant-condition */
 require('dotenv').config();
 const { User } = require('../models');
-const randomNickname = require('../lib/nickname');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 // 구글 로그인 전략
 
@@ -19,13 +18,7 @@ const googleStrategy = new GoogleStrategy(
 				},
 				async (err, user) => {
 					if (!user) {
-						let nickname = await randomNickname();
-						while (true) {
-							// 닉네임 중복 방지
-							if (await User.findOne({ nickname: nickname }))
-								nickname = await randomNickname();
-							else break;
-						}
+						let nickname = 'new';
 						user = new User({
 							nickname: nickname,
 							provider: 'google',
