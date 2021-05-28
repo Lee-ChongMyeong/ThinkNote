@@ -93,7 +93,12 @@
 |카드 디테일|GET|/bookshelf/bookCardDetail/:answerId| questionCreatedUserId, questionCreatedUserNickname, name, profileImg, questionTopic, questionContents, answerId, ansewrContents, answerUserProfileImg, nickname, isOpen, like, likeCount |
 |유저 검색|GET|/bookshelf/searchUser | userInfo:[{ profileImg, introduce, nickname, userId }] |
 |친구 추가 |POST|/bookshelf/addfriend |  |
-
+|좋아요 클릭|POST|/bookshelf/like/answerCard| answerCardId, likeCountNum, currentLike] |
+|내 답변 삭제하기|DELETE|/card/myAnswer/:answerId| |
+|내 답변 수정하기|PATCH|/card/myAnswer/| |
+|커뮤니티-랜덤 질문카드 2개뽑기|GET|/ourPlace/cards| result:[{ questions, quesitonId, contents, topic, nickname}], answers:[{ userId, profileImg, nickname, answerId, contents}] |
+|댓글 리스트|GET|/comment/:cardId?page=number| comments:[{ commentId, commentContents, userId, tag, nickname, commentLikeCOunt, commentLike, profileImg }] |
+|댓글 작성|POST|/commentId/:cardId| |
 
 ## 힘들었던 점 및 개선 사항
 #### 인앱링크 탈출 (ftp 서버)
