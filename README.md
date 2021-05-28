@@ -80,6 +80,8 @@
 
 
 ## 주요 API
+
+- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277
 |기능|Method|URL| Request Params / Body|
 |:---|:---:|:---:|:---:|
 |구글 로그인|GET|/auth/google||
@@ -97,7 +99,7 @@
 |댓글 리스트|GET|/comment/:cardId?page=number| comments:[{ commentId, commentContents, userId, tag, nickname, commentLikeCOunt, commentLike, profileImg }] |
 |댓글 작성|POST|/commentId/:cardId| |
 
-- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277
+
 
 ## 힘들었던 점 및 개선 사항
 #### 인앱링크 탈출 (ftp 서버)
