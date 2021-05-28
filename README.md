@@ -82,8 +82,17 @@
 ![image](https://user-images.githubusercontent.com/79817676/119849209-68658900-bf47-11eb-9e88-832a99e86322.png)
 
 
-## API 설계
-- https://www.notion.so/API-1c038a55a290414596167012c37fb277
+## 주요 API 설계
+|기능|Method|URL| Request Params / Body|
+|:---|:---:|:---:|:---:|
+|구글 로그인|GET|/auth/google||
+|데일리 질문 받기(3개)|GET|/card/daily|cardId, topic, contents, createdUser, available, profileImg, answerCount, otherProfileImg|
+|답변쓰기|POST|/card| questionId, contents, isOpen |
+|프로필 수정|PATCH|/myPage/profile| id, nickname, profileImg, introduce, topic |
+|내 책장 월별 확인|GET|/bookshelf/books/:YYMMD| books : [{ id, count }] |
+|카드 디테일|GET|/bookshelf/bookCardDetail/:answerId| questionCreatedUserId, questionCreatedUserNickname, name, profileImg, questionTopic, questionContents, answerId, ansewrContents, answerUserProfileImg, nickname, isOpen, like, likeCount |
+|유저 검색|GET|/bookshelf/searchUser | userInfo:[{ profileImg, introduce, nickname, userId }] |
+|친구 추가 |POST|/bookshelf/addfriend |  |
 
 
 ## 힘들었던 점 및 개선
