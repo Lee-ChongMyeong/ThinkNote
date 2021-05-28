@@ -35,7 +35,7 @@ router.get(
 	'/naver/oauth',
 	passport.authenticate('naver', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(`http://thinknote.online/auth/${makeToken(req.user._id)}`);
+		res.redirect(`https://thinknote.online/auth/${makeToken(req.user._id)}`);
 	}
 );
 
@@ -44,7 +44,7 @@ router.get(
 	'/kakao/oauth',
 	passport.authenticate('kakao', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(`http://thinknote.online/auth/${makeToken(req.user._id)}`);
+		res.redirect(`https://thinknote.online/auth/${makeToken(req.user._id)}`);
 	}
 );
 
@@ -53,7 +53,7 @@ router.get(
 	'/google/oauth',
 	passport.authenticate('google', { failureRedirect: '/auth' }),
 	(req, res) => {
-		res.redirect(`http://thinknote.online/auth/${makeToken(req.user._id)}`);
+		res.redirect(`https://thinknote.online/auth/${makeToken(req.user._id)}`);
 	}
 );
 
