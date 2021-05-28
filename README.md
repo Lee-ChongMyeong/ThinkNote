@@ -92,7 +92,7 @@
 
 2. 서버
 - nginx
-
+  - 부하가 걸릴경우를 대비하여 nginx를 load Balancer로 사용하였습니다. nginx의 proxy기능을 통해 외부에서 들어오는 요청을 내부의 서버 IP로 돌리도록 하였습니다. 
 3. 보안
 - ssl
 - https
