@@ -81,7 +81,7 @@
 
 ## 주요 API
 
-- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277
+- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277 <br>
 |기능|Method|URL| Request Params / Body|
 |:---|:---:|:---:|:---:|
 |구글 로그인|GET|/auth/google||
