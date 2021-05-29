@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-// const authMiddleware = require('../../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
-// eslint-disable-next-line no-undef
 const sanitize = require('../../lib/sanitizeHtml');
-const jwt = require('jsonwebtoken');
 const authAdditional = require('../../auth/authAddtional');
 // 다른 사람 책장 월별 확인
 router.get('/books/:YYMM/:id', async (req, res) => {

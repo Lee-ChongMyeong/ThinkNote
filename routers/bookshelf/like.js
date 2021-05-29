@@ -16,7 +16,6 @@ router.post('/answerCard', authMiddleware, async (req, res) => {
 			return res.send('이미 좋아요 누른 상태');
 		}
 		// 새로고침하고 커뮤니티왔을 때 그때 좋아요가 되있는걸 취소했을 떄,
-		//
 		await Like.create({
 			answerId: answerCardId,
 			userId: user.userId

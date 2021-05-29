@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 const { QuestionCard, AnswerCard, User, Like, CommentBoard } = require('../models');
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 require('dotenv').config();
@@ -9,20 +8,13 @@ const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 const sanitize = require('../lib/sanitizeHtml');
+const authAddtional = require('../auth/authAddtional');
 
-// 랜덤으로 질문에 답글이 하나 이상 달린 글 출력
-router.get('/cards', async (req, res) => {
+// 랜덤으로 질문에 답글이 세개 이상 달린 글 출력
+router.get('/cards', authAddtional, async (req, res) => {
 	let userId = '';
-	try {
-		const { authorization } = req.headers;
-		const [tokenType, tokenValue] = authorization.split(' ');
-		if (tokenType == 'Bearer') {
-			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			userId = payload.userId;
-		}
-	} catch (error) {
-		console.log(error);
-		console.log('토큰 해독 에러 또는 토큰 없음');
+	if (res.locals.user) {
+		userId = res.locals.user._id;
 	}
 	try {
 		const result = [];
