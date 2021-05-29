@@ -1,7 +1,7 @@
 # 생각 낙서 (Back-end)
 
 
-![KakaoTalk_20210527_195939625](https://user-images.githubusercontent.com/79817676/119823508-e1f17d00-bf2f-11eb-89a1-51a08bc4906f.png)
+![KakaoTalk_20210527_195939625](https://1.bp.blogspot.com/-6IAP9M_fLns/YLHhGIvltTI/AAAAAAAAAVQ/LmSm2Dh4Lz03iyBYTsrUMDZZmNYSgOvQgCLcBGAsYHQ/s2048/%25EC%258D%25B8%25EB%2584%25A4%25EC%259D%25BC.png)
 
 
 <!--
