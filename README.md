@@ -17,7 +17,7 @@
 9. [Frond-End(React) 코드](#front-endreact-코드)
 -->
 ## 🔦 웹 사이트
-- [https://thinknote.us](https://thinknote.us)
+- [https://thinknote.online](https://thinknote.online)
 
 ## 💡 생각낙서 소개
 
@@ -45,6 +45,9 @@
 - Database: MongoDB
 - Load Balancer: Nginx
 - ETC: AWS S3
+
+## 🔭 주요 라이브러리
+socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, dotenv
 
 ## ✨ 주요 기능
 #### 1. 소셜 로그인
