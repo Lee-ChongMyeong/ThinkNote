@@ -17,7 +17,7 @@
 9. [Frond-End(React) 코드](#front-endreact-코드)
 -->
 ## 🔦 웹 사이트
-- [https://thinknote.online](https://thinknote.online)
+- [https://thinknote.us](https://thinknote.us)
 
 ## 💡 생각낙서 소개
 
@@ -86,7 +86,7 @@ socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, 
 
 - 상세 API : https://www.notion.so/API-105609755fdc4902bc21a779231772ad <br>
 
-|기능|Method|URL| Request Params / Body|
+|기능|Method|URL| Response |
 |:---|:---:|:---:|:---:|
 |구글 로그인|GET|/auth/google||
 |데일리 질문 받기(3개)|GET|/card/daily|cardId, topic, contents, createdUser, available, profileImg, answerCount, otherProfileImg|
