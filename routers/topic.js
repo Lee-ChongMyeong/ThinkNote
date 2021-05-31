@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { QuestionCard, AnswerCard, User } = require('../models');
-// const moment = require('moment');
-// require('moment-timezone');
-// moment.tz.setDefault('Asia/Seoul');
 
 // 토픽 보여주기 (최신 정렬 순)
 router.get('/:topicName', async (req, res) => {

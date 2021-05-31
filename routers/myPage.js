@@ -1,6 +1,3 @@
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-constant-condition */
 const express = require('express');
 const router = express.Router();
 const multer = require('../lib/multer');
@@ -27,6 +24,7 @@ const deleteImg = (fileName) => {
 			Bucket: process.env.AWS_S3_BUCKET_NAME,
 			Key: fileName
 		},
+		// eslint-disable-next-line no-unused-vars
 		(err, data) => {
 			if (err) console.log('s3에 지울 이미지 없음');
 		}
@@ -95,6 +93,7 @@ router.delete('/profile/quit', authMiddleware, async (req, res) => {
 		await user.save();
 
 		//누군가 팔로잉 그 부분도 다 삭제
+		// eslint-disable-next-line no-undef
 		await Promise.all([
 			AnswerCard.deleteMany({ userId: user.userId }),
 			CommentBoard.deleteMany({ userId: user.userId }),

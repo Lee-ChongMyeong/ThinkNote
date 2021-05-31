@@ -1,7 +1,7 @@
 # 생각 낙서 (Back-end)
 
 
-![KakaoTalk_20210527_195939625](https://user-images.githubusercontent.com/79817676/119823508-e1f17d00-bf2f-11eb-89a1-51a08bc4906f.png)
+![KakaoTalk_20210527_195939625](https://1.bp.blogspot.com/-6IAP9M_fLns/YLHhGIvltTI/AAAAAAAAAVQ/LmSm2Dh4Lz03iyBYTsrUMDZZmNYSgOvQgCLcBGAsYHQ/s2048/%25EC%258D%25B8%25EB%2584%25A4%25EC%259D%25BC.png)
 
 
 <!--
@@ -17,7 +17,7 @@
 9. [Frond-End(React) 코드](#front-endreact-코드)
 -->
 ## 🔦 웹 사이트
-- [https://thinknote.us](https://thinknote.us)
+- [https://thinknote.online](https://thinknote.online)
 
 ## 💡 생각낙서 소개
 
@@ -29,7 +29,7 @@
 ## 🔍 Target
 - 매번 비슷한 내용의 일기보다 의미있는 생각을 적고 싶은 10대, 20대
 - 자신의 생각을 간편하게 정리하여 보고 싶은 사람
-- 친구, 애인 등 주변의 생각을 알아가고 더욱 관계가 깊어지고 싶을 때
+- 친구, 애인 등 주변의 생각을 알아가고 더욱 관계가 깊어지고 싶을 때 
 
 ## 📌 개요 
 - 이름: 생각낙서
@@ -45,6 +45,9 @@
 - Database: MongoDB
 - Load Balancer: Nginx
 - ETC: AWS S3
+
+## 🔭 주요 라이브러리
+socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, dotenv
 
 ## ✨ 주요 기능
 #### 1. 소셜 로그인
@@ -81,7 +84,7 @@
 
 ## 주요 API
 
-- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277 <br>
+- 상세 API : https://www.notion.so/API-105609755fdc4902bc21a779231772ad <br>
 
 |기능|Method|URL| Request Params / Body|
 |:---|:---:|:---:|:---:|
@@ -124,7 +127,7 @@
 - 기존의 find와 같은 함수로 한번에 원하는 결과를 조회할 수 없었던 경우가 있었습니다. mongoDB에 종속된 문법이기는 하지만, 코드의 가독성과 빠른 처리를 위하여 aggregate 문법을 사용하였습니다. $sample로 무작위로 데이터를 추출하고, $lookup을 통해 필요한 정보를 추가적으로 찾아 올 수 있었습니다. 사용자의 요청에 따라 정렬을 다르게 할 때, 공통적인 코드를 별도로 만들어 중복된 코드를 줄일 수도 있었습니다. 
 
 ## 프로젝트 상세 설명 페이지
-- https://www.notion.so/5ba8f469ecb346109d73439c05c095e6
+- https://www.notion.so/e70b704cf035444b805dd95942f6e8ce?v=5f571d40bfa84721a648aab6808d234f
 
 ## Front-End(React) 코드 
 - https://github.com/DabinLim/mind_bookshelf

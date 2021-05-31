@@ -7,28 +7,21 @@ const sanitize = require('../lib/sanitizeHtml');
 const jwt = require('jsonwebtoken');
 const { CommentBoard, User, AnswerCard, Alarm, CommentLike, Like } = require('../models');
 const authMiddleware = require('../auth/authMiddleware');
+const authAdditional = require('../auth/authAddtional');
 const moment = require('moment');
 require('moment-timezone');
 moment.tz.setDefault('Asia/Seoul');
 require('dotenv').config();
 
 // 댓글 리스트
-router.get('/:cardId', async (req, res) => {
+router.get('/:cardId', authAdditional, async (req, res) => {
 	const cardId = req.params.cardId;
 	let result = { msg: 'success', comments: [] };
-	let userId = '';
 	try {
-		const { authorization } = req.headers;
-		const [tokenType, tokenValue] = authorization.split(' ');
-		if (tokenType == 'Bearer') {
-			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			userId = payload.userId;
+		let userId = '';
+		if (res.locals.user) {
+			userId = res.locals.user._id;
 		}
-	} catch (error) {
-		console.log(error);
-		console.log('토큰 해독 에러 또는 토큰 없음');
-	}
-	try {
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
