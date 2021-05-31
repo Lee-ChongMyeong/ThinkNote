@@ -86,7 +86,7 @@ socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, 
 
 - 상세 API : https://www.notion.so/API-105609755fdc4902bc21a779231772ad <br>
 
-|기능|Method|URL| Request Params / Body|
+|기능|Method|URL| Response |
 |:---|:---:|:---:|:---:|
 |구글 로그인|GET|/auth/google||
 |데일리 질문 받기(3개)|GET|/card/daily|cardId, topic, contents, createdUser, available, profileImg, answerCount, otherProfileImg|
