@@ -146,7 +146,7 @@ router.get('/daily', async (req, res) => {
 			}
 			const today = moment(Date.now()).format('YYMMDD');
 			const userDaily = await QuestionDaily.find({ YYMMDD: today, userId: userId });
-			let standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 14).format('YYMMDD');
+			let standardTime = moment(Date.now() - 1000 * 60 * 60 * 24 * 20).format('YYMMDD');
 			if (userDaily.length == 0) {
 				// 오늘 카드를 안받은 경우
 				let admin_id = '609d27882fe142016da7a7a9';
