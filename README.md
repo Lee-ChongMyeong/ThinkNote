@@ -84,7 +84,7 @@ socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, 
 
 ## 주요 API
 
-- 상세 API : https://www.notion.so/API-1c038a55a290414596167012c37fb277 <br>
+- 상세 API : https://www.notion.so/API-105609755fdc4902bc21a779231772ad <br>
 
 |기능|Method|URL| Request Params / Body|
 |:---|:---:|:---:|:---:|
@@ -127,7 +127,7 @@ socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, 
 - 기존의 find와 같은 함수로 한번에 원하는 결과를 조회할 수 없었던 경우가 있었습니다. mongoDB에 종속된 문법이기는 하지만, 코드의 가독성과 빠른 처리를 위하여 aggregate 문법을 사용하였습니다. $sample로 무작위로 데이터를 추출하고, $lookup을 통해 필요한 정보를 추가적으로 찾아 올 수 있었습니다. 사용자의 요청에 따라 정렬을 다르게 할 때, 공통적인 코드를 별도로 만들어 중복된 코드를 줄일 수도 있었습니다. 
 
 ## 프로젝트 상세 설명 페이지
-- https://www.notion.so/5ba8f469ecb346109d73439c05c095e6
+- https://www.notion.so/e70b704cf035444b805dd95942f6e8ce?v=5f571d40bfa84721a648aab6808d234f
 
 ## Front-End(React) 코드 
 - https://github.com/DabinLim/mind_bookshelf
