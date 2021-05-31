@@ -2,22 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models');
-const jwt = require('jsonwebtoken');
 const sanitize = require('../../lib/sanitizeHtml');
+const authAddtional = require('../../auth/authAddtional');
 
-router.get('/:questionId', async (req, res) => {
-	const { authorization } = req.headers;
+router.get('/:questionId', authAddtional, async (req, res) => {
 	let userId = '';
-	try {
-		if (authorization) {
-			const [tokenType, tokenValue] = authorization.split(' ');
-			if (tokenType == 'Bearer') {
-				const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-				userId = payload.userId;
-			}
-		}
-	} catch (err) {
-		console.log('토큰 해독 에러');
+	if (res.locals.user) {
+		userId = res.locals.user._id;
 	}
 	try {
 		let { questionId } = req.params;

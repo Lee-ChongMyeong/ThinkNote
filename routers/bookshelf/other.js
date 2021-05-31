@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-// const authMiddleware = require('../../auth/authMiddleware');
 const { AnswerCard, User, QuestionCard, Friend, Like, CommentBoard } = require('../../models');
-// eslint-disable-next-line no-undef
 const sanitize = require('../../lib/sanitizeHtml');
-const jwt = require('jsonwebtoken');
-
+const authAdditional = require('../../auth/authAddtional');
 // 다른 사람 책장 월별 확인
 router.get('/books/:YYMM/:id', async (req, res) => {
 	try {
@@ -176,15 +173,9 @@ router.get('/like/:id/question', async (req, res) => {
 });
 
 // 다른 사람이 작성한 답변 모음 (최신순)
-router.get('/answers/:id', async (req, res) => {
+router.get('/answers/:id', authAdditional, async (req, res) => {
 	try {
-		const { authorization } = req.headers;
-		const [tokenType, tokenValue] = authorization.split(' ');
-		let userId = '';
-		if (tokenType == 'Bearer') {
-			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			userId = payload.userId;
-		}
+		let user = res.locals.user;
 
 		const { id } = req.params;
 		let { page } = req.query;
@@ -201,10 +192,13 @@ router.get('/answers/:id', async (req, res) => {
 		for (let i = 0; i < myAnswerInfo.length; i++) {
 			//좋아요 상태확인
 			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({
-				userId: userId,
-				answerId: myAnswerInfo[i]['_id']
-			});
+			let checkCurrentLike;
+			if (user) {
+				checkCurrentLike = await Like.findOne({
+					userId: user._id,
+					answerId: myAnswerInfo[i]['_id']
+				});
+			}
 			if (checkCurrentLike) {
 				currentLike = true;
 			}
@@ -235,19 +229,13 @@ router.get('/answers/:id', async (req, res) => {
 });
 
 // 다른 사람이 작성한 답변 모음 (좋아요순)
-router.get('/answers/:id/like', async (req, res) => {
+router.get('/answers/:id/like', authAdditional, async (req, res) => {
 	try {
 		const { id } = req.params;
 		let { page } = req.query;
 		page = (page - 1 || 0) < 0 ? 0 : page - 1 || 0;
 
-		const { authorization } = req.headers;
-		const [tokenType, tokenValue] = authorization.split(' ');
-		let userId = '';
-		if (tokenType == 'Bearer') {
-			const payload = jwt.verify(tokenValue, process.env.LOVE_JWT_SECRET);
-			userId = payload.userId;
-		}
+		let user = res.locals.user;
 
 		const answerCount = await AnswerCard.find({ userId: id, isOpen: true });
 		const myAnswerInfo = await AnswerCard.aggregate([
@@ -284,10 +272,13 @@ router.get('/answers/:id/like', async (req, res) => {
 		for (let i = 0; i < myAnswerInfo.length; i++) {
 			//좋아요 상태확인
 			let currentLike = false;
-			let checkCurrentLike = await Like.findOne({
-				userId: userId,
-				answerId: myAnswerInfo[i]['_id']
-			});
+			let checkCurrentLike;
+			if (user) {
+				checkCurrentLike = await Like.findOne({
+					userId: user._id,
+					answerId: myAnswerInfo[i]['_id']
+				});
+			}
 			if (checkCurrentLike) {
 				currentLike = true;
 			}
