@@ -18,7 +18,7 @@
 -->
 ## 🔦 웹 사이트
 - [https://thinknote.us](https://thinknote.us)
-
+ 
 ## 💡 생각낙서 소개
 
 - 친구들은 어떤 생각을 하고 있는지 궁금하지 않나요?
