@@ -4,9 +4,6 @@ const express = require('express');
 const router = express.Router();
 const questionInfo = require('../lib/questionInfo');
 require('dotenv').config();
-const moment = require('moment');
-require('moment-timezone');
-moment.tz.setDefault('Asia/Seoul');
 const sanitize = require('../lib/sanitizeHtml');
 const authAddtional = require('../auth/authAddtional');
 

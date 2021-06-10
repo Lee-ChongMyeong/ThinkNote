@@ -4,6 +4,9 @@ const router = express.Router();
 const { AnswerCard, User, Friend, Like, CommentBoard } = require('../../models');
 const sanitize = require('../../lib/sanitizeHtml');
 const authAddtional = require('../../auth/authAddtional');
+const moment = require('moment');
+require('moment-timezone');
+moment.tz.setDefault('Asia/Seoul');
 
 router.get('/:questionId', authAddtional, async (req, res) => {
 	let userId = '';
@@ -77,7 +80,7 @@ router.get('/:questionId', authAddtional, async (req, res) => {
 					answerContents: sanitize(answer['contents']),
 					answerLikes: answer['likes'],
 					commentCount: Comment.length,
-					createdAt: answer['createdAt'],
+					createdAt: moment(answer['createdAt']).add(9, 'hours'),
 					like: currentLike
 				};
 			})

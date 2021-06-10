@@ -10,15 +10,15 @@
 2. [개요](#개요)
 3. [개발환경](#기능정보)
 4. [기능정보](#기능정보)
-5. [DB 설계](#DB-설계)
+5. [DB 설계](#DB-설계) 
 6. [API 설계](#API-설계)
 7. [힘들었던 점 및 개선](#힘들었던-점-및-개선)
 8. [상세 설명 페이지](#상세-설명-페이지)
 9. [Frond-End(React) 코드](#front-endreact-코드)
 -->
 ## 🔦 웹 사이트
-- [https://thinknote.online](https://thinknote.online)
-
+- [https://thinknote.us](https://thinknote.us)
+ 
 ## 💡 생각낙서 소개
 
 - 친구들은 어떤 생각을 하고 있는지 궁금하지 않나요?
@@ -86,7 +86,7 @@ socket.io, passport, mongoose, jsonwebtoken, multer, sharp, sdk, sanitize-html, 
 
 - 상세 API : https://www.notion.so/API-105609755fdc4902bc21a779231772ad <br>
 
-|기능|Method|URL| Request Params / Body|
+|기능|Method|URL| Response |
 |:---|:---:|:---:|:---:|
 |구글 로그인|GET|/auth/google||
 |데일리 질문 받기(3개)|GET|/card/daily|cardId, topic, contents, createdUser, available, profileImg, answerCount, otherProfileImg|

@@ -3,10 +3,8 @@ const express = require('express');
 const router = express.Router();
 const { User, Friend } = require('../models');
 const sanitize = require('../lib/sanitizeHtml');
-const moment = require('moment');
 const mongoose = require('mongoose');
-require('moment-timezone');
-moment.tz.setDefault('Asia/Seoul');
+
 require('dotenv').config();
 const authAdditional = require('../auth/authAddtional');
 
